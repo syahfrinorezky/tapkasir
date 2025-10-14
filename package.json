@@ -1,0 +1,38 @@
+{
+  "name": "tapkasir",
+  "version": "1.0.0",
+  "description": "tapkasir",
+  "homepage": "https://github.com/syahfrinorezky/tapkasir#readme",
+  "bugs": {
+    "url": "https://github.com/syahfrinorezky/tapkasir/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syahfrinorezky/tapkasir.git"
+  },
+  "license": "ISC",
+  "author": "syahfrinorezky",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --watch",
+    "build:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --minify",
+    "dev:js": "esbuild public/js/app.js --bundle --outfile=public/js/bundle.js --watch",
+    "build:js": "esbuild public/js/app.js --bundle --outfile=public/js/bundle.js --minify",
+    "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@tailwindcss/cli": "^4.1.14",
+    "alpinejs": "^3.15.0",
+    "tailwindcss": "^4.1.14"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.25.10"
+  }
+}
