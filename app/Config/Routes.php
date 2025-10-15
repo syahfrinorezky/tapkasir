@@ -1,8 +1,13 @@
 <?php
 
+use App\Controllers\AuthController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+
+// authentication routes
+// register
+$routes->get('daftar', [AuthController::class, 'register']);
+$routes->post('daftar', [AuthController::class, 'register'], ['as' => 'register']);
