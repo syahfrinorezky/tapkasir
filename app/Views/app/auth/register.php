@@ -6,14 +6,14 @@ Daftar
 
 <?= $this->section('content') ?>
 <main class="flex items-center justify-center min-h-screen font-secondary bg-white">
-    <div class="bg-white shadow-lg shadow-accent border border-gray-100 flex flex-col md:flex-row w-full max-w-xs md:max-w-2xl lg:max-w-4xl rounded-xl overflow-hidden">
+    <div class="bg-white shadow-lg shadow-accent border border-gray-100 flex flex-col md:flex-row w-4/5 md:w-full md:max-w-2xl lg:max-w-4xl rounded-xl overflow-hidden">
 
-        <div class="hidden md:flex items-center justify-center md:w-1/2 bg-gray-50">
+        <div class="hidden md:flex items-center justify-center md:w-1/2 bg-gradient-to-br from-primary to-accent-2">
             <img src="<?= base_url('images/illustration/register-illustration.png') ?>" alt="register" class="w-full max-w-sm">
         </div>
 
         <div class="w-full md:w-1/2 p-6 lg:p-8 flex flex-col space-y-4">
-            <h1 class="text-center font-primary text-xl text-primary font-bold">Daftar</h1>
+            <h1 class="text-center font-primary text-xl lg:text-2xl text-primary font-bold">Daftar</h1>
 
             <?= $this->include('components/alert') ?>
 
