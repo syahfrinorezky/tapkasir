@@ -13,7 +13,7 @@
     <link href="<?= base_url('css/output.css') ?>" rel="stylesheet">
 </head>
 
-<body>
+<body class="font-secondary">
     <?= $this->renderSection('content') ?>
 </body>
 <script src="<?= base_url('js/bundle.js') ?>"></script>
