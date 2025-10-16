@@ -5,7 +5,12 @@ Daftar
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<main class="flex items-center justify-center min-h-screen font-secondary bg-white">
+<main class="flex flex-col space-y-3 items-center justify-center min-h-screen font-secondary bg-white">
+    <a href="<?= base_url('/') ?>" class="flex items-center justify-center space-x-2 md:space-x-3">
+        <img src="<?= base_url('images/logo/tapkasir.png') ?>" alt="logo tapkasir" class="w-10 md:w-12 lg:w-14">
+        <h1 class="text-xl md:text-2xl font-bold text-gray-800 font-primary">Tapkasir</h1>
+    </a>
+
     <div class="bg-white shadow-lg shadow-accent border border-gray-100 flex flex-col md:flex-row w-4/5 md:w-full md:max-w-2xl lg:max-w-4xl rounded-xl overflow-hidden">
 
         <div class="hidden md:flex items-center justify-center md:w-1/2 bg-gradient-to-br from-primary to-accent-2">
