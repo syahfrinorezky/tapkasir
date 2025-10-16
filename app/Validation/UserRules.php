@@ -28,4 +28,20 @@ class UserRules
             ]
         ]
     ];
+
+    public $login = [
+        'email' => [
+            'rules' => 'required|valid_email',
+            'errors' => [
+                'required' => 'Email dibutuhkan',
+                'valid_email' => 'Email tidak valid',
+            ]
+        ],
+        'password' => [
+            'rules' => 'required',
+            'errors' => [
+                'required' => 'Password dibutuhkan',
+            ]
+        ]
+    ];
 }
