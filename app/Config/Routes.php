@@ -11,3 +11,7 @@ use CodeIgniter\Router\RouteCollection;
 // register
 $routes->get('daftar', [AuthController::class, 'register']);
 $routes->post('daftar', [AuthController::class, 'register'], ['as' => 'register']);
+
+// login
+$routes->get('/', [AuthController::class, 'login']);
+$routes->post('masuk', [AuthController::class, 'login'], ['as' => 'login']);
