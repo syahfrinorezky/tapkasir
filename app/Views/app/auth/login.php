@@ -14,7 +14,7 @@ Masuk
     <div class="bg-white shadow-lg shadow-accent border border-gray-100 flex flex-col md:flex-row w-4/5 md:w-full md:max-w-2xl lg:max-w-4xl rounded-xl overflow-hidden">
 
         <div class="hidden md:flex items-center justify-center md:w-1/2 bg-gradient-to-br from-primary to-accent-2">
-            <img src="<?= base_url('images/illustration/register-illustration.png') ?>" alt="register" class="w-full max-w-sm">
+            <img src="<?= base_url('images/illustration/login-illustration.png') ?>" alt="register" class="w-full max-w-sm">
         </div>
 
         <div class="w-full md:w-1/2 p-6 lg:p-8 flex flex-col space-y-4">
