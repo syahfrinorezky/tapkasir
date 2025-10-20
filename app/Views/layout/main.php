@@ -12,6 +12,11 @@
     <link rel="icon" type="image/png" href="<?= base_url('favicon.png'); ?>">
 
     <link href="<?= base_url('css/output.css') ?>" rel="stylesheet">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="font-secondary">
