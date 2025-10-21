@@ -4,7 +4,7 @@
         <h1 class="hidden md:flex font-primary text-lg md:text-xl font-semibold">TapKasir</h1>
     </a>
 
-    <button @click="slideOpen = true" type="button" class="md:hidden p-2 hover:bg-gray-200 rounded-md transition-colors duration-300 ease-in-out">
+    <button @click="slideOpen = true" type="button" class="lg:hidden p-2 hover:bg-gray-200 rounded-md transition-colors duration-300 ease-in-out">
         <i class="fas fa-bars text-lg"></i>
     </button>
 
