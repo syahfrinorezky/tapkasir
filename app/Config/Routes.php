@@ -18,6 +18,6 @@ $routes->get('/', [AuthController::class, 'login']);
 $routes->post('masuk', [AuthController::class, 'login'], ['as' => 'login']);
 
 // admin
-$routes->group('admin', /* ['filter' => 'authAdmin'], */ function (RouteCollection $routes) {
+$routes->group('admin', ['filter' => 'role:admin'], function (RouteCollection $routes) {
     $routes->get('beranda', [AdminController::class, 'index'], ['as' => 'admin.dashboard']);
 });
