@@ -5,7 +5,7 @@
     x-transition:leave="transition ease-in-out duration-300"
     x-transition:leave-start="opacity-30"
     x-transition:leave-end="opacity-0"
-    class="md:hidden fixed inset-0 z-50 bg-black/30 backdrop-blur-sm">
+    class="lg:hidden fixed inset-0 z-50 bg-black/30 backdrop-blur-sm">
 </div>
 <div x-cloak x-show="slideOpen"
     x-transition:enter="transition ease-out duration-300 transform"
