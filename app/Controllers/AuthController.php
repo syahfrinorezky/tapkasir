@@ -40,7 +40,7 @@ class AuthController extends BaseController
 
                 session()->set($userSession);
 
-                return redirect()->to('/');
+                return redirect()->to('/admin/beranda');
             } catch (\Throwable $th) {
                 return redirect()->back()->withInput()->with('error', 'Gagal masuk. Silahkan coba lagi.');
             }
