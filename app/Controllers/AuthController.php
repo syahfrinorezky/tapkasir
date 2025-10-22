@@ -40,7 +40,7 @@ class AuthController extends BaseController
 
                 session()->set($userSession);
 
-                return redirect()->to('/admin/beranda');
+                return redirect()->to('/admin/dashboard');
             } catch (\Throwable $th) {
                 return redirect()->back()->withInput()->with('error', 'Gagal masuk. Silahkan coba lagi.');
             }
@@ -76,5 +76,11 @@ class AuthController extends BaseController
         }
 
         return view('app/auth/register');
+    }
+
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('/');
     }
 }
