@@ -31,10 +31,11 @@ class CreateUsersTable extends Migration
                 'constraint' => '255',
                 'null'       => false,
             ],
-            'role' => [
-                'type'       => 'ENUM',
-                'constraint' => ['admin', 'cashier'],
-                'default'    => 'cashier',
+            'role_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'default'    => 2,
+                'unsigned'   => true,
                 'null'       => false,
             ],
 
@@ -54,12 +55,13 @@ class CreateUsersTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
+        $this->forge->addForeignKey('role_id', 'roles', 'id', 'CASCADE', 'CASCADE');
 
         $this->forge->createTable('users');
     }
 
     public function down()
     {
-        $this->forge->dropTable('users');
+        $this->forge->dropTable('users', true);
     }
 }
