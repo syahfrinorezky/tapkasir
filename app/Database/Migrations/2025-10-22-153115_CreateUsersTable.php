@@ -38,6 +38,12 @@ class CreateUsersTable extends Migration
                 'unsigned'   => true,
                 'null'       => false,
             ],
+            'shift_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+            ],
 
             // timestamps
             'updated_at' => [
@@ -56,6 +62,7 @@ class CreateUsersTable extends Migration
 
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('role_id', 'roles', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('shift_id', 'shifts', 'id', 'SET NULL', 'CASCADE');
 
         $this->forge->createTable('users');
     }
