@@ -47,7 +47,11 @@ class AuthController extends BaseController
 
                 session()->set($userSession);
 
-                return redirect()->to('/admin/dashboard');
+                if ($user['role_name'] === 'admin') {
+                    return redirect()->to('/admin/dashboard');
+                } else {
+                    return redirect()->to('/cashier/dashboard');
+                }
             } catch (\Throwable $th) {
                 return redirect()->back()->withInput()->with('error', 'Gagal masuk. Silahkan coba lagi.');
             }
