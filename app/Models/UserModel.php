@@ -16,7 +16,7 @@ class UserModel extends Model
         'nama_lengkap',
         'email',
         'password',
-        'role',
+        'role_id',
     ];
 
     protected bool $allowEmptyInserts = false;
