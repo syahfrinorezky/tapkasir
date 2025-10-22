@@ -23,7 +23,7 @@
                     $maxLength = 15;
                     $displayNama = mb_strlen($nama) > $maxLength ? mb_substr($nama, 0, $maxLength) . '...' : $nama;
                     ?>
-                    <span class="font-secondary text-sm text-gray-700"><?= esc($displayNama) ?></span>
+                    <span title="<?= esc($nama) ?>" class="font-secondary font-semibold text-sm text-gray-700"><?= esc($displayNama) ?></span>
 
                     <span class="text-gray-400 text-xs capitalize"><?= session()->get('role') ?? 'Admin' ?></span>
                 </div>
@@ -35,7 +35,7 @@
 
                 <div x-show="isAccMenuOpen" @click.away="isAccMenuOpen = false" x-transition class="absolute bottom-14 -translate-x-3/4 w-48 bg-white shadow-md rounded-md z-50">
                     <a href="<?= base_url('logout') ?>" class="flex items-center px-4 py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
-                        <i class="fas fa-sign-out-alt text-red-500 mr-2"></i> 
+                        <i class="fas fa-sign-out-alt text-red-500 mr-2"></i>
                         <span class="text-gray-500 text-sm">Logout</span>
                     </a>
                 </div>
