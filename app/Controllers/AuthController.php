@@ -24,9 +24,16 @@ class AuthController extends BaseController
             try {
                 $userModel = new UserModel();
 
-                $user = $userModel->where('email', $this->request->getPost('email'))->first();
+                $email = $this->request->getPost('email');
+                $password = $this->request->getPost('password');
 
-                if (!$user || !password_verify($this->request->getPost('password'), $user['password'])) {
+                $user = $userModel
+                    ->select('users.*, roles.role_name')
+                    ->join('roles', 'roles.id = users.role_id')
+                    ->where('email', $email)
+                    ->first();
+
+                if (!$user || !password_verify($password, $user['password'])) {
                     return redirect()->back()->withInput()->with('error', 'Email atau password salah.');
                 }
 
@@ -34,7 +41,7 @@ class AuthController extends BaseController
                     'user_id' => $user['id'],
                     'nama_lengkap' => $user['nama_lengkap'],
                     'email' => $user['email'],
-                    'role' => $user['role'],
+                    'role_name' => $user['role_name'],
                     'isLoggedIn' => true,
                 ];
 
@@ -64,7 +71,7 @@ class AuthController extends BaseController
                     'nama_lengkap' => $this->request->getPost('nama_lengkap'),
                     'email' => $this->request->getPost('email'),
                     'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
-                    'role' => 'cashier',
+                    'role_id' => 1,
                 ];
 
                 $userModel->insert($userData);
