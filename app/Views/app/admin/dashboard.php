@@ -10,7 +10,7 @@ Dashboard Admin
         <?= $this->include('components/admin/header'); ?>
     </div>
 
-    <div class="flex pt-20">
+    <div class="flex">
         <?= $this->include('components/admin/sidebar'); ?>
     </div>
 
