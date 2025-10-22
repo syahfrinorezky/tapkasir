@@ -31,7 +31,7 @@ class RoleFilter implements FilterInterface
             return redirect()->to('/')->with('error', 'Sesi anda telah berakhir. Silahkan masuk kembali.');
         }
 
-        $role = $session->get('role');
+        $role = $session->get('role_name');
 
         if (!in_array($role, $arguments)) {
             return redirect()->to('/')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
