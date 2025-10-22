@@ -17,7 +17,10 @@ $routes->post('daftar', [AuthController::class, 'register'], ['as' => 'register'
 $routes->get('/', [AuthController::class, 'login']);
 $routes->post('masuk', [AuthController::class, 'login'], ['as' => 'login']);
 
+// logout
+$routes->get('logout', [AuthController::class, 'logout'], ['as' => 'logout']);
+
 // admin
 $routes->group('admin', ['filter' => 'role:admin'], function (RouteCollection $routes) {
-    $routes->get('beranda', [AdminController::class, 'index'], ['as' => 'admin.dashboard']);
+    $routes->get('dashboard', [AdminController::class, 'index'], ['as' => 'admin.dashboard']);
 });
