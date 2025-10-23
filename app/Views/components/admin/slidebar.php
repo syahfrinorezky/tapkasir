@@ -38,27 +38,30 @@
     </div>
 
     <div class="flex items-center justify-between p-4">
-        <div class="flex space-x-3">
-            <div class="p-2.5 bg-gray-200 rounded-full">
-                <i class="fas fa-user text-gray-600"></i>
+        <div class="flex space-x-3 items-center">
+            <div class=" aspect-square w-10 flex items-center justify-center bg-gray-200 rounded-full">
+                <i class="fas fa-user text-gray-600 text-sm"></i>
             </div>
-            <div class="flex flex-col justify-center">
-                <?php
-                $nama = session()->get('nama_lengkap') ?? 'Admin';
-                $maxLength = 12;
-                $displayNama = mb_strlen($nama) > $maxLength ? mb_substr($nama, 0, $maxLength) . '...' : $nama;
-                ?>
-                <span title="<?= esc($nama) ?>" class="font-secondary font-semibold text-sm text-gray-700"><?= esc($displayNama) ?></span>
-                <span class="text-gray-400 text-xs capitalize"><?= session()->get('role') ?? 'Admin' ?></span>
+            <div class="flex flex-col justify-center min-w-0 flex-1">
+                <?php $nama = session()->get('nama_lengkap') ?>
+                <span title="<?= esc($nama) ?>" class="font-secondary font-semibold text-sm text-gray-700 truncate max-w-[75%]">
+                    <?= esc($nama) ?>
+                </span>
+                <span class="text-gray-400 text-xs capitalize truncate max-w-xs">
+                    <?= esc(session()->get('role_name')) ?>
+                </span>
             </div>
         </div>
-        <div x-data="{ isAccMenuOpen: false }" class="relative">
-            <button @click="isAccMenuOpen = !isAccMenuOpen" type="button" class="flex items-center justify-center w-8 h-8 hover:bg-gray-200 rounded-md cursor-pointer transition-colors duration-300 ease-in-out">
+        <div x-data="{ isAccMenuOpen: false }" class="relative -left-10">
+            <button @click="isAccMenuOpen = !isAccMenuOpen" type="button"
+                class="flex items-center justify-center w-8 h-8 hover:bg-gray-200 rounded-md cursor-pointer transition-colors duration-300 ease-in-out">
                 <i class="fas fa-ellipsis text-gray-600 text-sm"></i>
             </button>
 
-            <div x-show="isAccMenuOpen" @click.away="isAccMenuOpen = false" x-transition class="absolute bottom-12 right-0 w-40 bg-white shadow-md rounded-md z-50">
-                <a href="<?= base_url('logout') ?>" class="flex items-center px-4 py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
+            <div x-show="isAccMenuOpen" @click.away="isAccMenuOpen = false" x-transition
+                class="absolute bottom-full right-0 mb-2 w-48 bg-white shadow-md rounded-md z-50">
+                <a href="<?= base_url('logout') ?>"
+                    class="flex items-center px-4 py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
                     <i class="fas fa-sign-out-alt text-red-500 mr-2"></i>
                     <span class="text-gray-500 text-sm">Logout</span>
                 </a>
