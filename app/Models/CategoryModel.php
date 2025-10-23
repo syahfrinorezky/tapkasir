@@ -4,20 +4,16 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class UserModel extends Model
+class CategoryModel extends Model
 {
-    protected $table            = 'users';
+    protected $table            = 'categories';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'nama_lengkap',
-        'email',
-        'password',
-        'role_id',
-        'status',
+        'category_name',
     ];
 
     protected bool $allowEmptyInserts = false;
