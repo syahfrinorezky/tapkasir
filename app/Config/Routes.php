@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\Admin\DashboardController;
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use CodeIgniter\Router\RouteCollection;
@@ -22,5 +23,5 @@ $routes->get('logout', [AuthController::class, 'logout'], ['as' => 'logout']);
 
 // admin
 $routes->group('admin', ['filter' => 'role:admin'], function (RouteCollection $routes) {
-    $routes->get('dashboard', [AdminController::class, 'index'], ['as' => 'admin.dashboard']);
+    $routes->get('dashboard', [DashboardController::class, 'getSummaryData'], ['as' => 'admin.dashboard']);
 });
