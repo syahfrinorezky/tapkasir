@@ -33,8 +33,12 @@ class AuthController extends BaseController
                     ->where('email', $email)
                     ->first();
 
-                if (!$user || !password_verify($password, $user['password'])) {
+                if (!password_verify($password, $user['password'])) {
                     return redirect()->back()->withInput()->with('error', 'Email atau password salah.');
+                }
+
+                if ($user['status'] !== 'approved') {
+                    return redirect()->back()->withInput()->with('error', 'Akun Anda belum disetujui. Silahkan hubungi admin.');
                 }
 
                 $userSession = [
@@ -75,12 +79,13 @@ class AuthController extends BaseController
                     'nama_lengkap' => $this->request->getPost('nama_lengkap'),
                     'email' => $this->request->getPost('email'),
                     'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
-                    'role_id' => 1,
+                    'role_id' => 2,
+                    'status' => 'pending',
                 ];
 
                 $userModel->insert($userData);
 
-                return redirect()->to('/')->with('success', 'Pendaftaran berhasil. Silahkan masuk.');
+                return redirect()->to('/')->with('success', 'Pendaftaran berhasil. Silahkan menunggu konfirmasi.');
             } catch (\Throwable $th) {
                 return redirect()->back()->withInput()->with('error', 'Pendaftaran gagal. Silahkan coba lagi.');
             }
