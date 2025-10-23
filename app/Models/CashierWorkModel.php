@@ -4,19 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class UserModel extends Model
+class CashierWorkModel extends Model
 {
-    protected $table            = 'users';
+    protected $table            = 'cashier_works';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'nama_lengkap',
-        'email',
-        'password',
-        'role_id',
+        'user_id',
+        'shift_id',
+        'work_date',
+        'total_sales',
         'status',
     ];
 

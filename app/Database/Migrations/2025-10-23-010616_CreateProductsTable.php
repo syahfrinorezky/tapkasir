@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateUsersTable extends Migration
+class CreateProductsTable extends Migration
 {
     public function up()
     {
@@ -15,59 +15,57 @@ class CreateUsersTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'nama_lengkap' => [
+            'product_name' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '255',
+                'constraint' => '150',
                 'null'       => false,
             ],
-            'email' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '100',
-                'null'       => false,
-                'unique'     => true,
-            ],
-            'password' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '255',
+            'price' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
                 'null'       => false,
             ],
-            'role_id' => [
+            'category_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
-                'default'    => 2,
                 'unsigned'   => true,
-                'null'       => false,
             ],
-            'status' => [
-                'type'       => 'ENUM',
-                'constraint' => ['pending', 'approved', 'rejected'],
-                'default'    => 'pending',
+            'stock' => [
+                'type'       => 'INT',
+                'constraint' => 11,
                 'null'       => false,
+                'default'    => 0,
+            ],
+            'barcode' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '100',
+                'null'       => true,
             ],
 
             // timestamps
-            'updated_at' => [
+            'created_at' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'created_at' => [
+            'updated_at' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
             'deleted_at' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
-            ]
+            ],
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('role_id', 'roles', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addUniqueKey('barcode');
+        $this->forge->addForeignKey('category_id', 'categories', 'id', 'CASCADE', 'CASCADE');
 
-        $this->forge->createTable('users');
+        $this->forge->createTable('products');
     }
 
     public function down()
     {
-        $this->forge->dropTable('users', true);
+        $this->forge->dropTable('products');
     }
 }
