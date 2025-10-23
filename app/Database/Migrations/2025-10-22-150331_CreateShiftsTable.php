@@ -25,13 +25,23 @@ class CreateShiftsTable extends Migration
             'end_time' => [
                 'type' => 'TIME',
             ],
+            'status' => [
+                'type'       => 'ENUM',
+                'constraint' => ['active', 'inactive'],
+                'default'    => 'active',
+                'null'       => false,
+            ],
             
-            //timestamps 
+            //timestamps
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
             'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'deleted_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
