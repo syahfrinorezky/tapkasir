@@ -23,5 +23,5 @@ $routes->get('logout', [AuthController::class, 'logout'], ['as' => 'logout']);
 
 // admin
 $routes->group('admin', ['filter' => 'role:admin'], function (RouteCollection $routes) {
-    $routes->get('dashboard', [DashboardController::class, 'getSummaryData'], ['as' => 'admin.dashboard']);
+    $routes->get('dashboard', [DashboardController::class, 'index'], ['as' => 'admin.dashboard']);
 });
