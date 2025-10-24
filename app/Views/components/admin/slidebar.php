@@ -37,33 +37,33 @@
         </nav>
     </div>
 
-    <div class="flex items-center justify-between p-4">
-        <div class="flex space-x-3 items-center">
-            <div class=" aspect-square w-10 flex items-center justify-center bg-gray-200 rounded-full">
-                <i class="fas fa-user text-gray-600 text-sm"></i>
+    <div class="flex items-center justify-between p-4 gap-2">
+        <div class="flex space-x-2 lg:space-x-3 items-center min-w-0 flex-1">
+            <div class="flex items-center justify-center aspect-square p-2 lg:p-3 bg-gray-200 rounded-full flex-shrink-0">
+                <i class="fas fa-user text-gray-600 text-xs lg:text-sm"></i>
             </div>
             <div class="flex flex-col justify-center min-w-0 flex-1">
                 <?php $nama = session()->get('nama_lengkap') ?>
-                <span title="<?= esc($nama) ?>" class="font-secondary font-semibold text-sm text-gray-700 truncate max-w-[75%]">
+                <span title="<?= esc($nama) ?>" class="font-secondary font-semibold text-xs lg:text-sm text-gray-700 truncate">
                     <?= esc($nama) ?>
                 </span>
-                <span class="text-gray-400 text-xs capitalize truncate max-w-xs">
+                <span class="text-gray-400 text-[10px] lg:text-xs capitalize truncate">
                     <?= esc(session()->get('role_name')) ?>
                 </span>
             </div>
         </div>
-        <div x-data="{ isAccMenuOpen: false }" class="relative -left-10">
+        <div x-data="{ isAccMenuOpen: false }" class="relative flex-shrink-0">
             <button @click="isAccMenuOpen = !isAccMenuOpen" type="button"
-                class="flex items-center justify-center w-8 h-8 hover:bg-gray-200 rounded-md cursor-pointer transition-colors duration-300 ease-in-out">
-                <i class="fas fa-ellipsis text-gray-600 text-sm"></i>
+                class="flex items-center justify-center w-7 h-7 lg:w-8 lg:h-8 hover:bg-gray-200 rounded-md cursor-pointer transition-colors duration-300 ease-in-out">
+                <i class="fas fa-ellipsis text-gray-600 text-xs lg:text-sm"></i>
             </button>
 
             <div x-show="isAccMenuOpen" @click.away="isAccMenuOpen = false" x-transition
-                class="absolute bottom-full right-0 mb-2 w-48 bg-white shadow-md rounded-md z-50">
+                class="absolute bottom-12 lg:bottom-14 right-0 lg:-translate-x-3/4 w-40 lg:w-48 bg-white shadow-md rounded-md z-50">
                 <a href="<?= base_url('logout') ?>"
-                    class="flex items-center px-4 py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
-                    <i class="fas fa-sign-out-alt text-red-500 mr-2"></i>
-                    <span class="text-gray-500 text-sm">Logout</span>
+                    class="flex items-center px-3 lg:px-4 py-2 lg:py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
+                    <i class="fas fa-sign-out-alt text-red-500 mr-2 text-xs lg:text-sm"></i>
+                    <span class="text-gray-500 text-xs lg:text-sm">Logout</span>
                 </a>
             </div>
         </div>
