@@ -16,7 +16,7 @@
     x-transition:leave="transition ease-in duration-300 transform"
     x-transition:leave-start="translate-x-0"
     x-transition:leave-end="translate-x-full"
-    class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-50 flex flex-col justify-between">
+    class="fixed top-0 right-0 w-64 md:w-80 h-full bg-white shadow-lg z-50 flex flex-col justify-between">
 
     <div class="flex flex-col p-4">
         <div class="flex items-center justify-between mb-6">
@@ -29,12 +29,47 @@
             </button>
         </div>
 
-        <nav class="flex flex-col space-y-4 font-secondary overflow-y-auto">
-            <a href="<?= base_url('admin/dashboard') ?>" class="px-4 py-4 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/dashboard' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+        <li x-data="{ dropDownMaster: <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? '1' : 'null' ?> }"
+            x-init="dropDownMaster = <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? 1 : 'null' ?>"
+            class="flex flex-col space-y-1">
+            <a href="<?= base_url('admin/dashboard') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= base_url('admin/dashboard') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-home text-primary text-xl"></i>
                 <span>Dashboard</span>
             </a>
-        </nav>
+            <button @click="dropDownMaster === 1 ? dropDownMaster = null : dropDownMaster = 1" type="button" class="py-4 px-6 flex justify-between items-center hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out  <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-database text-primary text-xl"></i>
+                    <span>Master Data</span>
+                </div>
+                <i x-bind:class="dropDownMaster === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" class="fas text-gray-400 transition-transform duration-300"></i>
+            </button>
+            <ul x-cloak x-show="dropDownMaster === 1" x-transition class="pl-12 space-y-1">
+                <li>
+                    <a href="<?= base_url('admin/produk') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= base_url('admin/produk') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : '' ?>">
+                        <i class="fas fa-box mr-2 text-primary"></i>
+                        <span class="text-sm">Produk</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= base_url('admin/kategori') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= base_url('admin/kategori') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : '' ?>">
+                        <i class="fas fa-tags mr-2 text-primary"></i>
+                        <span class="text-sm">Kategori</span>
+                    </a>
+                </li>
+            </ul>
+            <a href="<?= base_url('admin/users') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/users') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                <i class="fas fa-users-cog text-primary text-xl"></i>
+                <span>Manajemen User</span>
+            </a>
+            <a href="<?= base_url('admin/transaksi') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/transaksi') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                <i class="fas fa-exchange-alt text-primary text-xl"></i>
+                <span>Transaksi</span>
+            </a>
+            <a href="<?= base_url('admin/laporan') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/laporan') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                <i class="fas fa-file-alt text-primary text-xl"></i>
+                <span>Laporan</span>
+            </a>
+        </li>
     </div>
 
     <div class="flex items-center justify-between p-4 gap-2">
