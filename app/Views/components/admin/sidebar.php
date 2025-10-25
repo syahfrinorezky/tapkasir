@@ -31,7 +31,7 @@
                             <i class="fas fa-tags mr-2 text-primary"></i>
                             <span class="text-sm">Kategori</span>
                         </a>
-                    </li>
+                    </li>   
                 </ul>
                 <a href="<?= base_url('admin/users') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/users') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                     <i class="fas fa-users-cog text-primary text-xl"></i>

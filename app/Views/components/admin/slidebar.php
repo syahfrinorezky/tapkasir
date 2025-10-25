@@ -70,7 +70,7 @@
                 <span>Laporan</span>
             </a>
         </li>
-    </div>
+    </div>  
 
     <div class="flex items-center justify-between p-4 gap-2">
         <div class="flex space-x-2 lg:space-x-3 items-center min-w-0 flex-1">
