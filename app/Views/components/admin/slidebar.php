@@ -32,7 +32,7 @@
         <li x-data="{ dropDownMaster: <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? '1' : 'null' ?> }"
             x-init="dropDownMaster = <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? 1 : 'null' ?>"
             class="flex flex-col space-y-1">
-            <a href="<?= base_url('admin/dashboard') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= base_url('admin/dashboard') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+            <a href="<?= base_url('admin/dashboard') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/dashboard' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?> ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-home text-primary text-xl"></i>
                 <span>Dashboard</span>
             </a>
@@ -45,32 +45,32 @@
             </button>
             <ul x-cloak x-show="dropDownMaster === 1" x-transition class="pl-12 space-y-1">
                 <li>
-                    <a href="<?= base_url('admin/produk') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= base_url('admin/produk') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : '' ?>">
+                    <a href="<?= base_url('admin/produk') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/produk' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                         <i class="fas fa-box mr-2 text-primary"></i>
                         <span class="text-sm">Produk</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= base_url('admin/kategori') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= base_url('admin/kategori') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : '' ?>">
+                    <a href="<?= base_url('admin/kategori') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/kategori' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                         <i class="fas fa-tags mr-2 text-primary"></i>
                         <span class="text-sm">Kategori</span>
                     </a>
                 </li>
             </ul>
-            <a href="<?= base_url('admin/users') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/users') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+            <a href="<?= base_url('admin/users') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/users' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-users-cog text-primary text-xl"></i>
                 <span>Manajemen User</span>
             </a>
-            <a href="<?= base_url('admin/transaksi') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/transaksi') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+            <a href="<?= base_url('admin/transaksi') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/transaksi' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-exchange-alt text-primary text-xl"></i>
                 <span>Transaksi</span>
             </a>
-            <a href="<?= base_url('admin/laporan') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?=  base_url('admin/laporan') == current_url() ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+            <a href="<?= base_url('admin/laporan') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/laporan' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-file-alt text-primary text-xl"></i>
                 <span>Laporan</span>
             </a>
         </li>
-    </div>  
+    </div>
 
     <div class="flex items-center justify-between p-4 gap-2">
         <div class="flex space-x-2 lg:space-x-3 items-center min-w-0 flex-1">
