@@ -3,55 +3,101 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\UserModel;
 
 class UserController extends BaseController
 {
     public function index()
     {
-        $userModel = new \App\Models\UserModel();
+        $userModel = new UserModel();
 
-        $totalUsers = $userModel
-            ->where('status', 'approved')
-            ->countAllResults();
+        if ($this->request->isAJAX()) {
+            $type = $this->request->getGet('type');
 
-        $userModel->resetQuery();
+            $query = $userModel
+                ->select('users.id, users.nama_lengkap, users.email, users.status, users.role_id, roles.role_name')
+                ->join('roles', 'roles.id = users.role_id', 'left')
+                ->where('users.deleted_at', null);
 
-        $userList = $userModel
-            ->select('users.*, roles.role_name as role_name')
-            ->join('roles', 'roles.id = users.role_id', 'left')
-            ->where('users.status', 'approved')
-            ->findAll();
+            if ($type === 'pending') {
+                $query->where('users.status', 'pending');
+            } elseif ($type === 'approved') {
+                $query->where('users.status', 'approved');
+            }
 
-        $userModel->resetQuery();
+            $users = $query->findAll();
+            return $this->response->setJSON($users);
+        }
 
-        $pendingUsersList = $userModel
-            ->where('status', 'pending')
-            ->findAll();
-
-
-        $data = [
-            'totalUsers' => $totalUsers,
-            'userList' => $userList,
-            'pendingUsersList' => $pendingUsersList,
-        ];
-
-        return view('app/admin/usermanagement', $data);
+        return view('app/admin/usermanagement');
     }
 
-    public function show($id)
+    public function updateStatus($id)
     {
-        $userModel = new \App\Models\UserModel();
+        $userModel = new UserModel();
 
-        $user = $userModel
-            ->select('users.*, roles.role_name as role_name')
-            ->join('roles', 'roles.id = users.role_id', 'left')
-            ->find($id);
+        $user = $userModel->find($id);
+        if (!$user) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'User tidak ditemukan']);
+        }
+
+        $req = $this->request->getJSON();
+        $status = $req->status ?? null;
+
+        if (!in_array($status, ['approved', 'rejected'])) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Status tidak valid']);
+        }
+
+        $userModel->update($id, ['status' => $status]);
+
+        return $this->response->setJSON(['message' => 'Status pengguna berhasil diperbarui']);
+    }
+
+    public function updateInfo($id)
+    {
+        $userModel = new UserModel();
+
+        $user = $userModel->find($id);
+
+        if ($user) {
+            $req = $this->request->getJSON();
+            $nama = $req->nama_lengkap ?? null;
+            $email = $req->email ?? null;
+            $role = $req->role_id ?? null;
+
+            $data = [];
+            if ($nama && $nama !== $user['nama_lengkap']) {
+                $data['nama_lengkap'] = $nama;
+            }
+            if ($email && $email !== $user['email']) {
+                $data['email'] = $email;
+            }
+            if ($role && $role !== $user['role_id']) {
+                $data['role_id'] = $role;
+            }
+
+            if (empty($data)) {
+                return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang diubah']);
+            }
+
+            $userModel->update($id, $data);
+            return $this->response->setJSON(['message' => 'Informasi pengguna berhasil diperbarui']);
+        }
+
+        return $this->response->setStatusCode(404)->setJSON(['message' => 'User tidak ditemukan']);
+    }
+
+    public function delete($id) {
+        $userModel = new UserModel();
+
+        $user = $userModel->find($id);
 
         if (!$user) {
             return $this->response->setStatusCode(404)->setJSON(['message' => 'User tidak ditemukan']);
         }
 
-        return $this->response->setStatusCode(200)->setJSON($user);
+        $userModel->delete($id);
+        
+        return $this->response->setJSON(['message' => 'User berhasil dihapus']);
     }
 }

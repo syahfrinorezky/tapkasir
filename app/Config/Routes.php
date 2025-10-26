@@ -1,8 +1,8 @@
 <?php
 
+use App\Controllers\AuthController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\UserController;
-use App\Controllers\AuthController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -22,9 +22,13 @@ $routes->post('masuk', [AuthController::class, 'login'], ['as' => 'login']);
 $routes->get('logout', [AuthController::class, 'logout'], ['as' => 'logout']);
 
 // admin
-$routes->group('admin', ['filter' => 'role:admin'], function (RouteCollection $routes) {
+$routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('dashboard', [DashboardController::class, 'index'], ['as' => 'admin.dashboard']);
-    
-    // user management
+    $routes->get('dashboard/data', [DashboardController::class, 'data'], ['as' => 'admin.dashboard.data']);
+
+    // User management
     $routes->get('users', [UserController::class, 'index'], ['as' => 'admin.user']);
+    $routes->post('users/updateStatus/(:num)', [UserController::class, 'updateStatus/$1'], ['as' => 'admin.user.updateStatus']);
+    $routes->post('users/updateInfo/(:num)', [UserController::class, 'updateInfo/$1'], ['as' => 'admin.user.updateInfo']);
+    $routes->delete('users/delete/(:num)', [UserController::class, 'delete/$1'], ['as' => 'admin.user.delete']);
 });

@@ -13,7 +13,7 @@ Dashboard Admin
     <div class="flex">
         <?= $this->include('components/admin/sidebar'); ?>
 
-        <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen">
+        <div x-data="dashboard()" x-init="init()" class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen">
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
                 <div class="">
                     <h1 class="text-xl text-primary font-primary font-bold">Dashboard Admin</h1>
@@ -36,7 +36,7 @@ Dashboard Admin
                         <div class="bg-white rounded-md shadow-md flex justify-between items-center p-4 lg:p-6 overflow-hidden">
                             <div class="flex flex-col space-y-1">
                                 <span class="text-sm text-gray-500">Total Penjualan</span>
-                                <span class="text-base lg:text-lg font-bold text-primary <?= strlen(number_format($todaySales, 0, ',', '.')) > 6 ? 'text-sm lg:text-base' : '' ?>">Rp. <?= number_format($todaySales, 0, ',', '.') ?></span>
+                                <span class="text-base lg:text-lg font-bold text-primary" x-text="formatRupiah(data.todaySales)"></span>
                             </div>
                             <div class="hidden lg:flex items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
                                 <i class="fas fa-shopping-cart text-2xl text-white"></i>
@@ -48,7 +48,7 @@ Dashboard Admin
                         <div class="bg-white rounded-md shadow-md flex justify-between items-center p-4 lg:p-6">
                             <div class="flex flex-col space-y-1">
                                 <span class="text-sm text-gray-500">Kasir Aktif</span>
-                                <span class="text-lg md:text-xl font-bold text-primary"><?= $activeCashiers ?></span>
+                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.activeCashiers"></span>
                             </div>
                             <div class="hidden lg:flex items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
                                 <i class="fas fa-user-check text-2xl text-white"></i>
@@ -60,7 +60,7 @@ Dashboard Admin
                         <div class="bg-white rounded-md shadow-md flex justify-between p-4 lg:p-6">
                             <div class="flex flex-col space-y-1">
                                 <span class="text-sm text-gray-500">Akun Pending</span>
-                                <span class="text-lg md:text-xl font-bold text-primary"><?= $pendingUser ?></span>
+                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.pendingUser"></span>
                             </div>
                             <div class="hidden lg:flex items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
                                 <i class="fas fa-user-clock text-2xl text-white"></i>
@@ -72,7 +72,7 @@ Dashboard Admin
                         <div class="bg-white rounded-md shadow-md flex justify-between p-4 lg:p-6">
                             <div class="flex flex-col space-y-1">
                                 <span class="text-sm text-gray-500">Perlu Restock</span>
-                                <span class="text-lg md:text-xl font-bold text-primary"><?= $productNeedRestock ?></span>
+                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.productNeedRestock"></span>
                             </div>
                             <div class="hidden lg:flex flex-shrink-0 items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
                                 <i class="fas fa-box text-2xl text-white"></i>
@@ -111,180 +111,125 @@ Dashboard Admin
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
-
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dashboard', () => ({
+            loaded: false,
             data: {
-                labels: <?= $labels ?>,
-                datasets: [{
-                        type: 'bar',
-                        label: 'Total Penjualan (Rp)',
-                        data: <?= $totals ?>,
-                        backgroundColor: 'rgba(99, 102, 241, 0.3)',
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 1,
-                        borderRadius: 6
-                    },
-                    {
-                        type: 'line',
-                        label: 'Tren Penjualan',
-                        data: <?= $totals ?>,
-                        borderColor: 'rgba(16, 185, 129, 1)',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: 'rgba(16, 185, 129, 1)'
-                    }
-                ]
+                todaySales: 0,
+                activeCashiers: 0,
+                pendingUser: 0,
+                productNeedRestock: 0,
+                labels: [],
+                totals: [],
+                morningHours: [],
+                morningTotals: [],
+                nightHours: [],
+                nightTotals: []
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000) + 'jt';
-                                } else if (value >= 100000) {
-                                    return 'Rp ' + (value / 1000) + 'k';
-                                }
-                                return 'Rp ' + value.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        },
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += 'Rp ' + context.parsed.y.toLocaleString('id-ID');
-                                }
-                                return label;
-                            }
-                        }
-                    }
+            async init() {
+                try {
+                    const res = await fetch('/admin/dashboard/data');
+                    const json = await res.json();
+
+                    this.data = {
+                        todaySales: json.todaySales,
+                        activeCashiers: json.activeCashiers,
+                        pendingUser: json.pendingUser,
+                        productNeedRestock: json.productNeedRestock,
+                        labels: json.labels,
+                        totals: json.totals,
+                        morningHours: json.morningHours,
+                        morningTotals: json.morningTotals,
+                        nightHours: json.nightHours,
+                        nightTotals: json.nightTotals
+                    };
+
+                    this.renderCharts();
+                    this.loaded = true;
+                } catch (err) {
+                    console.error('Gagal memuat data dashboard:', err);
                 }
-            }
-        });
-
-
-        const ctx2 = document.getElementById('morningShiftChart').getContext('2d');
-
-        const morningChart = new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: <?= $morningHours ?>,
-                datasets: [{
-                    label: 'Shift Pagi (Rp)',
-                    data: <?= $morningTotals ?>,
-                    borderColor: 'rgba(234, 179, 8, 1)',
-                    backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: 'rgba(234, 179, 8, 1)'
-                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: context => 'Rp ' + context.parsed.y.toLocaleString('id-ID')
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000) + 'jt';
-                                } else if (value >= 100000) {
-                                    return 'Rp ' + (value / 1000) + 'k';
-                                }
-                                return 'Rp ' + value.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        const ctx3 = document.getElementById('nightShiftChart').getContext('2d');
-
-        const nightChart = new Chart(ctx3, {
-            type: 'line',
-            data: {
-                labels: <?= $nightHours ?>,
-                datasets: [{
-                    label: 'Shift Malam (Rp)',
-                    data: <?= $nightTotals ?>,
-                    borderColor: 'rgba(37, 99, 235, 1)',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: 'rgba(37, 99, 235, 1)'
-                }]
+            formatRupiah(v) {
+                return 'Rp ' + (parseFloat(v ?? 0)).toLocaleString('id-ID');
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: context => 'Rp ' + context.parsed.y.toLocaleString('id-ID')
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                if (value >= 1000000) {
-                                    return 'Rp ' + (value / 1000000) + 'jt';
-                                } else if (value >= 100000) {
-                                    return 'Rp ' + (value / 1000) + 'k';
-                                }
-                                return 'Rp ' + value.toLocaleString('id-ID');
+            renderCharts() {
+                const data = this.data;
+
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                new Chart(salesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                                type: 'bar',
+                                label: 'Total Penjualan (Rp)',
+                                data: data.totals,
+                                backgroundColor: 'rgba(99,102,241,0.3)',
+                                borderColor: 'rgba(99,102,241,1)',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            },
+                            {
+                                type: 'line',
+                                label: 'Tren Penjualan',
+                                data: data.totals,
+                                borderColor: 'rgba(16,185,129,1)',
+                                backgroundColor: 'rgba(16,185,129,0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                pointRadius: 4
                             }
-                        }
+                        ]
+                    },
+                    options: {
+                        responsive: true
                     }
-                }
+                });
+
+                const morningCtx = document.getElementById('morningShiftChart').getContext('2d');
+                new Chart(morningCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.morningHours,
+                        datasets: [{
+                            label: 'Shift Pagi (Rp)',
+                            data: data.morningTotals,
+                            borderColor: 'rgba(234,179,8,1)',
+                            backgroundColor: 'rgba(234,179,8,0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true
+                    }
+                });
+
+                const nightCtx = document.getElementById('nightShiftChart').getContext('2d');
+                new Chart(nightCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.nightHours,
+                        datasets: [{
+                            label: 'Shift Malam (Rp)',
+                            data: data.nightTotals,
+                            borderColor: 'rgba(37,99,235,1)',
+                            backgroundColor: 'rgba(37,99,235,0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true
+                    }
+                });
             }
-        });
+        }));
     });
 </script>
+
 
 <?= $this->endSection() ?>

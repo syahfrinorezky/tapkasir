@@ -4,15 +4,24 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\UserModel;
+use App\Models\ProductModel;
+use App\Models\TransactionModel;
+use App\Models\CashierWorkModel;
 
 class DashboardController extends BaseController
 {
     public function index()
     {
-        $userModel = new \App\Models\UserModel();
-        $productModel = new \App\Models\ProductModel();
-        $transactionModel = new \App\Models\TransactionModel();
-        $cashierWorkModel = new \App\Models\CashierWorkModel();
+        return view('app/admin/dashboard');
+    }
+
+    public function data()
+    {
+        $userModel = new UserModel();
+        $productModel = new ProductModel();
+        $transactionModel = new TransactionModel();
+        $cashierWorkModel = new CashierWorkModel();
 
         $todaySales = $transactionModel
             ->selectSum('total')
@@ -86,19 +95,17 @@ class DashboardController extends BaseController
         $nightHours = array_map(fn($r) => sprintf('%02d:00', $r['hour']), $nightShiftData);
         $nightTotals = array_map(fn($r) => (float)$r['total'], $nightShiftData);
 
-        $data = [
+        return $this->response->setJSON([
             'todaySales' => $todaySales,
             'pendingUser' => $pendingUser,
             'activeCashiers' => $activeCashiers,
             'productNeedRestock' => $productNeedRestock,
-            'labels' => json_encode($labels),
-            'totals' => json_encode($totals),
-            'morningHours' => json_encode($morningHours),
-            'morningTotals' => json_encode($morningTotals),
-            'nightHours' => json_encode($nightHours),
-            'nightTotals' => json_encode($nightTotals),
-        ];
-
-        return view('app/admin/dashboard', $data);
+            'labels' => $labels,
+            'totals' => $totals,
+            'morningHours' => $morningHours,
+            'morningTotals' => $morningTotals,
+            'nightHours' => $nightHours,
+            'nightTotals' => $nightTotals,
+        ]);
     }
 }
