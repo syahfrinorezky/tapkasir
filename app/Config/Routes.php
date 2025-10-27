@@ -3,6 +3,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\RoleController;
+use App\Controllers\Admin\ShiftController;
 use App\Controllers\Admin\UserController;
 use CodeIgniter\Router\RouteCollection;
 
@@ -37,4 +38,12 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('roles', [RoleController::class, 'index'], ['as' => 'admin.role']);
     $routes->post('roles/add', [RoleController::class, 'addRole'], ['as' => 'admin.role.add']);
     $routes->post('roles/edit/(:num)', [RoleController::class, 'editRole/$1'], ['as' => 'admin.role.edit']);
+
+    // master-data
+    // Shift management
+    $routes->get('shifts', [ShiftController::class, 'index'], ['as' => 'admin.shift']);
+    $routes->get('shifts/data', [ShiftController::class, 'data']);
+    $routes->post('shifts/add', [ShiftController::class, 'addShift']);
+    $routes->post('shifts/edit/(:num)', [ShiftController::class, 'editShift/$1']);
+    $routes->post('shifts/updateCashierShift/(:num)', [ShiftController::class, 'updateCashierShift/$1']);
 });
