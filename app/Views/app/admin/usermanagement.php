@@ -14,7 +14,7 @@ Manajemen User
         <?= $this->include('components/admin/sidebar'); ?>
 
         <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
-            x-data="userManagement()" x-init="fetchUsers('approved'); fetchUsers('pending')">
+            x-data="userManagement()" x-init="fetchUsers('approved'); fetchUsers('pending'), fetchRoles()">
 
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
                 <div>
@@ -35,9 +35,9 @@ Manajemen User
                         Daftar Pengguna
                     </h1>
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
                             <table class="w-full min-w-max">
-                                <thead class="bg-primary text-white">
+                                <thead class="bg-primary text-white sticky top-0 z-10">
                                     <tr>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">No</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Nama</th>
@@ -49,18 +49,18 @@ Manajemen User
                                 <tbody class="divide-y divide-gray-200">
                                     <template x-if="approved.length === 0">
                                         <tr>
-                                            <td colspan="4" class="text-center py-4 text-gray-500">
+                                            <td colspan="5" class="text-center py-4 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
                                                     <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
-                                                    <span class="text-center">Tidak ada akun yang pending</span>
+                                                    <span class="text-center">Tidak ada akun pengguna</span>
                                                 </div>
                                             </td>
                                         </tr>
                                     </template>
 
-                                    <template x-for="user in approved" :key="user.id">
+                                    <template x-for="(user, index) in paginatedUsers" :key="user.id">
                                         <tr>
-                                            <td class="px-4 py-3 text-sm text-center" x-text="approved.indexOf(user) + 1"></td>
+                                            <td class="px-4 py-3 text-sm text-center" x-text="getUserRowNumber(index)"></td>
                                             <td class="px-4 py-3 text-sm " x-text="user.nama_lengkap"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="user.email"></td>
                                             <td class="px-4 py-3 text-sm text-center capitalize" x-text="user.role_name"></td>
@@ -79,69 +79,263 @@ Manajemen User
                                     </template>
                                 </tbody>
                             </table>
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPerPage) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataUserPage * dataUserPerPage, approved.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="approved.length"></span>
+                                    data
+                                </div>
+
+                                <div class="flex items-center gap-2" x-show="dataUserTotalPages > 1">
+                                    <button
+                                        @click="changeDataUserPage(dataUserPage - 1)"
+                                        :disabled="dataUserPage === 1"
+                                        :class="dataUserPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getDataUsersNumber()" :key="page">
+                                        <button
+                                            @click="changeDataUserPage(page)"
+                                            :class="page === dataUserPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeDataUserPage(dataUserPage + 1)"
+                                        :disabled="dataUserPage === dataUserTotalPages"
+                                        :class="dataUserPage === dataUserTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="flex flex-col gap-4 w-full 2xl:w-1/3">
+                    <div class="flex flex-col space-y-2 order-2">
+                        <template x-if="message">
+                            <div x-text="message" class="fixed top-10 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md"></div>
+                        </template>
 
-                <div class="flex flex-col space-y-2 w-full 2xl:w-1/3">
-                    <template x-if="message">
-                        <div x-text="message" class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md"></div>
-                    </template>
+                        <template x-if="error">
+                            <div x-text="error" class="fixed top-10 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md"></div>
+                        </template>
 
-                    <template x-if="error">
-                        <div x-text="error" class="fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md"></div>
-                    </template>
+                        <h1 class="font-bold text-lg text-gray-700">
+                            <i class="fas fa-user-clock text-lg text-primary inline-flex mr-1"></i>
+                            Daftar Pending
+                        </h1>
 
-                    <h1 class="font-bold text-lg text-gray-700">
-                        <i class="fas fa-user-clock text-lg text-primary inline-flex mr-1"></i>
-                        Daftar Pending
-                    </h1>
-
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-max">
-                                <thead class="bg-primary text-white">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-sm font-semibold">Nama</th>
-                                        <th class="px-4 py-3 text-center text-sm font-semibold">Status</th>
-                                        <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <template x-if="pending.length === 0">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-primary text-white">
                                         <tr>
-                                            <td colspan="3" class="py-6">
-                                                <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
-                                                    <span class="text-center">Tidak ada akun yang pending</span>
-                                                </div>
-                                            </td>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Nama</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Status</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
                                         </tr>
-                                    </template>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="pending.length === 0">
+                                            <tr>
+                                                <td colspan="3" class="py-6">
+                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <span class="text-center">Tidak ada akun yang pending</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
 
-                                    <template x-for="user in pending" :key="user.id">
+                                        <template x-for="(user, index) in paginatedPending" :key="user.id">
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm">
+                                                    <div class="flex flex-col">
+                                                        <span class="font-semibold" x-text="user.nama_lengkap"></span>
+                                                        <span class="text-gray-500 text-xs" x-text="user.email"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300 uppercase" x-text="user.status"></span>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
+                                                    <button @click="updateStatus(user.id, 'approved')" class="bg-green-500 hover:bg-green-600 p-2 rounded-md">
+                                                        <i class="fas fa-check text-white"></i>
+                                                    </button>
+                                                    <button @click="updateStatus(user.id, 'rejected')" class="bg-red-500 hover:bg-red-600 p-2 rounded-md">
+                                                        <i class="fas fa-xmark text-white"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                    <div class="text-sm text-gray-600">
+                                        Menampilkan
+                                        <span class="font-semibold" x-text="pending.length === 0 ? 0 : ((dataPendingPage - 1) * dataPendingPerPage) + 1"></span>
+                                        hingga
+                                        <span class="font-semibold" x-text="Math.min(dataPendingPage * dataPendingPerPage, pending.length)"></span>
+                                        dari
+                                        <span class="font-semibold" x-text="pending.length"></span>
+                                        data
+                                    </div>
+
+                                    <div class="flex items-center gap-2" x-show="dataPendingTotalPages > 1">
+                                        <button
+                                            @click="changeDataPendingPage(dataPendingPage - 1)"
+                                            :disabled="dataPendingPage === 1"
+                                            :class="dataPendingPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <template x-for="page in getDataPendingNumber()" :key="page">
+                                            <button
+                                                @click="changeDataPendingPage(page)"
+                                                :class="page === dataPendingPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                                class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                                x-text="page">
+                                            </button>
+                                        </template>
+
+                                        <button
+                                            @click="changeDataPendingPage(dataPendingPage + 1)"
+                                            :disabled="dataPendingPage === dataPendingTotalPages"
+                                            :class="dataPendingPage === dataPendingTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col space-y-2 order-1">
+                        <template x-if="message">
+                            <div x-text="message" class="fixed top-10 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md"></div>
+                        </template>
+
+                        <template x-if="error">
+                            <div x-text="error" class="fixed top-10 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md"></div>
+                        </template>
+
+                        <div class="flex justify-between items-center">
+                            <h1 class="font-bold text-lg text-gray-700">
+                                <i class="fas fa-user-cog text-lg text-primary inline-flex mr-1"></i>
+                                Daftar Role
+                            </h1>
+
+                            <button @click="openRole()" type="button" class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-plus text-primary"></i>
+                            </button>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-primary text-white">
                                         <tr>
-                                            <td class="px-4 py-3 text-sm">
-                                                <div class="flex flex-col">
-                                                    <span class="font-semibold" x-text="user.nama_lengkap"></span>
-                                                    <span class="text-gray-500 text-xs" x-text="user.email"></span>
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-center">
-                                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300 uppercase" x-text="user.status"></span>
-                                            </td>
-                                            <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
-                                                <button @click="updateStatus(user.id, 'approved')" class="bg-green-500 hover:bg-green-600 p-2 rounded-md">
-                                                    <i class="fas fa-check text-white"></i>
-                                                </button>
-                                                <button @click="updateStatus(user.id, 'rejected')" class="bg-red-500 hover:bg-red-600 p-2 rounded-md">
-                                                    <i class="fas fa-xmark text-white"></i>
-                                                </button>
-                                            </td>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Nama Role</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Tanggal Dibuat</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
                                         </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="roles.length === 0">
+                                            <tr>
+                                                <td colspan="3" class="py-6">
+                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <span class="text-center">Tidak ada role yang tersedia</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+
+                                        <template x-for="(role, index) in paginatedRoles" :key="role.id">
+                                            <tr>
+                                                <td class="px-4 py-3 text-sm capitalize">
+                                                    <span x-text="role.role_name"></span>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
+                                                    <span class="text-gray-500 text-xs" x-text="new Date(role.created_at).toLocaleDateString()"></span>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm">
+                                                    <div class="w-full flex flex-row items-center justify-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            @click="openRoleEdit(role)"
+                                                            title="Edit Role"
+                                                            aria-label="Edit Role"
+                                                            class="w-full md:w-auto flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition">
+                                                            <i class="fas fa-pen"></i>
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            @click="openRoleDelete(role)"
+                                                            title="Hapus Role"
+                                                            aria-label="Hapus Role"
+                                                            class="w-full md:w-auto flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                    <div class="text-sm text-gray-600">
+                                        Menampilkan
+                                        <span class="font-semibold" x-text="roles.length === 0 ? 0 : ((dataRolesPage - 1) * dataRolesPerPage) + 1"></span>
+                                        hingga
+                                        <span class="font-semibold" x-text="Math.min(dataRolesPage * dataRolesPerPage, roles.length)"></span>
+                                        dari
+                                        <span class="font-semibold" x-text="roles.length"></span>
+                                        data
+                                    </div>
+
+                                    <div class="flex items-center gap-2" x-show="dataRolesTotalPages > 1">
+                                        <button
+                                            @click="changeDataRolesPage(dataRolesPage - 1)"
+                                            :disabled="dataRolesPage === 1"
+                                            :class="dataRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <template x-for="page in getDataRolesNumber()" :key="page">
+                                            <button
+                                                @click="changeDataRolesPage(page)"
+                                                :class="page === dataRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                                class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                                x-text="page">
+                                            </button>
+                                        </template>
+
+                                        <button
+                                            @click="changeDataRolesPage(dataRolesPage + 1)"
+                                            :disabled="dataRolesPage === dataRolesTotalPages"
+                                            :class="dataRolesPage === dataRolesTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -387,6 +581,134 @@ Manajemen User
                     </form>
                 </div>
             </div>
+
+            <!-- role add Modal -->
+            <div
+                x-cloak
+                x-show="openRoleModal"
+                @click.self="openRoleModal = false"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50"
+                aria-hidden="true"></div>
+            <div
+                x-cloak
+                x-show="openRoleModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                role="dialog"
+                aria-modal="true">
+                <form @submit.prevent="addRole" class="w-full max-w-xl bg-white rounded-xl shadow-xl overflow-hidden">
+                    <div class="bg-primary flex items-center justify-between px-5 py-4">
+                        <h3 class="text-lg font-semibold text-white">Tambah Role</h3>
+                        <button type="button" @click="openRoleModal = false" class="p-2 rounded hover:bg-white/10">
+                            <i class="fas fa-times text-white"></i>
+                        </button>
+                    </div>
+
+                    <div class="px-5 py-5 grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Role</label>
+                            <div class="relative">
+                                <i class="fas fa-user-cog absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Masukkan nama role baru"
+                                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                                    x-model="selectedRole.role_name"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-4 bg-gray-50 flex items-center justify-end gap-3">
+                        <button
+                            type="button"
+                            @click="openRoleModal = false"
+                            class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition">
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- role edit Modal -->
+            <div
+                x-cloak
+                x-show="openRoleEditModal"
+                @click.self="openRoleEditModal = false"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50"
+                aria-hidden="true"></div>
+            <div
+                x-cloak
+                x-show="openRoleEditModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                role="dialog"
+                aria-modal="true">
+                <form @submit.prevent="editRole" class="w-full max-w-xl bg-white rounded-xl shadow-xl overflow-hidden">
+                    <div class="bg-primary flex items-center justify-between px-5 py-4">
+                        <h3 class="text-lg font-semibold text-white">Edit Role</h3>
+                        <button type="button" @click="openRoleEditModal = false" class="p-2 rounded hover:bg-white/10">
+                            <i class="fas fa-times text-white"></i>
+                        </button>
+                    </div>
+
+                    <div class="px-5 py-5 grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Role</label>
+                            <div class="relative">
+                                <i class="fas fa-user-cog absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Masukkan nama role"
+                                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                                    x-model="selectedRole.role_name"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-4 bg-gray-50 flex items-center justify-end gap-3">
+                        <button
+                            type="button"
+                            @click="openRoleEditModal = false"
+                            class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition">
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -397,12 +719,109 @@ Manajemen User
         return {
             approved: [],
             pending: [],
+            roles: [],
             message: '',
             error: '',
             selectedUser: null,
+            selectedRole: {
+                id: null,
+                role_name: ''
+            },
             openDetailModal: false,
             openEditModal: false,
             openDeleteModal: false,
+            openRoleModal: false,
+            openRoleEditModal: false,
+            dataUserPage: 1,
+            dataUserPageSize: 10,
+            dataPendingPage: 1,
+            dataPendingPageSize: 5,
+            dataRolesPage: 1,
+            dataRolesPageSize: 5,
+
+            get paginatedUsers() {
+                const start = (this.dataUserPage - 1) * this.dataUserPageSize;
+                const end = start + this.dataUserPageSize;
+                return this.approved.slice(start, end);
+            },
+
+            get totalUserPages() {
+                return Math.ceil(this.approved.length / this.dataUserPageSize);
+            },
+
+            get paginatedPending() {
+                const start = (this.dataPendingPage - 1) * this.dataPendingPageSize;
+                const end = start + this.dataPendingPageSize;
+                return this.pending.slice(start, end);
+            },
+
+            get totalPendingPages() {
+                return Math.ceil(this.pending.length / this.dataPendingPageSize);
+            },
+
+            get paginatedRoles() {
+                const start = (this.dataRolesPage - 1) * this.dataRolesPageSize;
+                const end = start + this.dataRolesPageSize;
+                return this.roles.slice(start, end);
+            },
+
+            get totalRolesPages() {
+                return Math.ceil(this.roles.length / this.dataRolesPageSize);
+            },
+
+            changeDataUserPage(page) {
+                if (page >= 1 && page <= this.totalUserPages) {
+                    this.dataUserPage = page;
+                }
+            },
+
+            changeDataPendingPage(page) {
+                if (page >= 1 && page <= this.totalPendingPages) {
+                    this.dataPendingPage = page;
+                }
+            },
+
+            changeDataRolesPage(page) {
+                if (page >= 1 && page <= this.totalRolesPages) {
+                    this.dataRolesPage = page;
+                }
+            },
+
+            getDataUsersNumber() {
+                const pages = [];
+                for (let i = 1; i <= this.totalUserPages; i++) {
+                    pages.push(i);
+                }
+                return pages;
+            },
+
+            getDataPendingNumber() {
+                const pages = [];
+                for (let i = 1; i <= this.totalPendingPages; i++) {
+                    pages.push(i);
+                }
+                return pages;
+            },
+
+            getDataRolesNumber() {
+                const pages = [];
+                for (let i = 1; i <= this.totalRolesPages; i++) {
+                    pages.push(i);
+                }
+                return pages;
+            },
+
+            getUserRowNumber(index) {
+                return ((this.dataUserPage - 1) * this.dataUserPageSize) + index + 1;
+            },
+
+            getPendingRowNumber(index) {
+                return ((this.dataPendingPage - 1) * this.dataPendingPageSize) + index + 1;
+            },
+
+            getRoleRowNumber(index) {
+                return ((this.dataRolesPage - 1) * this.dataRolesPageSize) + index + 1;
+            },
 
             openDetail(user) {
                 this.selectedUser = user;
@@ -422,6 +841,110 @@ Manajemen User
                 this.openDeleteModal = true;
             },
 
+            openRole() {
+                this.selectedRole = {
+                    id: null,
+                    role_name: ''
+                };
+                this.openRoleModal = true;
+            },
+
+            openRoleEdit(role) {
+                this.selectedRole = {
+                    ...role
+                };
+                this.openRoleEditModal = true;
+            },
+
+            async fetchRoles() {
+                try {
+                    const res = await fetch(`/admin/roles`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const data = await res.json();
+                    this.roles = data;
+
+                    this.dataRolesPage = 1;
+                } catch (e) {
+                    this.error = 'Gagal mengambil data role.';
+                    setTimeout(() => this.error = '', 3000);
+                }
+            },
+
+            async addRole() {
+                if (this.selectedRole.role_name.trim() === '') {
+                    this.error = 'Nama role tidak boleh kosong.';
+                    setTimeout(() => this.error = '', 3000);
+                    return;
+
+                }
+
+                try {
+                    const res = await fetch(`/admin/roles/add`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            role_name: this.selectedRole.role_name
+                        })
+                    })
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        this.message = data.message;
+                        this.fetchRoles();
+                        this.openRoleModal = false;
+
+                        this.selectedRole = {
+                            id: null,
+                            role_name: ''
+                        };
+
+                        setTimeout(() => this.message = '', 3000);
+                    } else {
+                        this.error = data.message || 'Gagal menambahkan role.';
+                        setTimeout(() => this.error = '', 3000);
+                    }
+                } catch (error) {
+                    this.error = 'Terjadi kesalahan saat menambahkan role.';
+                    setTimeout(() => this.error = '', 3000);
+                }
+            },
+
+            async editRole() {
+                try {
+                    const res = await fetch(`/admin/roles/edit/${this.selectedRole.id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            role_name: this.selectedRole.role_name
+                        })
+                    })
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        this.message = data.message;
+                        this.fetchRoles();
+                        this.openRoleEditModal = false;
+                        setTimeout(() => this.message = '', 3000);
+                    } else {
+                        this.error = data.message || 'Gagal memperbarui role.';
+                        setTimeout(() => this.error = '', 3000);
+                    }
+                } catch (error) {
+                    this.error = 'Terjadi kesalahan saat memperbarui role.';
+                    setTimeout(() => this.error = '', 3000);
+                }
+            },
+
             async fetchUsers(type) {
                 try {
                     const res = await fetch(`/admin/users?type=${type}`, {
@@ -430,8 +953,14 @@ Manajemen User
                         }
                     });
                     const data = await res.json();
-                    if (type === 'approved') this.approved = data;
-                    if (type === 'pending') this.pending = data;
+                    if (type === 'approved') {
+                        this.approved = data;
+                        this.dataUserPage = 1;
+                    }
+                    if (type === 'pending') {
+                        this.pending = data;
+                        this.dataPendingPage = 1;
+                    }
                 } catch (e) {
                     this.error = 'Gagal mengambil data pengguna.';
                     setTimeout(() => this.error = '', 3000);
@@ -510,7 +1039,7 @@ Manajemen User
                     this.error = data.message || 'Gagal menghapus user.';
                     setTimeout(() => this.error = '', 3000);
                 }
-            }
+            },
         }
     }
 </script>

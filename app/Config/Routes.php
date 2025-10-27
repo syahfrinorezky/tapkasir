@@ -2,6 +2,7 @@
 
 use App\Controllers\AuthController;
 use App\Controllers\Admin\DashboardController;
+use App\Controllers\Admin\RoleController;
 use App\Controllers\Admin\UserController;
 use CodeIgniter\Router\RouteCollection;
 
@@ -31,4 +32,9 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('users/updateStatus/(:num)', [UserController::class, 'updateStatus/$1'], ['as' => 'admin.user.updateStatus']);
     $routes->post('users/updateInfo/(:num)', [UserController::class, 'updateInfo/$1'], ['as' => 'admin.user.updateInfo']);
     $routes->delete('users/delete/(:num)', [UserController::class, 'delete/$1'], ['as' => 'admin.user.delete']);
+
+    // Role management
+    $routes->get('roles', [RoleController::class, 'index'], ['as' => 'admin.role']);
+    $routes->post('roles/add', [RoleController::class, 'addRole'], ['as' => 'admin.role.add']);
+    $routes->post('roles/edit/(:num)', [RoleController::class, 'editRole/$1'], ['as' => 'admin.role.edit']);
 });
