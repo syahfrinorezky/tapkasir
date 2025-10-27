@@ -56,6 +56,12 @@
                         <span class="text-sm">Kategori</span>
                     </a>
                 </li>
+                <li>
+                    <a href="<?= base_url('admin/shift') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/shift' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                        <i class="fas fa-clock mr-2 text-primary"></i>
+                        <span class="text-sm">Shift</span>
+                    </a>
+                </li>
             </ul>
             <a href="<?= base_url('admin/users') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/users' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-users-cog text-primary text-xl"></i>
@@ -94,7 +100,7 @@
             </button>
 
             <div x-show="isAccMenuOpen" @click.away="isAccMenuOpen = false" x-transition
-                class="absolute bottom-12 lg:bottom-14 right-0 lg:-translate-x-3/4 w-40 lg:w-48 bg-white shadow-md rounded-md z-50">
+                class="absolute bottom-12 lg:bottom-14 -right-10 w-40 lg:w-48 bg-white shadow-md rounded-md z-50">
                 <a href="<?= base_url('logout') ?>"
                     class="flex items-center px-3 lg:px-4 py-2 lg:py-3 hover:bg-gray-100 rounded-md transition-colors duration-300 ease-in-out">
                     <i class="fas fa-sign-out-alt text-red-500 mr-2 text-xs lg:text-sm"></i>
