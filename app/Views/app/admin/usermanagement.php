@@ -79,43 +79,43 @@ Manajemen User
                                     </template>
                                 </tbody>
                             </table>
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
-                                    <span class="font-semibold" x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPerPage) + 1"></span>
-                                    hingga
-                                    <span class="font-semibold" x-text="Math.min(dataUserPage * dataUserPerPage, approved.length)"></span>
-                                    dari
-                                    <span class="font-semibold" x-text="approved.length"></span>
-                                    data
-                                </div>
+                        </div>
+                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                            <div class="text-sm text-gray-600">
+                                Menampilkan
+                                <span class="font-semibold" x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPageSize) + 1"></span>
+                                hingga
+                                <span class="font-semibold" x-text="Math.min(dataUserPage * dataUserPageSize, approved.length)"></span>
+                                dari
+                                <span class="font-semibold" x-text="approved.length"></span>
+                                data
+                            </div>
 
-                                <div class="flex items-center gap-2" x-show="dataUserTotalPages > 1">
+                            <div class="flex items-center gap-2" x-show="dataUserPageSize > 1">
+                                <button
+                                    @click="changeDataUserPage(dataUserPage - 1)"
+                                    :disabled="dataUserPage === 1"
+                                    :class="dataUserPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+
+                                <template x-for="page in getDataUsersNumber()" :key="page">
                                     <button
-                                        @click="changeDataUserPage(dataUserPage - 1)"
-                                        :disabled="dataUserPage === 1"
-                                        :class="dataUserPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                        <i class="fas fa-chevron-left"></i>
+                                        @click="changeDataUserPage(page)"
+                                        :class="page === dataUserPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                        x-text="page">
                                     </button>
+                                </template>
 
-                                    <template x-for="page in getDataUsersNumber()" :key="page">
-                                        <button
-                                            @click="changeDataUserPage(page)"
-                                            :class="page === dataUserPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
-                                            x-text="page">
-                                        </button>
-                                    </template>
-
-                                    <button
-                                        @click="changeDataUserPage(dataUserPage + 1)"
-                                        :disabled="dataUserPage === dataUserTotalPages"
-                                        :class="dataUserPage === dataUserTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </button>
-                                </div>
+                                <button
+                                    @click="changeDataUserPage(dataUserPage + 1)"
+                                    :disabled="dataUserPage === dataUserTotalPages"
+                                    :class="dataUserPage === dataUserTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -138,7 +138,7 @@ Manajemen User
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
-                                    <thead class="bg-primary text-white">
+                                    <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>
                                             <th class="px-4 py-3 text-left text-sm font-semibold">Nama</th>
                                             <th class="px-4 py-3 text-center text-sm font-semibold">Status</th>
@@ -180,43 +180,43 @@ Manajemen User
                                         </template>
                                     </tbody>
                                 </table>
-                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                                    <div class="text-sm text-gray-600">
-                                        Menampilkan
-                                        <span class="font-semibold" x-text="pending.length === 0 ? 0 : ((dataPendingPage - 1) * dataPendingPerPage) + 1"></span>
-                                        hingga
-                                        <span class="font-semibold" x-text="Math.min(dataPendingPage * dataPendingPerPage, pending.length)"></span>
-                                        dari
-                                        <span class="font-semibold" x-text="pending.length"></span>
-                                        data
-                                    </div>
+                            </div>
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="pending.length === 0 ? 0 : ((dataPendingPage - 1) * dataPendingPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataPendingPage * dataPendingPageSize, pending.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="pending.length"></span>
+                                    data
+                                </div>
 
-                                    <div class="flex items-center gap-2" x-show="dataPendingTotalPages > 1">
+                                <div class="flex items-center gap-2" x-show="dataPendingPageSize > 1">
+                                    <button
+                                        @click="changeDataPendingPage(dataPendingPage - 1)"
+                                        :disabled="dataPendingPage === 1"
+                                        :class="dataPendingPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getDataPendingNumber()" :key="page">
                                         <button
-                                            @click="changeDataPendingPage(dataPendingPage - 1)"
-                                            :disabled="dataPendingPage === 1"
-                                            :class="dataPendingPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                            <i class="fas fa-chevron-left"></i>
+                                            @click="changeDataPendingPage(page)"
+                                            :class="page === dataPendingPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            x-text="page">
                                         </button>
+                                    </template>
 
-                                        <template x-for="page in getDataPendingNumber()" :key="page">
-                                            <button
-                                                @click="changeDataPendingPage(page)"
-                                                :class="page === dataPendingPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                                class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
-                                                x-text="page">
-                                            </button>
-                                        </template>
-
-                                        <button
-                                            @click="changeDataPendingPage(dataPendingPage + 1)"
-                                            :disabled="dataPendingPage === dataPendingTotalPages"
-                                            :class="dataPendingPage === dataPendingTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
+                                    <button
+                                        @click="changeDataPendingPage(dataPendingPage + 1)"
+                                        :disabled="dataPendingPage === dataPendingPageSize"
+                                        :class="dataPendingPage === dataPendingPageSize ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -245,7 +245,7 @@ Manajemen User
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
-                                    <thead class="bg-primary text-white">
+                                    <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>
                                             <th class="px-4 py-3 text-left text-sm font-semibold">Nama Role</th>
                                             <th class="px-4 py-3 text-center text-sm font-semibold">Tanggal Dibuat</th>
@@ -297,43 +297,43 @@ Manajemen User
                                         </template>
                                     </tbody>
                                 </table>
-                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                                    <div class="text-sm text-gray-600">
-                                        Menampilkan
-                                        <span class="font-semibold" x-text="roles.length === 0 ? 0 : ((dataRolesPage - 1) * dataRolesPerPage) + 1"></span>
-                                        hingga
-                                        <span class="font-semibold" x-text="Math.min(dataRolesPage * dataRolesPerPage, roles.length)"></span>
-                                        dari
-                                        <span class="font-semibold" x-text="roles.length"></span>
-                                        data
-                                    </div>
+                            </div>
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="roles.length === 0 ? 0 : ((dataRolesPage - 1) * dataRolesPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataRolesPage * dataRolesPageSize, roles.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="roles.length"></span>
+                                    data
+                                </div>
 
-                                    <div class="flex items-center gap-2" x-show="dataRolesTotalPages > 1">
+                                <div class="flex items-center gap-2" x-show="dataRolesPageSize > 1">
+                                    <button
+                                        @click="changeDataRolesPage(dataRolesPage - 1)"
+                                        :disabled="dataRolesPage === 1"
+                                        :class="dataRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getDataRolesNumber()" :key="page">
                                         <button
-                                            @click="changeDataRolesPage(dataRolesPage - 1)"
-                                            :disabled="dataRolesPage === 1"
-                                            :class="dataRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                            <i class="fas fa-chevron-left"></i>
+                                            @click="changeDataRolesPage(page)"
+                                            :class="page === dataRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            x-text="page">
                                         </button>
+                                    </template>
 
-                                        <template x-for="page in getDataRolesNumber()" :key="page">
-                                            <button
-                                                @click="changeDataRolesPage(page)"
-                                                :class="page === dataRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                                class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
-                                                x-text="page">
-                                            </button>
-                                        </template>
-
-                                        <button
-                                            @click="changeDataRolesPage(dataRolesPage + 1)"
-                                            :disabled="dataRolesPage === dataRolesTotalPages"
-                                            :class="dataRolesPage === dataRolesTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
+                                    <button
+                                        @click="changeDataRolesPage(dataRolesPage + 1)"
+                                        :disabled="dataRolesPage === dataRolesPageSize"
+                                        :class="dataRolesPage === dataRolesPageSize ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
