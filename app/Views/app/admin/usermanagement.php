@@ -14,7 +14,7 @@ Manajemen User
         <?= $this->include('components/admin/sidebar'); ?>
 
         <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
-            x-data="userManagement()" x-init="fetchUsers('approved'); fetchUsers('pending'), fetchRoles()">
+            x-data="userManagement()" x-init="fetchUsers('approved'); fetchUsers('pending'); fetchRoles()">
 
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
                 <div>
@@ -91,7 +91,7 @@ Manajemen User
                                 data
                             </div>
 
-                            <div class="flex items-center gap-2" x-show="dataUserPageSize > 1">
+                            <div class="flex items-center gap-2" x-show="totalUserPages > 1">
                                 <button
                                     @click="changeDataUserPage(dataUserPage - 1)"
                                     :disabled="dataUserPage === 1"
@@ -111,8 +111,8 @@ Manajemen User
 
                                 <button
                                     @click="changeDataUserPage(dataUserPage + 1)"
-                                    :disabled="dataUserPage === dataUserTotalPages"
-                                    :class="dataUserPage === dataUserTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                    :disabled="dataUserPage === totalUserPages"
+                                    :class="dataUserPage === totalUserPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                     class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
@@ -192,7 +192,7 @@ Manajemen User
                                     data
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="dataPendingPageSize > 1">
+                                <div class="flex items-center gap-2" x-show="totalPendingPages > 1">
                                     <button
                                         @click="changeDataPendingPage(dataPendingPage - 1)"
                                         :disabled="dataPendingPage === 1"
@@ -212,8 +212,8 @@ Manajemen User
 
                                     <button
                                         @click="changeDataPendingPage(dataPendingPage + 1)"
-                                        :disabled="dataPendingPage === dataPendingPageSize"
-                                        :class="dataPendingPage === dataPendingPageSize ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        :disabled="dataPendingPage === totalPendingPages"
+                                        :class="dataPendingPage === totalPendingPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
@@ -309,7 +309,7 @@ Manajemen User
                                     data
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="dataRolesPageSize > 1">
+                                <div class="flex items-center gap-2" x-show="totalRolesPages > 1">
                                     <button
                                         @click="changeDataRolesPage(dataRolesPage - 1)"
                                         :disabled="dataRolesPage === 1"
@@ -329,8 +329,8 @@ Manajemen User
 
                                     <button
                                         @click="changeDataRolesPage(dataRolesPage + 1)"
-                                        :disabled="dataRolesPage === dataRolesPageSize"
-                                        :class="dataRolesPage === dataRolesPageSize ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        :disabled="dataRolesPage === totalRolesPages"
+                                        :class="dataRolesPage === totalRolesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
@@ -558,8 +558,9 @@ Manajemen User
                                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                                         x-model="selectedUser.role_id">
                                         <option value="" disabled>Pilih role</option>
-                                        <option :value="1">Admin</option>
-                                        <option :value="2">Kasir</option>
+                                        <template x-for="role in roles" :key="role.id">
+                                            <option :value="role.id" x-text="role.role_name" class="capitalize"></option>
+                                        </template>
                                     </select>
                                 </div>
                             </div>
@@ -828,7 +829,10 @@ Manajemen User
                 this.openDetailModal = true;
             },
 
-            openEdit(user) {
+            async openEdit(user) {
+                await this.fetchRoles();
+
+
                 this.selectedUser = {
                     ...user,
                     role_id: user.role_id
@@ -897,7 +901,7 @@ Manajemen User
 
                     if (res.ok) {
                         this.message = data.message;
-                        this.fetchRoles();
+                        await this.fetchRoles();
                         this.openRoleModal = false;
 
                         this.selectedRole = {
@@ -932,7 +936,7 @@ Manajemen User
 
                     if (res.ok) {
                         this.message = data.message;
-                        this.fetchRoles();
+                        await this.fetchRoles();
                         this.openRoleEditModal = false;
                         setTimeout(() => this.message = '', 3000);
                     } else {
