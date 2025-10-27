@@ -911,6 +911,7 @@ Manajemen User
 
                         setTimeout(() => this.message = '', 3000);
                     } else {
+                        this.openRoleModal = false;
                         this.error = data.message || 'Gagal menambahkan role.';
                         setTimeout(() => this.error = '', 3000);
                     }
@@ -940,6 +941,7 @@ Manajemen User
                         this.openRoleEditModal = false;
                         setTimeout(() => this.message = '', 3000);
                     } else {
+                        this.openRoleEditModal = false;
                         this.error = data.message || 'Gagal memperbarui role.';
                         setTimeout(() => this.error = '', 3000);
                     }
@@ -1020,6 +1022,7 @@ Manajemen User
                         this.openEditModal = false;
                         setTimeout(() => this.message = '', 3000);
                     } else {
+                        this.openEditModal = false;
                         this.error = data.message || 'Gagal memperbarui informasi.';
                         setTimeout(() => this.error = '', 3000);
                     }
@@ -1040,6 +1043,7 @@ Manajemen User
                     this.openDeleteModal = false;
                     setTimeout(() => this.message = '', 3000);
                 } else {
+                    this.openDeleteModal = false;
                     this.error = data.message || 'Gagal menghapus user.';
                     setTimeout(() => this.error = '', 3000);
                 }
