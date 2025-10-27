@@ -29,14 +29,21 @@
             </button>
         </div>
 
-        <li x-data="{ dropDownMaster: <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? '1' : 'null' ?> }"
-            x-init="dropDownMaster = <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? 1 : 'null' ?>"
+        <?php
+        $current_uri = uri_string();
+        $is_master_active = in_array($current_uri, ['admin/produk', 'admin/kategori', 'admin/shifts']);
+        ?>
+
+        <li x-data="{ dropDownMaster: <?= $is_master_active ? '1' : 'null' ?> }"
+            x-init="dropDownMaster = <?= $is_master_active ? 1 : 'null' ?>"
             class="flex flex-col space-y-1">
             <a href="<?= base_url('admin/dashboard') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/dashboard' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?> ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <i class="fas fa-home text-primary text-xl"></i>
                 <span>Dashboard</span>
             </a>
-            <button @click="dropDownMaster === 1 ? dropDownMaster = null : dropDownMaster = 1" type="button" class="py-4 px-6 flex justify-between items-center hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out  <?= in_array(uri_string(), ['admin/produk', 'admin/kategori']) ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+            <button @click="dropDownMaster === 1 ? dropDownMaster = null : dropDownMaster = 1"
+                type="button"
+                class="py-4 px-6 flex justify-between items-center hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= $is_master_active ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-database text-primary text-xl"></i>
                     <span>Master Data</span>
@@ -45,19 +52,22 @@
             </button>
             <ul x-cloak x-show="dropDownMaster === 1" x-transition class="pl-12 space-y-1">
                 <li>
-                    <a href="<?= base_url('admin/produk') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/produk' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                   <a href="<?= base_url('admin/produk') ?>"
+                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/produk' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
                         <i class="fas fa-box mr-2 text-primary"></i>
                         <span class="text-sm">Produk</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= base_url('admin/kategori') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/kategori' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                    <a href="<?= base_url('admin/kategori') ?>"
+                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/kategori' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
                         <i class="fas fa-tags mr-2 text-primary"></i>
                         <span class="text-sm">Kategori</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= base_url('admin/shift') ?>" class="p-3 flex items-center text-gray-600 hover:text-gray-800 bg-white rounded-md hover:bg-secondary <?= uri_string() == 'admin/shift' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                    <a href="<?= base_url('admin/shifts') ?>"
+                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/shifts' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
                         <i class="fas fa-clock mr-2 text-primary"></i>
                         <span class="text-sm">Shift</span>
                     </a>
