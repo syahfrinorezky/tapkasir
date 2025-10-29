@@ -5,7 +5,14 @@ function userManagement() {
     roles: [],
     message: "",
     error: "",
-    selectedUser: null,
+    selectedUser: {
+      id: null,
+      nama_lengkap: "",
+      email: "",
+      role_id: "",
+      role_name: "",
+      status: "",
+    },
     selectedRole: {
       id: null,
       role_name: "",
