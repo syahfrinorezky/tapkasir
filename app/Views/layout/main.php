@@ -21,6 +21,8 @@
 
 <body class="font-secondary">
     <?= $this->renderSection('content') ?>
+
+    <?= $this->renderSection('scripts') ?>
 </body>
 <script src="<?= base_url('js/bundle.js') ?>"></script>
 
