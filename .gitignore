@@ -130,3 +130,4 @@ _modules/*
 /public/js/bundle.js
 
 /node_modules/
+/public/uploads

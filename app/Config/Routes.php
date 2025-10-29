@@ -5,6 +5,7 @@ use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\RoleController;
 use App\Controllers\Admin\ShiftController;
 use App\Controllers\Admin\UserController;
+use App\Controllers\Admin\ProductController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -40,6 +41,20 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('roles/edit/(:num)', [RoleController::class, 'editRole/$1'], ['as' => 'admin.role.edit']);
 
     // master-data
+    // Product management
+    $routes->get('products', [ProductController::class, 'index'], ['as' => 'admin.product']);
+    $routes->get('products/data', [ProductController::class, 'data'], ['as' => 'admin.product.data']);
+    $routes->post('products/add', [ProductController::class, 'add'], ['as' => 'admin.product.add']);
+    $routes->post('products/edit/(:num)', [ProductController::class, 'edit/$1'], ['as' => 'admin.product.edit']);
+    $routes->delete('products/delete/(:num)', [ProductController::class, 'delete/$1'], ['as' => 'admin.product.delete']);
+    $routes->post('products/uploadPhoto/(:num)', [ProductController::class, 'uploadPhoto/$1'], ['as' => 'admin.product.uploadPhoto']);
+
+    // Category management
+    $routes->post('products/addCategory', [ProductController::class, 'addCategory'], ['as' => 'admin.product.addCategory']);
+    $routes->post('products/editCategory/(:num)', [ProductController::class, 'editCategory/$1'], ['as' => 'admin.product.editCategory']);
+    $routes->delete('products/deleteCategory/(:num)', [ProductController::class, 'deleteCategory/$1'], ['as' => 'admin.product.deleteCategory']);
+
+
     // Shift management
     $routes->get('shifts', [ShiftController::class, 'index'], ['as' => 'admin.shift']);
     $routes->get('shifts/data', [ShiftController::class, 'data']);
