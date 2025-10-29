@@ -196,7 +196,11 @@ function productManagement() {
         });
 
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Produk berhasil ditambahkan";
           await this.fetchData();
           this.openAddProductModal = false;
@@ -246,7 +250,11 @@ function productManagement() {
         );
 
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Produk berhasil diperbarui";
           await this.fetchData();
           this.openEditProductModal = false;
@@ -272,7 +280,11 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Produk berhasil dihapus";
           await this.fetchData();
           this.openDeleteProductModal = false;
@@ -305,7 +317,11 @@ function productManagement() {
         });
 
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Kategori berhasil ditambahkan";
           await this.fetchData();
           this.openAddCategoryModal = false;
@@ -341,7 +357,11 @@ function productManagement() {
         );
 
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Kategori berhasil diperbarui";
           await this.fetchData();
           this.openEditCategoryModal = false;
@@ -366,7 +386,11 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+<<<<<<< HEAD
         if (res.ok) {
+=======
+        if (data.status === "success") {
+>>>>>>> 8015ab5f701c9ea2ed57bd32028f94fcff137c3a
           this.message = data.message || "Kategori berhasil dihapus";
           await this.fetchData();
           this.openDeleteCategoryModal = false;
