@@ -31,7 +31,7 @@
 
         <?php
         $current_uri = uri_string();
-        $is_master_active = in_array($current_uri, ['admin/produk', 'admin/kategori', 'admin/shifts']);
+        $is_master_active = in_array($current_uri, ['admin/products', 'admin/kategori', 'admin/shifts']);
         ?>
 
         <li x-data="{ dropDownMaster: <?= $is_master_active ? '1' : 'null' ?> }"
@@ -52,17 +52,10 @@
             </button>
             <ul x-cloak x-show="dropDownMaster === 1" x-transition class="pl-12 space-y-1">
                 <li>
-                   <a href="<?= base_url('admin/produk') ?>"
-                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/produk' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
+                   <a href="<?= base_url('admin/products') ?>"
+                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/products' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
                         <i class="fas fa-box mr-2 text-primary"></i>
                         <span class="text-sm">Produk</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= base_url('admin/kategori') ?>"
-                        class="p-3 flex items-center rounded-md hover:bg-secondary <?= $current_uri == 'admin/kategori' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500 hover:text-gray-800' ?>">
-                        <i class="fas fa-tags mr-2 text-primary"></i>
-                        <span class="text-sm">Kategori</span>
                     </a>
                 </li>
                 <li>
