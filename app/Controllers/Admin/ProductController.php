@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class ProductController extends BaseController
 {
@@ -65,6 +66,7 @@ class ProductController extends BaseController
         $sequenceCode = str_pad($sequence, 5, '0', STR_PAD_LEFT);
         return $appCode . $categoryCode . $sequenceCode;
     }
+
 
     public function add()
     {
@@ -270,5 +272,52 @@ class ProductController extends BaseController
         return $this->response->setStatusCode(500)->setJSON([
             'message' => 'Gagal menghapus kategori'
         ]);
+    }
+
+    public function barcodeImage($barcode)
+    {
+
+        if (!class_exists(BarcodeGeneratorPNG::class)) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'message' => 'Barcode generator not installed. Run: composer require picqer/php-barcode-generator'
+            ]);
+        }
+
+        $generator = new BarcodeGeneratorPNG();
+
+        $png = $generator->getBarcode($barcode, $generator::TYPE_CODE_128, 2, 60);
+
+        return $this->response->setHeader('Content-Type', 'image/png')->setBody($png);
+    }
+
+    public function barcodeSave($barcode)
+    {
+        if (!class_exists(BarcodeGeneratorPNG::class)) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'message' => 'Barcode generator not installed. Run: composer require picqer/php-barcode-generator'
+            ]);
+        }
+
+        $generator = new BarcodeGeneratorPNG();
+        $png = $generator->getBarcode($barcode, $generator::TYPE_CODE_128, 2, 60);
+
+        $dir = ROOTPATH . 'public/uploads/barcodes/';
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0755, true) && !is_dir($dir)) {
+                return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal membuat direktori barcodes']);
+            }
+        }
+
+        $safeName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $barcode);
+        $filename = $safeName . '.png';
+        $filePath = $dir . $filename;
+
+        if (file_put_contents($filePath, $png) === false) {
+            return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menyimpan gambar barcode']);
+        }
+
+        $url = base_url('uploads/barcodes/' . $filename);
+
+        return $this->response->setJSON(['message' => 'ok', 'url' => $url]);
     }
 }

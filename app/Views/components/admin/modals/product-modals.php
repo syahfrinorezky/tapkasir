@@ -515,3 +515,67 @@
         </div>
     </form>
 </div>
+
+<!-- View Product Detail Modal -->
+<div x-cloak x-show="openViewProductModal" @click.self="openViewProductModal = false"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-xs z-50"></div>
+
+<div
+    x-cloak
+    x-show="openViewProductModal"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
+        <div class="bg-primary flex items-center justify-between px-5 py-4">
+            <h3 class="text-lg font-semibold text-white">Detail Produk</h3>
+            <button @click="openViewProductModal = false" class="p-2 rounded hover:bg-white/10">
+                <i class="fas fa-times text-white"></i>
+            </button>
+        </div>
+
+        <div class="px-5 py-4">
+            <div class="flex items-center gap-4">
+                <div class="w-20 h-20 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                    <template x-if="selectedProduct?.photo">
+                        <img :src="selectedProduct.photo" alt="Photo" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!selectedProduct?.photo">
+                        <img src="<?= base_url('images/placeholder-product.svg') ?>" alt="No photo" class="w-full h-full object-cover">
+                    </template>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800" x-text="selectedProduct?.product_name"></h4>
+                    <p class="text-sm text-gray-600" x-text="formatCurrency(selectedProduct?.price || 0)"></p>
+                    <p class="text-sm text-gray-500">Kategori: <span x-text="selectedProduct?.category_name || '-'"></span></p>
+                    <p class="text-sm text-gray-500">Stok: <span x-text="selectedProduct?.stock || 0"></span></p>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-col items-center">
+                <div class="bg-white p-4 rounded-md shadow-inner">
+                    <img :src="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct?.barcode || '')" alt="Barcode" class="w-56 h-auto">
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Kode: <span class="font-mono" x-text="selectedProduct?.barcode || '-'"></span></p>
+            </div>
+        </div>
+
+        <div class="px-5 py-4 bg-gray-50 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a :href="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct?.barcode || '')" target="_blank" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 text-center">Buka Gambar</a>
+            <button @click="downloadBarcode()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">Unduh Barcode</button>
+            <button @click="openViewProductModal = false" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100">Tutup</button>
+        </div>
+    </div>
+</div>
