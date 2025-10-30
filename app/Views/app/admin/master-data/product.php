@@ -87,6 +87,11 @@ Manajemen Produk
                                             <td class="px-4 py-3 text-sm text-center" x-text="product.stock"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="product.barcode"></td>
                                             <td class="px-4 py-3 text-sm space-x-2 flex items-center justify-center">
+                                                <button type="button" @click="openViewProduct(product)"
+                                                    title="Detail"
+                                                    class="flex items-center justify-center p-2 bg-primary hover:bg-primary/80 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                                                 <button type="button" @click="openEditProduct(product)"
                                                     class="flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
                                                     <i class="fas fa-pen"></i>
