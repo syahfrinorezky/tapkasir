@@ -39,6 +39,7 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('roles', [RoleController::class, 'index'], ['as' => 'admin.role']);
     $routes->post('roles/add', [RoleController::class, 'addRole'], ['as' => 'admin.role.add']);
     $routes->post('roles/edit/(:num)', [RoleController::class, 'editRole/$1'], ['as' => 'admin.role.edit']);
+    $routes->delete('roles/delete/(:num)', [RoleController::class, 'deleteRole/$1'], ['as' => 'admin.role.delete']);
 
     // master-data
     // Product management
