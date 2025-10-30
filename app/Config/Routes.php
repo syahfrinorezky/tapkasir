@@ -45,6 +45,8 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     // Product management
     $routes->get('products', [ProductController::class, 'index'], ['as' => 'admin.product']);
     $routes->get('products/data', [ProductController::class, 'data'], ['as' => 'admin.product.data']);
+    $routes->get('products/barcode/image/(:segment)', [ProductController::class, 'barcodeImage/$1']);
+    $routes->get('products/barcode/save/(:segment)', [ProductController::class, 'barcodeSave/$1']);
     $routes->post('products/add', [ProductController::class, 'add'], ['as' => 'admin.product.add']);
     $routes->post('products/edit/(:num)', [ProductController::class, 'edit/$1'], ['as' => 'admin.product.edit']);
     $routes->delete('products/delete/(:num)', [ProductController::class, 'delete/$1'], ['as' => 'admin.product.delete']);
