@@ -55,4 +55,21 @@ class RoleController extends BaseController
         return $this->response->setStatusCode(ResponseInterface::HTTP_OK)
             ->setJSON(['message' => 'Nama role berhasil diperbarui.']);
     }
+
+    public function deleteRole($id)
+    {
+        $roleModel = new RoleModel();
+
+        $role = $roleModel->find($id);
+
+        if (!$role) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND)
+                ->setJSON(['message' => 'Role tidak ditemukan.']);
+        }
+
+        $roleModel->delete($id);
+
+        return $this->response->setStatusCode(ResponseInterface::HTTP_OK)
+            ->setJSON(['message' => 'Role berhasil dihapus.']);
+    }
 }

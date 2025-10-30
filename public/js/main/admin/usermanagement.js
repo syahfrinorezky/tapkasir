@@ -22,6 +22,7 @@ function userManagement() {
     openDeleteModal: false,
     openRoleModal: false,
     openRoleEditModal: false,
+    openRoleDeleteModal: false,
     dataUserPage: 1,
     dataUserPageSize: 10,
     dataPendingPage: 1,
@@ -146,6 +147,13 @@ function userManagement() {
         ...role,
       };
       this.openRoleEditModal = true;
+    },
+
+    openRoleDelete(role) {
+      this.selectedRole = {
+        ...role,
+      };
+      this.openRoleDeleteModal = true;
     },
 
     async fetchRoles() {
@@ -335,6 +343,33 @@ function userManagement() {
       } else {
         this.openDeleteModal = false;
         this.error = data.message || "Gagal menghapus user.";
+        setTimeout(() => (this.error = ""), 3000);
+      }
+    },
+
+    async deleteRole(id) {
+      try {
+        const res = await fetch(`/admin/roles/delete/${id}`, {
+          method: "DELETE",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          this.message = data.message;
+          await this.fetchRoles();
+          this.openRoleDeleteModal = false;
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRoleDeleteModal = false;
+          this.error = data.message || "Gagal menghapus role.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        this.openRoleDeleteModal = false;
+        this.error = "Terjadi kesalahan saat menghapus role.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },

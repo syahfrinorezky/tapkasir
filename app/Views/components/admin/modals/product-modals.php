@@ -141,6 +141,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedProduct.product_name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.product_name" x-text="validationErrors.product_name"></p>
                 </div>
             </div>
 
@@ -155,6 +156,7 @@
                         x-model="selectedProduct.price"
                         min="0"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.price" x-text="validationErrors.price"></p>
                 </div>
             </div>
 
@@ -171,6 +173,7 @@
                             <option :value="category.id" x-text="category.category_name"></option>
                         </template>
                     </select>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.category_id" x-text="validationErrors.category_id"></p>
                 </div>
             </div>
 
@@ -187,6 +190,7 @@
                             min="0"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.stock" x-text="validationErrors.stock"></p>
                 </div>
 
                 <div>
@@ -199,6 +203,7 @@
                             class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                             x-model="selectedProduct.barcode">
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.barcode" x-text="validationErrors.barcode"></p>
                 </div>
             </div>
 
@@ -269,6 +274,7 @@
         </div>
 
         <div class="px-5 py-5 grid grid-cols-1 gap-4">
+            <!-- Form fields sama seperti Add Product Modal -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
                 <div class="relative">
@@ -279,6 +285,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedProduct.product_name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.product_name" x-text="validationErrors.product_name"></p>
                 </div>
             </div>
 
@@ -293,6 +300,7 @@
                         x-model="selectedProduct.price"
                         min="0"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.price" x-text="validationErrors.price"></p>
                 </div>
             </div>
 
@@ -309,6 +317,7 @@
                             <option :value="category.id" x-text="category.category_name"></option>
                         </template>
                     </select>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.category_id" x-text="validationErrors.category_id"></p>
                 </div>
             </div>
 
@@ -325,6 +334,7 @@
                             min="0"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.stock" x-text="validationErrors.stock"></p>
                 </div>
 
                 <div>
@@ -337,6 +347,7 @@
                             class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                             x-model="selectedProduct.barcode">
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.barcode" x-text="validationErrors.barcode"></p>
                 </div>
             </div>
 
@@ -419,6 +430,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedCategory.category_name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.category_name" x-text="validationErrors.category_name"></p>
                 </div>
             </div>
         </div>
@@ -483,6 +495,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedCategory.category_name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.category_name" x-text="validationErrors.category_name"></p>
                 </div>
             </div>
         </div>

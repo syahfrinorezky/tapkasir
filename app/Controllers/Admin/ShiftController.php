@@ -96,25 +96,26 @@ class ShiftController extends BaseController
 
         $data = $this->request->getJSON();
 
+        $validation = \Config\Services::validation();
+        $rules = (new \App\Validation\ShiftRules())->create;
+        $validation->setRules($rules);
+
+        $input = is_object($data) ? (array) $data : (array) $data;
+        if (!$validation->run($input)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $validation->getErrors(),
+            ]);
+        }
+
         $name = $data->name ?? null;
         $start_time = $data->start_time ?? null;
         $end_time = $data->end_time ?? null;
         $status = $data->status ?? null;
 
-        if (!$name || !$start_time || !$end_time) {
-            return $this->response->setStatusCode(400)->setJSON(['message' => 'Semua field wajib diisi.']);
-        }
-
         if (!$this->isValidShiftTime($start_time, $end_time)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'Jam selesai harus setelah jam mulai. Untuk shift melewati tengah malam, gunakan format 24 jam.'
-            ]);
-        }
-
-        $existingShift = $shiftModel->where('name', $name)->first();
-        if ($existingShift) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'message' => 'Nama shift sudah digunakan.'
             ]);
         }
 
@@ -138,22 +139,33 @@ class ShiftController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['message' => 'Shift tidak ditemukan.']);
         }
 
+
         $data = $this->request->getJSON();
+
+        $validation = \Config\Services::validation();
+        $rules = (new \App\Validation\ShiftRules())->update;
+        $validation->setRules($rules);
+
+        $input = is_object($data) ? (array) $data : (array) $data;
+        if (!$validation->run($input)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $validation->getErrors(),
+            ]);
+        }
 
         $name = $data->name ?? null;
         $start_time = $data->start_time ?? null;
         $end_time = $data->end_time ?? null;
         $status = $data->status ?? null;
 
-        if (!$name || !$start_time || !$end_time) {
-            return $this->response->setStatusCode(400)->setJSON(['message' => 'Semua field wajib diisi.']);
-        }
-
-        $existingShift = $shiftModel->where('name', $name)->where('id !=', $id)->first();
-        if ($existingShift) {
-            return $this->response->setStatusCode(400)->setJSON([
-                'message' => 'Nama shift sudah digunakan.'
-            ]);
+        if ($name) {
+            $existingShift = $shiftModel->where('name', $name)->where('id !=', $id)->first();
+            if ($existingShift) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'Nama shift sudah digunakan.'
+                ]);
+            }
         }
 
         $shiftModel->update($id, [
