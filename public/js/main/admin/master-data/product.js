@@ -28,9 +28,11 @@ function productManagement() {
     openAddProductModal: false,
     openEditProductModal: false,
     openDeleteProductModal: false,
+    openViewProductModal: false,
     openAddCategoryModal: false,
     openEditCategoryModal: false,
     openDeleteCategoryModal: false,
+    barcodeImageUrl: null,
     dataProductPage: 1,
     dataProductPageSize: 10,
     dataCategoriesPage: 1,
@@ -140,6 +142,27 @@ function productManagement() {
     openDeleteCategory(c) {
       this.selectedCategory = c;
       this.openDeleteCategoryModal = true;
+    },
+
+    async openViewProduct(p) {
+      this.clearSelectedProduct();
+      this.selectedProduct = { ...p };
+      this.barcodeImageUrl = null;
+      this.openViewProductModal = true;
+
+      try {
+        const res = await fetch(
+          `/admin/products/barcode/save/${encodeURIComponent(
+            this.selectedProduct.barcode
+          )}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.url) this.barcodeImageUrl = data.url;
+        }
+      } catch (e) {
+        console.error("Gagal generate barcode:", e);
+      }
     },
 
     async addProduct() {
@@ -334,6 +357,20 @@ function productManagement() {
       this.revokePreviewIfNeeded(this.selectedProduct.photo);
       this.selectedProduct.photo = f;
       this.selectedProduct = { ...this.selectedProduct };
+    },
+
+    downloadBarcode() {
+      const url =
+        this.barcodeImageUrl ||
+        `/admin/products/barcode/image/${encodeURIComponent(
+          this.selectedProduct.barcode || ""
+        )}`;
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (this.selectedProduct.barcode || "barcode") + ".png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     },
 
     getPhotoPreview(p) {
