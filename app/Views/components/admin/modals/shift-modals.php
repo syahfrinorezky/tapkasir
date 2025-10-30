@@ -117,6 +117,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedShift.name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.name" x-text="validationErrors.name"></p>
                 </div>
             </div>
 
@@ -131,6 +132,7 @@
                             x-model="selectedShift.start_time"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.start_time" x-text="validationErrors.start_time"></p>
                 </div>
 
                 <div>
@@ -143,6 +145,7 @@
                             x-model="selectedShift.end_time"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.end_time" x-text="validationErrors.end_time"></p>
                 </div>
             </div>
 
@@ -156,6 +159,7 @@
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.status" x-text="validationErrors.status"></p>
                 </div>
             </div>
         </div>
@@ -220,6 +224,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
                         x-model="selectedShift.name"
                         required>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.name" x-text="validationErrors.name"></p>
                 </div>
             </div>
 
@@ -234,6 +239,7 @@
                             x-model="selectedShift.start_time"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.start_time" x-text="validationErrors.start_time"></p>
                 </div>
 
                 <div>
@@ -246,6 +252,7 @@
                             x-model="selectedShift.end_time"
                             required>
                     </div>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.end_time" x-text="validationErrors.end_time"></p>
                 </div>
             </div>
 
@@ -259,6 +266,7 @@
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
+                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.status" x-text="validationErrors.status"></p>
                 </div>
             </div>
         </div>

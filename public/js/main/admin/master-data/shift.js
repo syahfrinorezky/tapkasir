@@ -13,6 +13,12 @@ function shiftManagement() {
     selectedShiftId: null,
     message: "",
     error: "",
+    validationErrors: {
+      name: "",
+      start_time: "",
+      end_time: "",
+      status: "",
+    },
     openEditModal: false,
     openAddShiftModal: false,
     openEditShiftModal: false,
@@ -109,6 +115,7 @@ function shiftManagement() {
         end_time: "",
         status: "active",
       };
+      this.clearValidation();
       this.openAddShiftModal = true;
     },
 
@@ -116,12 +123,22 @@ function shiftManagement() {
       this.selectedShift = {
         ...shift,
       };
+      this.clearValidation();
       this.openEditShiftModal = true;
     },
 
     openDeleteShift(shift) {
       this.selectedShift = shift;
       this.openDeleteShiftModal = true;
+    },
+
+    clearValidation() {
+      this.validationErrors = {
+        name: "",
+        start_time: "",
+        end_time: "",
+        status: "",
+      };
     },
 
     async updateShift() {
@@ -169,14 +186,20 @@ function shiftManagement() {
         const data = await res.json();
 
         if (res.ok) {
+          this.clearValidation();
           this.message = data.message;
           await this.fetchData();
           this.openAddShiftModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
-          this.openAddShiftModal = false;
-          this.error = data.message || "Gagal menambahkan shift.";
-          setTimeout(() => (this.error = ""), 3000);
+          if (data && data.validation) {
+            this.validationErrors = data.validation;
+            this.openAddShiftModal = true;
+          } else {
+            this.openAddShiftModal = false;
+            this.error = data.message || "Gagal menambahkan shift.";
+            setTimeout(() => (this.error = ""), 3000);
+          }
         }
       } catch (error) {
         this.error = "Terjadi kesalahan saat menambahkan shift.";
@@ -198,14 +221,20 @@ function shiftManagement() {
         const data = await res.json();
 
         if (res.ok) {
+          this.clearValidation();
           this.message = data.message;
           await this.fetchData();
           this.openEditShiftModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
-          this.openEditShiftModal = false;
-          this.error = data.message || "Gagal memperbarui shift.";
-          setTimeout(() => (this.error = ""), 3000);
+          if (data && data.validation) {
+            this.validationErrors = data.validation;
+            this.openEditShiftModal = true;
+          } else {
+            this.openEditShiftModal = false;
+            this.error = data.message || "Gagal memperbarui shift.";
+            setTimeout(() => (this.error = ""), 3000);
+          }
         }
       } catch (error) {
         this.error = "Terjadi kesalahan saat memperbarui shift.";

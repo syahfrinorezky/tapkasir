@@ -2,7 +2,6 @@ function productManagement() {
   return {
     products: [],
     categories: [],
-
     selectedProduct: {
       id: null,
       product_name: "",
@@ -12,29 +11,30 @@ function productManagement() {
       barcode: "",
       photo: null,
     },
-
     selectedCategory: {
       id: null,
       category_name: "",
     },
-
     message: "",
     error: "",
-
+    validationErrors: {
+      product_name: "",
+      price: "",
+      category_id: "",
+      stock: "",
+      barcode: "",
+      category_name: "",
+    },
     openAddProductModal: false,
     openEditProductModal: false,
     openDeleteProductModal: false,
-
     openAddCategoryModal: false,
     openEditCategoryModal: false,
     openDeleteCategoryModal: false,
-
     dataProductPage: 1,
     dataProductPageSize: 10,
-
     dataCategoriesPage: 1,
     dataCategoriesPageSize: 5,
-
     _previewUrls: new Set(),
 
     get paginatedProducts() {
@@ -42,17 +42,14 @@ function productManagement() {
       const end = start + this.dataProductPageSize;
       return this.products.slice(start, end);
     },
-
     get totalProductPages() {
       return Math.ceil(this.products.length / this.dataProductPageSize) || 1;
     },
-
     get paginatedCategories() {
       const start = (this.dataCategoriesPage - 1) * this.dataCategoriesPageSize;
       const end = start + this.dataCategoriesPageSize;
       return this.categories.slice(start, end);
     },
-
     get totalCategoriesPages() {
       return (
         Math.ceil(this.categories.length / this.dataCategoriesPageSize) || 1
@@ -60,45 +57,33 @@ function productManagement() {
     },
 
     changeDataProductPage(page) {
-      if (page >= 1 && page <= this.totalProductPages) {
+      if (page >= 1 && page <= this.totalProductPages)
         this.dataProductPage = page;
-      }
     },
-
     changeDataCategoriesPage(page) {
-      if (page >= 1 && page <= this.totalCategoriesPages) {
+      if (page >= 1 && page <= this.totalCategoriesPages)
         this.dataCategoriesPage = page;
-      }
     },
-
     getDataProductsNumber() {
-      const pages = [];
-      for (let i = 1; i <= this.totalProductPages; i++) pages.push(i);
-      return pages;
+      return Array.from({ length: this.totalProductPages }, (_, i) => i + 1);
     },
-
     getDataCategoriesNumber() {
-      const pages = [];
-      for (let i = 1; i <= this.totalCategoriesPages; i++) pages.push(i);
-      return pages;
+      return Array.from({ length: this.totalCategoriesPages }, (_, i) => i + 1);
     },
-
-    getProductRowNumber(index) {
-      return (this.dataProductPage - 1) * this.dataProductPageSize + index + 1;
+    getProductRowNumber(i) {
+      return (this.dataProductPage - 1) * this.dataProductPageSize + i + 1;
     },
-
-    getCategoryRowNumber(index) {
+    getCategoryRowNumber(i) {
       return (
-        (this.dataCategoriesPage - 1) * this.dataCategoriesPageSize + index + 1
+        (this.dataCategoriesPage - 1) * this.dataCategoriesPageSize + i + 1
       );
     },
-
-    formatCurrency(amount) {
+    formatCurrency(a) {
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
         minimumFractionDigits: 0,
-      }).format(amount);
+      }).format(a);
     },
 
     async fetchData() {
@@ -107,21 +92,24 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-
+        if (!data || !data.products || !data.categories) {
+          this.error = data.message || "Response tidak valid.";
+          return;
+        }
         this.products = Array.isArray(data.products) ? data.products : [];
         this.categories = Array.isArray(data.categories) ? data.categories : [];
         this.calculateProductCount();
       } catch (e) {
         console.error(e);
-        this.error = "Gagal memuat data produk & kategori.";
+        this.error = "Gagal memuat data.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
 
     calculateProductCount() {
-      this.categories.forEach((category) => {
-        category.product_count = this.products.filter(
-          (product) => String(product.category_id) === String(category.id)
+      this.categories.forEach((c) => {
+        c.product_count = this.products.filter(
+          (p) => String(p.category_id) === String(c.id)
         ).length;
       });
     },
@@ -130,137 +118,105 @@ function productManagement() {
       this.clearSelectedProduct();
       this.openAddProductModal = true;
     },
-
-    openEditProduct(product) {
+    openEditProduct(p) {
       this.clearSelectedProduct();
-      this.selectedProduct = {
-        id: product.id,
-        product_name: product.product_name || "",
-        price: product.price || "",
-        category_id: product.category_id || "",
-        stock: product.stock || "",
-        barcode: product.barcode || "",
-        photo: product.photo || null,
-      };
+      this.selectedProduct = { ...p };
       this.openEditProductModal = true;
     },
-
-    openDeleteProduct(product) {
-      this.selectedProduct = product;
+    openDeleteProduct(p) {
+      this.selectedProduct = p;
       this.openDeleteProductModal = true;
     },
-
     openAddCategory() {
       this.selectedCategory = { id: null, category_name: "" };
+      this.validationErrors = {};
       this.openAddCategoryModal = true;
     },
-
-    openEditCategory(category) {
-      this.selectedCategory = {
-        id: category.id,
-        category_name: category.category_name || "",
-      };
+    openEditCategory(c) {
+      this.selectedCategory = { ...c };
+      this.validationErrors = {};
       this.openEditCategoryModal = true;
     },
-
-    openDeleteCategory(category) {
-      this.selectedCategory = category;
+    openDeleteCategory(c) {
+      this.selectedCategory = c;
       this.openDeleteCategoryModal = true;
     },
 
     async addProduct() {
       try {
-        if (!this.selectedProduct || !this.selectedProduct.category_id) {
-          this.error = "Silakan pilih kategori untuk produk.";
+        if (!this.selectedProduct.category_id) {
+          this.error = "Silakan pilih kategori.";
           setTimeout(() => (this.error = ""), 3000);
           return;
         }
-
-        const formData = new FormData();
-        formData.append(
-          "product_name",
-          this.selectedProduct.product_name || ""
-        );
-        formData.append("price", this.selectedProduct.price || "");
-        formData.append("category_id", this.selectedProduct.category_id || "");
-        formData.append("stock", this.selectedProduct.stock || "");
-        formData.append("barcode", this.selectedProduct.barcode || "");
-        if (this.selectedProduct.photo instanceof File) {
-          formData.append("photo", this.selectedProduct.photo);
-        }
-
+        const fd = new FormData();
+        Object.entries(this.selectedProduct).forEach(([k, v]) => {
+          if (k === "photo" && v instanceof File) fd.append("photo", v);
+          else if (k !== "photo") fd.append(k, v || "");
+        });
         const res = await fetch(`/admin/products/add`, {
           method: "POST",
           headers: { "X-Requested-With": "XMLHttpRequest" },
-          body: formData,
+          body: fd,
         });
-
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
+          this.validationErrors = {};
           this.message = data.message || "Produk berhasil ditambahkan";
           await this.fetchData();
           this.openAddProductModal = false;
           this.clearSelectedProduct();
           setTimeout(() => (this.message = ""), 3000);
+        } else if (data.validation) {
+          this.validationErrors = data.validation;
         } else {
           this.error = data.message || "Gagal menambahkan produk.";
-          this.openAddProductModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat menambahkan produk.";
-        this.openAddProductModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
 
     async editProduct() {
       try {
-        if (!this.selectedProduct || !this.selectedProduct.id) {
+        if (!this.selectedProduct.id) {
           this.error = "Data produk tidak valid";
           setTimeout(() => (this.error = ""), 3000);
           return;
         }
-
-        const formData = new FormData();
-        formData.append(
-          "product_name",
-          this.selectedProduct.product_name || ""
-        );
-        formData.append("price", this.selectedProduct.price || "");
-        formData.append("category_id", this.selectedProduct.category_id || "");
-        formData.append("stock", this.selectedProduct.stock || "");
-        formData.append("barcode", this.selectedProduct.barcode || "");
-        if (this.selectedProduct.photo instanceof File) {
-          formData.append("photo", this.selectedProduct.photo);
-        }
-
+        const fd = new FormData();
+        Object.entries(this.selectedProduct).forEach(([k, v]) => {
+          if (k === "photo" && v instanceof File) fd.append("photo", v);
+          else if (k !== "photo") fd.append(k, v || "");
+        });
         const res = await fetch(
           `/admin/products/edit/${this.selectedProduct.id}`,
           {
             method: "POST",
             headers: { "X-Requested-With": "XMLHttpRequest" },
-            body: formData,
+            body: fd,
           }
         );
-
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
+          this.validationErrors = {};
           this.message = data.message || "Produk berhasil diperbarui";
           await this.fetchData();
           this.openEditProductModal = false;
           this.clearSelectedProduct();
           setTimeout(() => (this.message = ""), 3000);
+        } else if (data.validation) {
+          this.validationErrors = data.validation;
         } else {
           this.error = data.message || "Gagal memperbarui produk.";
-          this.openEditProductModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat memperbarui produk.";
-        this.openEditProductModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
@@ -272,89 +228,79 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
           this.message = data.message || "Produk berhasil dihapus";
           await this.fetchData();
           this.openDeleteProductModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menghapus produk.";
-          this.openDeleteProductModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat menghapus produk.";
-        this.openDeleteProductModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
 
     async addCategory() {
       try {
-        const formData = new FormData();
-        formData.append(
-          "category_name",
-          this.selectedCategory.category_name || ""
-        );
-
+        const fd = new FormData();
+        fd.append("category_name", this.selectedCategory.category_name || "");
         const res = await fetch(`/admin/products/addCategory`, {
           method: "POST",
           headers: { "X-Requested-With": "XMLHttpRequest" },
-          body: formData,
+          body: fd,
         });
-
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
+          this.validationErrors = {};
           this.message = data.message || "Kategori berhasil ditambahkan";
           await this.fetchData();
           this.openAddCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
+        } else if (data.validation) {
+          this.validationErrors = data.validation;
         } else {
           this.error = data.message || "Gagal menambahkan kategori.";
-          this.openAddCategoryModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat menambahkan kategori.";
-        this.openAddCategoryModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
 
     async editCategory() {
       try {
-        const formData = new FormData();
-        formData.append(
-          "category_name",
-          this.selectedCategory.category_name || ""
-        );
-
+        const fd = new FormData();
+        fd.append("category_name", this.selectedCategory.category_name || "");
         const res = await fetch(
           `/admin/products/editCategory/${this.selectedCategory.id}`,
           {
             method: "POST",
             headers: { "X-Requested-With": "XMLHttpRequest" },
-            body: formData,
+            body: fd,
           }
         );
-
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
+          this.validationErrors = {};
           this.message = data.message || "Kategori berhasil diperbarui";
           await this.fetchData();
           this.openEditCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
+        } else if (data.validation) {
+          this.validationErrors = data.validation;
         } else {
           this.error = data.message || "Gagal memperbarui kategori.";
-          this.openEditCategoryModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat memperbarui kategori.";
-        this.openEditCategoryModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
@@ -366,51 +312,51 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-        if (res.ok) {
+        if (data.status || res.ok) {
           this.message = data.message || "Kategori berhasil dihapus";
           await this.fetchData();
           this.openDeleteCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menghapus kategori.";
-          this.openDeleteCategoryModal = false;
           setTimeout(() => (this.error = ""), 3000);
         }
-      } catch (error) {
-        console.error(error);
-        this.error = "Terjadi kesalahan saat menghapus kategori.";
-        this.openDeleteCategoryModal = false;
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
       }
     },
 
-    handlePhotoUpload(event, isNewProduct = true) {
-      const file =
-        event.target.files && event.target.files[0]
-          ? event.target.files[0]
-          : null;
-      if (!file) return;
+    handlePhotoUpload(e) {
+      const f = e.target.files?.[0] || null;
+      if (!f) return;
       this.revokePreviewIfNeeded(this.selectedProduct.photo);
-      this.selectedProduct.photo = file;
+      this.selectedProduct.photo = f;
+      this.selectedProduct = { ...this.selectedProduct };
     },
 
-    getPhotoPreview(photo) {
-      if (!photo) return null;
-      if (photo instanceof File) {
-        const url = URL.createObjectURL(photo);
+    getPhotoPreview(p) {
+      if (!p) return null;
+      if (p instanceof File) {
+        const url = URL.createObjectURL(p);
         this._previewUrls.add(url);
         return url;
       }
-      return photo;
+      return p;
     },
 
-    revokePreviewIfNeeded(photo) {
-      if (!photo) return;
-      if (photo instanceof File) {
+    revokePreviewIfNeeded(p) {
+      if (!p) return;
+      if (typeof p === "string" && p.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(p);
+        } catch {}
+      } else if (p instanceof File) {
         for (const url of this._previewUrls) {
           try {
             URL.revokeObjectURL(url);
-          } catch (e) {}
+          } catch {}
         }
         this._previewUrls.clear();
       }
@@ -427,6 +373,7 @@ function productManagement() {
         barcode: "",
         photo: null,
       };
+      this.validationErrors = {};
     },
   };
 }

@@ -77,6 +77,14 @@ class ProductController extends BaseController
             'stock' => $this->request->getPost('stock'),
         ];
 
+        $rules = (new \App\Validation\ProductRules())->create;
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $this->validator->getErrors(),
+            ]);
+        }
+
         if (empty($data['category_id'])) {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'Kategori harus dipilih'
@@ -124,6 +132,14 @@ class ProductController extends BaseController
             'category_id' => $this->request->getPost('category_id'),
             'stock' => $this->request->getPost('stock'),
         ];
+
+        $rules = (new \App\Validation\ProductRules())->update;
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $this->validator->getErrors(),
+            ]);
+        }
 
         $currentProduct = $productModel->find($id);
         if ($currentProduct && $currentProduct['category_id'] != $data['category_id']) {
@@ -190,6 +206,14 @@ class ProductController extends BaseController
         $categoryModel = new CategoryModel();
         $data = ['category_name' => $this->request->getPost('category_name')];
 
+        $rules = (new \App\Validation\CategoryRules())->create;
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $this->validator->getErrors(),
+            ]);
+        }
+
         if ($categoryModel->insert($data)) {
             return $this->response->setJSON([
                 'message' => 'Kategori berhasil ditambahkan'
@@ -205,6 +229,14 @@ class ProductController extends BaseController
     {
         $categoryModel = new CategoryModel();
         $data = ['category_name' => $this->request->getPost('category_name')];
+
+        $rules = (new \App\Validation\CategoryRules())->update;
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal.',
+                'validation' => $this->validator->getErrors(),
+            ]);
+        }
 
         if ($categoryModel->update($id, $data)) {
             return $this->response->setJSON([
