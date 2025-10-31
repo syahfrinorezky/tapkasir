@@ -35,10 +35,30 @@ Manajemen Produk
                             Daftar Produk
                         </h1>
 
-                        <button @click="openAddProduct()" type="button"
-                            class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
-                            <i class="fas fa-plus text-primary"></i>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button @click="openAddProduct()" type="button"
+                                class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-plus text-primary"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 px-1">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="flex w-full md:w-2/3">
+                                <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Cari produk atau barcode..." class="flex-1 px-3 py-2 rounded-l-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                                <button @click="dataProductPage = 1" type="button" class="px-4 py-2 bg-primary text-white rounded-r-md text-sm border border-primary/30 border-l-0 hover:bg-primary/90">Search</button>
+                            </div>
+
+                            <div class="w-full md:w-1/3">
+                                <select x-model="activeCategoryFilter" @change="setCategoryFilter($event.target.value)" class="w-full px-3 py-2 rounded-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
+                                    <option value="all">All</option>
+                                    <template x-for="c in categories" :key="c.id">
+                                        <option :value="c.id" x-text="c.category_name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -57,7 +77,7 @@ Manajemen Produk
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <template x-if="products.length === 0">
+                                    <template x-if="filteredProducts.length === 0">
                                         <tr>
                                             <td colspan="8" class="text-center py-4 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
@@ -109,11 +129,11 @@ Manajemen Produk
                         <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
                             <div class="text-sm text-gray-600">
                                 Menampilkan
-                                <span class="font-semibold" x-text="products.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
+                                <span class="font-semibold" x-text="filteredProducts.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
                                 hingga
-                                <span class="font-semibold" x-text="Math.min(dataProductPage * dataProductPageSize, products.length)"></span>
+                                <span class="font-semibold" x-text="Math.min(dataProductPage * dataProductPageSize, filteredProducts.length)"></span>
                                 dari
-                                <span class="font-semibold" x-text="products.length"></span>
+                                <span class="font-semibold" x-text="filteredProducts.length"></span>
                                 produk
                             </div>
 

@@ -17,6 +17,8 @@ function productManagement() {
     },
     message: "",
     error: "",
+    searchQuery: "",
+    activeCategoryFilter: "all",
     validationErrors: {
       product_name: "",
       price: "",
@@ -39,13 +41,32 @@ function productManagement() {
     dataCategoriesPageSize: 5,
     _previewUrls: new Set(),
 
+    get filteredProducts() {
+      let list = Array.isArray(this.products) ? this.products : [];
+      if (this.activeCategoryFilter && this.activeCategoryFilter !== "all") {
+        list = list.filter(
+          (p) => String(p.category_id) === String(this.activeCategoryFilter)
+        );
+      }
+      if (this.searchQuery && this.searchQuery.trim() !== "") {
+        const q = this.searchQuery.toLowerCase();
+        list = list.filter(
+          (p) =>
+            (p.product_name || "").toLowerCase().includes(q) ||
+            (p.barcode || "").toLowerCase().includes(q)
+        );
+      }
+      return list;
+    },
     get paginatedProducts() {
       const start = (this.dataProductPage - 1) * this.dataProductPageSize;
       const end = start + this.dataProductPageSize;
-      return this.products.slice(start, end);
+      return this.filteredProducts.slice(start, end);
     },
     get totalProductPages() {
-      return Math.ceil(this.products.length / this.dataProductPageSize) || 1;
+      return (
+        Math.ceil(this.filteredProducts.length / this.dataProductPageSize) || 1
+      );
     },
     get paginatedCategories() {
       const start = (this.dataCategoriesPage - 1) * this.dataCategoriesPageSize;
@@ -101,6 +122,7 @@ function productManagement() {
         this.products = Array.isArray(data.products) ? data.products : [];
         this.categories = Array.isArray(data.categories) ? data.categories : [];
         this.calculateProductCount();
+        this.activeCategoryFilter = "all";
       } catch (e) {
         console.error(e);
         this.error = "Gagal memuat data.";
@@ -114,6 +136,11 @@ function productManagement() {
           (p) => String(p.category_id) === String(c.id)
         ).length;
       });
+    },
+
+    setCategoryFilter(id) {
+      this.activeCategoryFilter = id === "all" ? "all" : id;
+      this.dataProductPage = 1;
     },
 
     openAddProduct() {
