@@ -89,7 +89,7 @@ Manajemen Produk
                                     </template>
 
                                     <template x-for="(product, index) in paginatedProducts" :key="product.id">
-                                        <tr>
+                                        <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-3 text-sm text-center" x-text="getProductRowNumber(index)"></td>
                                             <td class="px-4 py-3 text-sm text-center">
                                                 <template x-if="product.photo">
@@ -212,7 +212,7 @@ Manajemen Produk
                                         </template>
 
                                         <template x-for="(category, index) in paginatedCategories" :key="category.id">
-                                            <tr>
+                                            <tr class="hover:bg-gray-50">
                                                 <td class="px-4 py-3 text-sm" x-text="category.category_name"></td>
                                                 <td class="px-4 py-3 text-sm text-center">
                                                     <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-blue-700 bg-blue-100 rounded-full"

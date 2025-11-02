@@ -59,7 +59,7 @@ Manajemen User
                                     </template>
 
                                     <template x-for="(user, index) in paginatedUsers" :key="user.id">
-                                        <tr>
+                                        <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-3 text-sm text-center" x-text="getUserRowNumber(index)"></td>
                                             <td class="px-4 py-3 text-sm " x-text="user.nama_lengkap"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="user.email"></td>
@@ -158,7 +158,7 @@ Manajemen User
                                         </template>
 
                                         <template x-for="(user, index) in paginatedPending" :key="user.id">
-                                            <tr>
+                                            <tr class="hover:bg-gray-50">
                                                 <td class="px-4 py-3 text-sm">
                                                     <div class="flex flex-col">
                                                         <span class="font-semibold" x-text="user.nama_lengkap"></span>
@@ -265,7 +265,7 @@ Manajemen User
                                         </template>
 
                                         <template x-for="(role, index) in paginatedRoles" :key="role.id">
-                                            <tr>
+                                            <tr class="hover:bg-gray-50">
                                                 <td class="px-4 py-3 text-sm capitalize">
                                                     <span x-text="role.role_name"></span>
                                                 </td>
@@ -339,9 +339,9 @@ Manajemen User
                         </div>
                     </div>
                 </div>
-            <?= $this->include('components/admin/modals/user-modals'); ?>
+                <?= $this->include('components/admin/modals/user-modals'); ?>
+            </div>
         </div>
-    </div>
 
 </main>
 <?= $this->endSection() ?>

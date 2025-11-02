@@ -59,7 +59,7 @@ Manajemen Shift
                                     </template>
 
                                     <template x-for="(cashier, index) in paginatedCashiers" :key="cashier.id">
-                                        <tr>
+                                        <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-3 text-sm text-center" x-text="getCashierRowNumber(index)"></td>
                                             <td class="px-4 py-3 text-sm" x-text="cashier.nama_lengkap"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="cashier.email"></td>
@@ -162,7 +162,7 @@ Manajemen Shift
                                         </template>
 
                                         <template x-for="(shift, index) in paginatedShifts" :key="shift.id">
-                                            <tr>
+                                            <tr class="hover:bg-gray-50">
                                                 <td class="px-4 py-3 text-sm" x-text="shift.name"></td>
                                                 <td class="px-4 py-3 text-sm text-center" x-text="`${shift.start_time} - ${shift.end_time}`"></td>
                                                 <td class="px-4 py-3 text-sm text-center">
