@@ -7,11 +7,11 @@ Manajemen Produk
 <?= $this->section('content') ?>
 <main>
     <div class="fixed top-0 w-full z-40">
-        <?= $this->include('components/admin/header'); ?>
+        <?= $this->include('components/header'); ?>
     </div>
 
     <div class="flex">
-        <?= $this->include('components/admin/sidebar'); ?>
+        <?= $this->include('components/sidebar'); ?>
 
         <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
             x-data="productManagement()" x-init="fetchData()">

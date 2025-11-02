@@ -7,11 +7,11 @@ Dashboard Admin
 <?= $this->section('content') ?>
 <main class="">
     <div class="fixed top-0 w-full z-40">
-        <?= $this->include('components/admin/header'); ?>
+        <?= $this->include('components/header'); ?>
     </div>
 
     <div class="flex">
-        <?= $this->include('components/admin/sidebar'); ?>
+        <?= $this->include('components/sidebar'); ?>
 
         <div x-data="dashboard()" x-init="init()" class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen">
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
