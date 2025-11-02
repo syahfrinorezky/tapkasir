@@ -47,7 +47,7 @@ class TransactionController extends BaseController
         $itemModel = new TransactionItemModel();
 
         $items = $itemModel
-            ->select('transaction_items.*, products.product_name, products.price as product_price')
+            ->select('transaction_items.*, products.product_name, products.price as price')
             ->join('products', 'products.id = transaction_items.product_id', 'left')
             ->where('transaction_items.transaction_id', $transactionId)
             ->where('transaction_items.deleted_at', null)
