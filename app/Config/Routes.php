@@ -6,6 +6,8 @@ use App\Controllers\Admin\RoleController;
 use App\Controllers\Admin\ShiftController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\ProductController;
+use App\Controllers\Admin\TransactionController;
+use App\Controllers\TransactionApiController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -64,4 +66,12 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('shifts/add', [ShiftController::class, 'addShift']);
     $routes->post('shifts/edit/(:num)', [ShiftController::class, 'editShift/$1']);
     $routes->post('shifts/updateCashierShift/(:num)', [ShiftController::class, 'updateCashierShift/$1']);
+
+    
+    // Transactions
+    $routes->get('transactions', [TransactionController::class, 'index'], ['as' => 'admin.transaction']);
+    $routes->get('transactions/data', [TransactionController::class, 'data'], ['as' => 'admin.transaction.data']);
+    $routes->get('transactions/items/(:num)', [TransactionController::class, 'items']);
 });
+
+$routes->post('transactions/create', [TransactionController::class, 'create']);
