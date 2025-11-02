@@ -46,7 +46,7 @@
                     <i class="fas fa-users-cog text-primary text-xl"></i>
                     <span>Manajemen User</span>
                 </a>
-                <a href="<?= base_url('admin/transaksi') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/transaksi' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
+                <a href="<?= base_url('admin/transactions') ?>" class="py-4 px-6 flex items-center space-x-3 hover:bg-secondary hover:font-semibold rounded-md transition-all duration-300 ease-in-out <?= uri_string() == 'admin/transactions' ? 'bg-secondary text-gray-800 font-semibold' : 'text-gray-500' ?>">
                     <i class="fas fa-exchange-alt text-primary text-xl"></i>
                     <span>Transaksi</span>
                 </a>
