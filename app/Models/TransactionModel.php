@@ -13,6 +13,7 @@ class TransactionModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'no_transaction',
         'user_id',
         'cashier_work_id',
         'transaction_date',

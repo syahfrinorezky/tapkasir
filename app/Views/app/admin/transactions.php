@@ -69,7 +69,7 @@ Log Transaksi
                                 <thead class="bg-primary text-white sticky top-0 z-10">
                                     <tr>
                                         <th class="px-2 py-2 text-center text-sm font-semibold">No</th>
-                                        <th class="px-2 py-2 text-left text-sm font-semibold">ID</th>
+                                        <th class="px-2 py-2 text-left text-sm font-semibold">No. Transaksi</th>
                                         <th class="px-2 py-2 text-left text-sm font-semibold">Kasir</th>
 
                                         <template x-if="!shiftId">
@@ -94,7 +94,7 @@ Log Transaksi
                                     <template x-for="(t, idx) in paginatedTransactions" :key="t.id">
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-2 py-2 text-center" x-text="getTransactionRowNumber(idx)"></td>
-                                            <td class="px-2 py-2 text-left" x-text="t.id"></td>
+                                            <td class="px-2 py-2 text-left" x-text="t.no_transaction ?? t.id"></td>
                                             <td class="px-2 py-2 text-left" x-text="t.cashier ?? '-'"></td>
                                             <td class="px-2 py-2 text-left" x-text="t.shift_name || t.shift || '-'" x-show="!shiftId"></td>
                                             <td class="px-2 py-2 text-right font-medium" x-text="formatCurrency(t.total)"></td>
@@ -114,7 +114,7 @@ Log Transaksi
                         <div class="hidden p-3">
                             <div class="w-full mb-3">
                                 <div class="grid grid-cols-4 gap-2 text-xs text-gray-500 px-1">
-                                    <div>ID</div>
+                                    <div>No. Transaksi</div>
                                     <div>Kasir</div>
                                     <div class="text-right">Total</div>
                                     <div class="text-center">Aksi</div>
@@ -133,7 +133,7 @@ Log Transaksi
                                         <div class="flex-1">
                                             <div class="flex items-center justify-between gap-2">
                                                 <div class="text-xs text-gray-500">#<span x-text="idx + 1"></span></div>
-                                                <div class="text-sm font-medium text-primary" x-text="t.id"></div>
+                                                <div class="text-sm font-medium text-primary" x-text="t.no_transaction ?? t.id"></div>
                                             </div>
                                             <div class="mt-2 text-sm text-gray-700" x-text="t.cashier ?? '-'">Kasir</div>
 

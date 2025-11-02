@@ -7,6 +7,7 @@ function transactionsManagement() {
     items: [],
     showItemsModal: false,
     currentTransactionId: null,
+    currentTransactionNo: null,
     autoRefresh: true,
     _autoRefreshTimer: null,
     dataTransactionsPage: 1,
@@ -124,6 +125,17 @@ function transactionsManagement() {
 
     async openItems(transactionId) {
       this.currentTransactionId = transactionId;
+      // set the human-readable transaction number if available
+      try {
+        const tx = Array.isArray(this.transactions)
+          ? this.transactions.find(
+              (t) => String(t.id) === String(transactionId)
+            )
+          : null;
+        this.currentTransactionNo = tx?.no_transaction ?? null;
+      } catch (e) {
+        this.currentTransactionNo = null;
+      }
       this.items = [];
       this.showItemsModal = true;
       try {
@@ -142,6 +154,7 @@ function transactionsManagement() {
     closeItems() {
       this.showItemsModal = false;
       this.currentTransactionId = null;
+      this.currentTransactionNo = null;
       this.items = [];
     },
   };
