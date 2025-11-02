@@ -1,5 +1,7 @@
 function shiftManagement() {
   return {
+    autoRefresh: true,
+    _autoRefreshTimer: null,
     cashiers: [],
     shifts: [],
     selectedCashier: null,
@@ -27,6 +29,16 @@ function shiftManagement() {
     dataCashierPageSize: 10,
     dataShiftsPage: 1,
     dataShiftsPageSize: 5,
+
+    init() {
+      this.fetchData();
+      if (this.autoRefresh) this.startAuto();
+
+      this.$watch("autoRefresh", (val) => {
+        if (val) this.startAuto();
+        else this.stopAuto();
+      });
+    },
 
     get paginatedCashiers() {
       const start = (this.dataCashierPage - 1) * this.dataCashierPageSize;
@@ -98,6 +110,18 @@ function shiftManagement() {
         console.error(e);
         this.error = "Gagal memuat data shift & kasir.";
         setTimeout(() => (this.error = ""), 3000);
+      }
+    },
+
+    startAuto() {
+      this.stopAuto();
+      this._autoRefreshTimer = setInterval(() => this.fetchData(), 5000);
+    },
+
+    stopAuto() {
+      if (this._autoRefreshTimer) {
+        clearInterval(this._autoRefreshTimer);
+        this._autoRefreshTimer = null;
       }
     },
 

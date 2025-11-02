@@ -1,6 +1,11 @@
 document.addEventListener("alpine:init", () => {
   Alpine.data("dashboard", () => ({
     loaded: false,
+    autoRefresh: true,
+    _autoRefreshTimer: null,
+    salesChart: null,
+    morningChart: null,
+    nightChart: null,
     data: {
       todaySales: 0,
       activeCashiers: 0,
@@ -14,6 +19,21 @@ document.addEventListener("alpine:init", () => {
       nightTotals: [],
     },
     async init() {
+      try {
+        await this.fetchDataAndRender();
+        this.loaded = true;
+        if (this.autoRefresh) this.startAuto();
+
+        this.$watch("autoRefresh", (val) => {
+          if (val) this.startAuto();
+          else this.stopAuto();
+        });
+      } catch (err) {
+        console.error("Gagal memuat data dashboard:", err);
+      }
+    },
+
+    async fetchDataAndRender() {
       try {
         const res = await fetch("/admin/dashboard/data");
         const json = await res.json();
@@ -32,7 +52,6 @@ document.addEventListener("alpine:init", () => {
         };
 
         this.renderCharts();
-        this.loaded = true;
       } catch (err) {
         console.error("Gagal memuat data dashboard:", err);
       }
@@ -43,8 +62,19 @@ document.addEventListener("alpine:init", () => {
     renderCharts() {
       const data = this.data;
 
+      // destroy old charts to avoid leaks
+      try {
+        if (this.salesChart) this.salesChart.destroy();
+      } catch (e) {}
+      try {
+        if (this.morningChart) this.morningChart.destroy();
+      } catch (e) {}
+      try {
+        if (this.nightChart) this.nightChart.destroy();
+      } catch (e) {}
+
       const salesCtx = document.getElementById("salesChart").getContext("2d");
-      new Chart(salesCtx, {
+      this.salesChart = new Chart(salesCtx, {
         type: "bar",
         data: {
           labels: data.labels,
@@ -78,7 +108,7 @@ document.addEventListener("alpine:init", () => {
       const morningCtx = document
         .getElementById("morningShiftChart")
         .getContext("2d");
-      new Chart(morningCtx, {
+      this.morningChart = new Chart(morningCtx, {
         type: "line",
         data: {
           labels: data.morningHours,
@@ -102,7 +132,7 @@ document.addEventListener("alpine:init", () => {
       const nightCtx = document
         .getElementById("nightShiftChart")
         .getContext("2d");
-      new Chart(nightCtx, {
+      this.nightChart = new Chart(nightCtx, {
         type: "line",
         data: {
           labels: data.nightHours,
@@ -122,6 +152,21 @@ document.addEventListener("alpine:init", () => {
           responsive: true,
         },
       });
+    },
+
+    startAuto() {
+      this.stopAuto();
+      this._autoRefreshTimer = setInterval(
+        () => this.fetchDataAndRender(),
+        5000
+      );
+    },
+
+    stopAuto() {
+      if (this._autoRefreshTimer) {
+        clearInterval(this._autoRefreshTimer);
+        this._autoRefreshTimer = null;
+      }
     },
   }));
 });

@@ -1,5 +1,7 @@
 function productManagement() {
   return {
+    autoRefresh: true,
+    _autoRefreshTimer: null,
     products: [],
     categories: [],
     selectedProduct: {
@@ -40,6 +42,17 @@ function productManagement() {
     dataCategoriesPage: 1,
     dataCategoriesPageSize: 5,
     _previewUrls: new Set(),
+
+    init() {
+      // initial load
+      this.fetchData();
+      if (this.autoRefresh) this.startAuto();
+
+      this.$watch("autoRefresh", (val) => {
+        if (val) this.startAuto();
+        else this.stopAuto();
+      });
+    },
 
     get filteredProducts() {
       let list = Array.isArray(this.products) ? this.products : [];
@@ -127,6 +140,18 @@ function productManagement() {
         console.error(e);
         this.error = "Gagal memuat data.";
         setTimeout(() => (this.error = ""), 3000);
+      }
+    },
+
+    startAuto() {
+      this.stopAuto();
+      this._autoRefreshTimer = setInterval(() => this.fetchData(), 5000);
+    },
+
+    stopAuto() {
+      if (this._autoRefreshTimer) {
+        clearInterval(this._autoRefreshTimer);
+        this._autoRefreshTimer = null;
       }
     },
 

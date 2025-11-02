@@ -1,5 +1,7 @@
 function userManagement() {
   return {
+    autoRefresh: true,
+    _autoRefreshTimer: null,
     approved: [],
     pending: [],
     roles: [],
@@ -29,6 +31,19 @@ function userManagement() {
     dataPendingPageSize: 5,
     dataRolesPage: 1,
     dataRolesPageSize: 5,
+
+    init() {
+      // initial load of roles and users
+      this.fetchRoles();
+      this.fetchUsers("approved");
+      this.fetchUsers("pending");
+      if (this.autoRefresh) this.startAuto();
+
+      this.$watch("autoRefresh", (val) => {
+        if (val) this.startAuto();
+        else this.stopAuto();
+      });
+    },
 
     get paginatedUsers() {
       const start = (this.dataUserPage - 1) * this.dataUserPageSize;
@@ -265,6 +280,22 @@ function userManagement() {
       } catch (e) {
         this.error = "Gagal mengambil data pengguna.";
         setTimeout(() => (this.error = ""), 3000);
+      }
+    },
+
+    startAuto() {
+      this.stopAuto();
+      this._autoRefreshTimer = setInterval(() => {
+        this.fetchRoles();
+        this.fetchUsers("approved");
+        this.fetchUsers("pending");
+      }, 5000);
+    },
+
+    stopAuto() {
+      if (this._autoRefreshTimer) {
+        clearInterval(this._autoRefreshTimer);
+        this._autoRefreshTimer = null;
       }
     },
 
