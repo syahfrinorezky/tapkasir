@@ -60,7 +60,7 @@ class AuthController extends BaseController
                     return redirect()->back()->withInput()->with('error', 'Akun Anda belum disetujui. Silahkan hubungi admin.');
                 }
 
-                if ($user['role_name'] === 'cashier') {
+                if ($user['role_name'] === 'kasir') {
                     $currentShift = $cashierWorkModel
                         ->select('cashier_works.*, shifts.name, shifts.start_time, shifts.end_time')
                         ->join('shifts', 'shifts.id = cashier_works.shift_id')
@@ -92,7 +92,7 @@ class AuthController extends BaseController
                     'isLoggedIn' => true,
                 ];
 
-                if ($user['role_name'] === 'cashier' && isset($currentShift)) {
+                if ($user['role_name'] === 'kasir' && isset($currentShift)) {
                     $userSession['shift_id'] = $currentShift['shift_id'];
                     $userSession['shift_name'] = $currentShift['name'];
                     $userSession['shift_time'] = $currentShift['start_time'] . ' - ' . $currentShift['end_time'];
