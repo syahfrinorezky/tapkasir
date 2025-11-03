@@ -165,6 +165,13 @@ function shiftManagement() {
       };
     },
 
+    formatTimeToSeconds(time) {
+      if (!time) return time;
+      if (/^\d{2}:\d{2}:\d{2}$/.test(time)) return time;
+      if (/^\d{2}:\d{2}$/.test(time)) return `${time}:00`;
+      return time;
+    },
+
     async updateShift() {
       try {
         const res = await fetch(
@@ -198,6 +205,8 @@ function shiftManagement() {
 
     async addShift() {
       try {
+        this.selectedShift.start_time = this.formatTimeToSeconds(this.selectedShift.start_time);
+        this.selectedShift.end_time = this.formatTimeToSeconds(this.selectedShift.end_time);
         const res = await fetch(`/admin/shifts/add`, {
           method: "POST",
           headers: {
@@ -233,6 +242,9 @@ function shiftManagement() {
 
     async editShift() {
       try {
+        // normalize times to include seconds before sending to server
+        this.selectedShift.start_time = this.formatTimeToSeconds(this.selectedShift.start_time);
+        this.selectedShift.end_time = this.formatTimeToSeconds(this.selectedShift.end_time);
         const res = await fetch(`/admin/shifts/edit/${this.selectedShift.id}`, {
           method: "POST",
           headers: {
