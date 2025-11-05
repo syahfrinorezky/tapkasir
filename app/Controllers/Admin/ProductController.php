@@ -276,7 +276,6 @@ class ProductController extends BaseController
 
     public function barcodeImage($barcode)
     {
-
         if (!class_exists(BarcodeGeneratorPNG::class)) {
             return $this->response->setStatusCode(500)->setJSON([
                 'message' => 'Barcode generator not installed. Run: composer require picqer/php-barcode-generator'
@@ -284,7 +283,6 @@ class ProductController extends BaseController
         }
 
         $generator = new BarcodeGeneratorPNG();
-
         $png = $generator->getBarcode($barcode, $generator::TYPE_CODE_128, 2, 60);
 
         return $this->response->setHeader('Content-Type', 'image/png')->setBody($png);
@@ -321,3 +319,4 @@ class ProductController extends BaseController
         return $this->response->setJSON(['message' => 'ok', 'url' => $url]);
     }
 }
+

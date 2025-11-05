@@ -14,11 +14,11 @@ Log Transaksi
         <?= $this->include('components/sidebar'); ?>
 
         <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
-            x-data="transactionsManagement()" x-init="init()">
+            x-data="transactionsLog()" x-init="init()">
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
                 <div>
-                    <h1 class="text-xl text-primary font-primary font-bold">Daftar Transaksi</h1>
-                    <p class="text-gray-600">Lihat log transaksi per tanggal dan shift.</p>
+                    <h1 class="text-xl text-primary font-primary font-bold">Log Transaksi</h1>
+                    <p class="text-gray-600">Riwayat transaksi pribadi kasir ini.</p>
                 </div>
                 <div class="hidden md:block border border-gray-200 rounded-md px-3 py-2">
                     <?= date('l, d M Y'); ?>
@@ -71,19 +71,16 @@ Log Transaksi
                                         <th class="px-2 py-2 text-center text-sm font-semibold">No</th>
                                         <th class="px-2 py-2 text-left text-sm font-semibold">No. Transaksi</th>
                                         <th class="px-2 py-2 text-left text-sm font-semibold">Kasir</th>
-
-                                        <template x-if="!shiftId">
-                                            <th class="px-2 py-2 text-left text-sm font-semibold">Shift</th>
-                                        </template>
                                         <th class="px-2 py-2 text-right text-sm font-semibold">Total</th>
-                                        <th class="px-2 py-2 text-center text-sm font-semibold">Tanggal</th>
+                                        <th class="px-2 py-2 text-left text-sm font-semibold">Waktu</th>
+                                        <th class="px-2 py-2 text-left text-sm font-semibold">Shift</th>
                                         <th class="px-2 py-2 text-center text-sm font-semibold">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 text-sm">
                                     <template x-if="filteredTransactions.length === 0">
                                         <tr>
-                                            <td :colspan="shiftId ? 6 : 7" class="text-center py-6 text-gray-500">
+                                            <td colspan="7" class="text-center py-6 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
                                                     <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
                                                     <span>Tidak ada transaksi</span>
@@ -94,15 +91,13 @@ Log Transaksi
                                     <template x-for="(t, idx) in paginatedTransactions" :key="t.id">
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-2 py-2 text-center" x-text="getTransactionRowNumber(idx)"></td>
-                                            <td class="px-2 py-2 text-left" x-text="t.no_transaction ?? t.id"></td>
-                                            <td class="px-2 py-2 text-left" x-text="t.cashier ?? '-'"></td>
-                                            <td class="px-2 py-2 text-left" x-text="t.shift_name || t.shift || '-'" x-show="!shiftId"></td>
+                                            <td class="px-2 py-2" x-text="t.no_transaction ?? t.id"></td>
+                                            <td class="px-2 py-2" x-text="t.cashier"></td>
                                             <td class="px-2 py-2 text-right font-medium" x-text="formatCurrency(t.total)"></td>
-                                            <td class="px-2 py-2 text-center" x-text="t.transaction_date ?? t.created_at ?? '-'"></td>
+                                            <td class="px-2 py-2" x-text="t.transaction_date"></td>
+                                            <td class="px-2 py-2" x-text="t.shift_name ?? '-' "></td>
                                             <td class="px-2 py-2 text-center">
-                                                <button @click="openItems(t.id)" title="Lihat Items" class="flex items-center justify-center p-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors duration-300 ease-in-out cursor-pointer">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
+                                                <button @click="openItems(t.id)" class="px-2 py-1 rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-sm">Detail</button>
                                             </td>
                                         </tr>
                                     </template>
@@ -110,46 +105,6 @@ Log Transaksi
                             </table>
                         </div>
 
-
-                        <div class="hidden p-3">
-                            <div class="w-full mb-3">
-                                <div class="grid grid-cols-4 gap-2 text-xs text-gray-500 px-1">
-                                    <div>No. Transaksi</div>
-                                    <div>Kasir</div>
-                                    <div class="text-right">Total</div>
-                                    <div class="text-center">Aksi</div>
-                                </div>
-                            </div>
-                            <template x-if="transactions.length === 0">
-                                <div class="w-full flex flex-col items-center justify-center text-gray-500 py-6">
-                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
-                                    <span>Tidak ada transaksi</span>
-                                </div>
-                            </template>
-
-                            <template x-for="(t, idx) in transactions" :key="t.id">
-                                <div class="bg-white border border-gray-100 rounded-md p-3 mb-3 shadow-sm">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div class="flex-1">
-                                            <div class="flex items-center justify-between gap-2">
-                                                <div class="text-xs text-gray-500">#<span x-text="idx + 1"></span></div>
-                                                <div class="text-sm font-medium text-primary" x-text="t.no_transaction ?? t.id"></div>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700" x-text="t.cashier ?? '-'">Kasir</div>
-
-                                            <div class="mt-1 text-xs text-gray-500" x-show="!shiftId">Shift: <span x-text="t.shift_name || t.shift || '-'"></span></div>
-                                            <div class="mt-1 text-sm text-gray-900 font-semibold">Total: <span x-text="formatCurrency(t.total)"></span></div>
-                                            <div class="mt-1 text-xs text-gray-500">Tanggal: <span x-text="t.transaction_date ?? t.created_at ?? '-'"></span></div>
-                                        </div>
-                                        <div class="flex-shrink-0 flex items-start">
-                                            <button @click="openItems(t.id)" class="flex items-center justify-center p-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors duration-300 ease-in-out cursor-pointer">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
                         <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
                             <div class="text-sm text-gray-600">
                                 Menampilkan
@@ -223,26 +178,22 @@ Log Transaksi
                                 <table class="w-full min-w-max">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-3 py-2 text-sm text-left">#</th>
-                                            <th class="px-3 py-2 text-sm text-left">Produk</th>
-                                            <th class="px-3 py-2 text-sm text-center">Qty</th>
-                                            <th class="px-3 py-2 text-sm text-center">Price</th>
-                                            <th class="px-3 py-2 text-sm text-center">Subtotal</th>
+                                            <th class="px-2 py-2 text-left text-xs font-semibold">Produk</th>
+                                            <th class="px-2 py-2 text-center text-xs font-semibold">Qty</th>
+                                            <th class="px-2 py-2 text-right text-xs font-semibold">Subtotal</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
                                         <template x-if="items.length === 0">
                                             <tr>
-                                                <td colspan="5" class="px-3 py-6 text-center text-gray-500">Tidak ada item</td>
+                                                <td colspan="3" class="text-center py-4 text-gray-500">Tidak ada item</td>
                                             </tr>
                                         </template>
-                                        <template x-for="(it, i) in items" :key="it.id">
+                                        <template x-for="it in items" :key="it.id">
                                             <tr>
-                                                <td class="px-3 py-2 text-sm" x-text="i + 1"></td>
-                                                <td class="px-3 py-2 text-sm" x-text="it.product_name ?? '-'"></td>
-                                                <td class="px-3 py-2 text-sm text-center" x-text="it.quantity"></td>
-                                                <td class="px-3 py-2 text-sm text-center" x-text="formatCurrency(it.price)"></td>
-                                                <td class="px-3 py-2 text-sm text-center" x-text="formatCurrency(it.subtotal)"></td>
+                                                <td class="px-2 py-2" x-text="it.product_name"></td>
+                                                <td class="px-2 py-2 text-center" x-text="it.quantity"></td>
+                                                <td class="px-2 py-2 text-right" x-text="formatCurrency(it.subtotal)"></td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -261,5 +212,5 @@ Log Transaksi
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="<?= base_url('js/main/admin/transactions.js') ?>"></script>
+<script src="<?= base_url('js/main/cashier/transactions-log.js') ?>"></script>
 <?= $this->endSection() ?>

@@ -54,6 +54,11 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->delete('products/delete/(:num)', [ProductController::class, 'delete/$1'], ['as' => 'admin.product.delete']);
     $routes->post('products/uploadPhoto/(:num)', [ProductController::class, 'uploadPhoto/$1'], ['as' => 'admin.product.uploadPhoto']);
 
+    // Restock admin
+    $routes->get('restocks/data', [App\Controllers\RestockRequestController::class, 'adminList']);
+    $routes->post('restocks/approve/(:num)', [App\Controllers\RestockRequestController::class, 'adminApprove/$1']);
+    $routes->post('restocks/reject/(:num)', [App\Controllers\RestockRequestController::class, 'adminReject/$1']);
+
     // Category management
     $routes->post('products/addCategory', [ProductController::class, 'addCategory'], ['as' => 'admin.product.addCategory']);
     $routes->post('products/editCategory/(:num)', [ProductController::class, 'editCategory/$1'], ['as' => 'admin.product.editCategory']);
@@ -67,11 +72,36 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('shifts/edit/(:num)', [ShiftController::class, 'editShift/$1']);
     $routes->post('shifts/updateCashierShift/(:num)', [ShiftController::class, 'updateCashierShift/$1']);
 
-    
+
     // Transactions
     $routes->get('transactions', [TransactionController::class, 'index'], ['as' => 'admin.transaction']);
     $routes->get('transactions/data', [TransactionController::class, 'data'], ['as' => 'admin.transaction.data']);
     $routes->get('transactions/items/(:num)', [TransactionController::class, 'items']);
 });
 
-$routes->post('transactions/create', [TransactionController::class, 'create']);
+// cashier
+$routes->group('cashier', ['filter' => 'role:kasir'], function ($routes) {
+    // Transactions
+    $routes->get('transactions', [App\Controllers\Cashier\TransactionController::class, 'index'], ['as' => 'cashier.transactions']);
+    $routes->get('transactions/product', [App\Controllers\Cashier\TransactionController::class, 'product']);
+    $routes->get('transactions/product/(:segment)', [App\Controllers\Cashier\TransactionController::class, 'product']);
+    $routes->get('transactions/receipt/(:num)', [App\Controllers\Cashier\TransactionController::class, 'receipt']);
+    $routes->post('transactions/create', [App\Controllers\Cashier\TransactionController::class, 'create']);
+    // Shift status
+    $routes->get('shift/status', [App\Controllers\Cashier\TransactionController::class, 'shiftStatus']);
+
+    // Cashier products
+    $routes->get('products', [App\Controllers\Cashier\ProductController::class, 'index'], ['as' => 'cashier.products']);
+    $routes->get('products/data', [App\Controllers\Admin\ProductController::class, 'data']);
+
+    // Restock
+    $routes->get('restocks/my', [App\Controllers\RestockRequestController::class, 'cashierList']);
+    $routes->post('restocks', [App\Controllers\RestockRequestController::class, 'cashierCreate']);
+
+    // Cashier Transaction Logs (personal)
+    $routes->get('transactions/log', [App\Controllers\Cashier\TransactionController::class, 'log'], ['as' => 'cashier.transactions.log']);
+    $routes->get('transactions/log/data', [App\Controllers\Cashier\TransactionController::class, 'logData'], ['as' => 'cashier.transactions.log.data']);
+    $routes->get('transactions/log/items/(:num)', [App\Controllers\Cashier\TransactionController::class, 'logItems/$1'], ['as' => 'cashier.transactions.log.items']);
+    // Shifts (for filter dropdown)
+    $routes->get('shifts/data', [App\Controllers\Cashier\TransactionController::class, 'shiftsData']);
+});

@@ -133,7 +133,9 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'UTC';
+    // Set to local timezone (Bali/WITA). If you're in a different region,
+    // adjust accordingly, e.g., 'Asia/Jakarta' (WIB) or 'Asia/Makassar' (WITA).
+    public string $appTimezone = 'Asia/Makassar';
 
     /**
      * --------------------------------------------------------------------------

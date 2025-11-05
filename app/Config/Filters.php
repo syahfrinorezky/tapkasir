@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'role'          => \App\Filters\RoleFilter::class,
+        'shiftguard'    => \App\Filters\ShiftGuardFilter::class,
     ];
 
     /**
@@ -107,5 +108,10 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        // Apply shift guard to all cashier routes
+        'shiftguard' => [
+            'before' => ['cashier/*'],
+        ],
+    ];
 }
