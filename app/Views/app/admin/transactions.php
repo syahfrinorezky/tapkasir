@@ -210,7 +210,10 @@ Log Transaksi
                             class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
 
                             <div class="bg-primary flex items-center justify-between px-6 py-4">
-                                <h3 class="text-lg font-semibold text-white">Detail Item<span class="text-white/90 ml-2" x-text="currentTransactionId"></span></h3>
+                                <h3 class="text-lg font-semibold text-white">
+                                    Detail Item
+                                    <span class="text-white/90 ml-2" x-text="currentTransactionNo ?? currentTransactionId"></span>
+                                </h3>
                                 <button @click="closeItems()" class="p-2 rounded-md bg-white/10 hover:bg-white/20 text-white">
                                     <i class="fas fa-times"></i>
                                 </button>
