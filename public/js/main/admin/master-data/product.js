@@ -41,11 +41,15 @@ function productManagement() {
     dataProductPageSize: 10,
     dataCategoriesPage: 1,
     dataCategoriesPageSize: 5,
+    restocks: [],
+    restocksPage: 1,
+    restocksPageSize: 5,
     _previewUrls: new Set(),
 
     init() {
       // initial load
       this.fetchData();
+      this.fetchRestocks();
       if (this.autoRefresh) this.startAuto();
 
       this.$watch("autoRefresh", (val) => {
@@ -145,7 +149,10 @@ function productManagement() {
 
     startAuto() {
       this.stopAuto();
-      this._autoRefreshTimer = setInterval(() => this.fetchData(), 5000);
+      this._autoRefreshTimer = setInterval(() => {
+        this.fetchData();
+        this.fetchRestocks();
+      }, 5000);
     },
 
     stopAuto() {
@@ -463,6 +470,103 @@ function productManagement() {
         photo: null,
       };
       this.validationErrors = {};
+    },
+
+    async fetchRestocks() {
+      try {
+        const res = await fetch(`/admin/restocks/data`, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (data && Array.isArray(data.restocks)) this.restocks = data.restocks;
+        else this.restocks = [];
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    get paginatedRestocks() {
+      const start = (this.restocksPage - 1) * this.restocksPageSize;
+      const end = start + this.restocksPageSize;
+      return (this.restocks || []).slice(start, end);
+    },
+    get totalRestockPages() {
+      return (
+        Math.ceil((this.restocks || []).length / this.restocksPageSize) || 1
+      );
+    },
+    changeRestocksPage(page) {
+      if (page >= 1 && page <= this.totalRestockPages) this.restocksPage = page;
+    },
+    getRestocksNumber() {
+      return Array.from({ length: this.totalRestockPages }, (_, i) => i + 1);
+    },
+    formatDateTime(dt) {
+      if (!dt) return "-";
+      try {
+        const d = new Date(String(dt).replace(" ", "T"));
+        return d.toLocaleString("id-ID");
+      } catch {
+        return dt;
+      }
+    },
+    statusClass(st) {
+      switch ((st || "").toLowerCase()) {
+        case "approved":
+          return "inline-flex items-center px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full";
+        case "rejected":
+          return "inline-flex items-center px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full";
+        default:
+          return "inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-full";
+      }
+    },
+    statusLabel(r) {
+      const st = (r.status || "").toLowerCase();
+      if (st === "approved") return "Disetujui";
+      if (st === "rejected") return "Ditolak";
+      return "Pending";
+    },
+    async approveRestock(id) {
+      try {
+        const res = await fetch(`/admin/restocks/approve/${id}`, {
+          method: "POST",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data?.message || "Permintaan disetujui";
+          await this.fetchRestocks();
+          await this.fetchData(); // refresh products stock
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data?.message || "Gagal menyetujui";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      }
+    },
+    async rejectRestock(id) {
+      try {
+        const res = await fetch(`/admin/restocks/reject/${id}`, {
+          method: "POST",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data?.message || "Permintaan ditolak";
+          await this.fetchRestocks();
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data?.message || "Gagal menolak";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      }
     },
   };
 }
