@@ -2,7 +2,15 @@ function transactionsManagement() {
   return {
     autoRefresh: true,
     _autoRefreshTimer: null,
-    date: new Date().toISOString().slice(0, 10),
+    date: (() => {
+      try {
+        return new Date().toLocaleDateString("en-CA", {
+          timeZone: "Asia/Makassar",
+        });
+      } catch {
+        return new Date().toISOString().slice(0, 10);
+      }
+    })(),
     shiftId: "",
     shifts: [],
     transactions: [],
@@ -14,14 +22,28 @@ function transactionsManagement() {
     dataTransactionsPageSize: 10,
 
     init() {
-      if (!this.date) this.date = new Date().toISOString().slice(0, 10);
+      if (!this.date) {
+        try {
+          this.date = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Makassar",
+          });
+        } catch {
+          this.date = new Date().toISOString().slice(0, 10);
+        }
+      }
       this.fetchShifts().then(() => {
         this.fetchTransactions();
         if (this.autoRefresh) this.startAuto();
       });
 
-      this.$watch("date", () => (this.dataTransactionsPage = 1));
-      this.$watch("shiftId", () => (this.dataTransactionsPage = 1));
+      this.$watch("date", () => {
+        this.dataTransactionsPage = 1;
+        this.fetchTransactions();
+      });
+      this.$watch("shiftId", () => {
+        this.dataTransactionsPage = 1;
+        this.fetchTransactions();
+      });
     },
     startAuto() {
       this.stopAuto();

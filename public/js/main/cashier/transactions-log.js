@@ -2,7 +2,16 @@ function transactionsLog() {
   return {
     autoRefresh: true,
     _autoRefreshTimer: null,
-    date: new Date().toISOString().slice(0, 10),
+    date: (() => {
+      try {
+        // Use Asia/Makassar (WITA) date to align with server timezone
+        return new Date().toLocaleDateString("en-CA", {
+          timeZone: "Asia/Makassar",
+        });
+      } catch {
+        return new Date().toISOString().slice(0, 10);
+      }
+    })(),
     shiftId: "",
     shifts: [],
     transactions: [],
@@ -14,7 +23,15 @@ function transactionsLog() {
     dataTransactionsPageSize: 10,
 
     init() {
-      if (!this.date) this.date = new Date().toISOString().slice(0, 10);
+      if (!this.date) {
+        try {
+          this.date = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Makassar",
+          });
+        } catch {
+          this.date = new Date().toISOString().slice(0, 10);
+        }
+      }
       this.fetchShifts().then(() => {
         this.fetchTransactions();
         if (this.autoRefresh) this.startAuto();
