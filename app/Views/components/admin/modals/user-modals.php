@@ -39,8 +39,12 @@
             <button @click="openDeleteModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="deleteUser(selectedUser.id)" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                Hapus
+            <button @click="deleteUser(selectedUser.id)"
+                :disabled="isDeletingUser"
+                :class="isDeletingUser ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-2">
+                <i x-show="isDeletingUser" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isDeletingUser ? 'Menghapus...' : 'Hapus'"></span>
             </button>
         </div>
     </div>
@@ -127,13 +131,19 @@
                 <div class="flex items-center gap-2">
                     <button
                         @click="updateStatus(selectedUser.id, 'approved'); openDetailModal = false"
-                        class="px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">
-                        Setujui
+                        :disabled="approvingUserId === selectedUser.id || rejectingUserId === selectedUser.id"
+                        :class="(approvingUserId === selectedUser.id || rejectingUserId === selectedUser.id) ? 'opacity-60 cursor-not-allowed' : ''"
+                        class="px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 inline-flex items-center gap-2">
+                        <i x-show="approvingUserId === selectedUser.id" class="fas fa-circle-notch fa-spin"></i>
+                        <span>Setujui</span>
                     </button>
                     <button
                         @click="updateStatus(selectedUser.id, 'rejected'); openDetailModal = false"
-                        class="px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                        Tolak
+                        :disabled="approvingUserId === selectedUser.id || rejectingUserId === selectedUser.id"
+                        :class="(approvingUserId === selectedUser.id || rejectingUserId === selectedUser.id) ? 'opacity-60 cursor-not-allowed' : ''"
+                        class="px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-2">
+                        <i x-show="rejectingUserId === selectedUser.id" class="fas fa-circle-notch fa-spin"></i>
+                        <span>Tolak</span>
                     </button>
                 </div>
             </template>
@@ -233,8 +243,11 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isUpdatingInfo || !(selectedUser.nama_lengkap && selectedUser.nama_lengkap.trim()) || !(selectedUser.email && selectedUser.email.trim()) || !selectedUser.role_id"
+                :class="(isUpdatingInfo || !(selectedUser.nama_lengkap && selectedUser.nama_lengkap.trim()) || !(selectedUser.email && selectedUser.email.trim()) || !selectedUser.role_id) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isUpdatingInfo" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isUpdatingInfo ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -284,8 +297,12 @@
             <button @click="openRoleDeleteModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="deleteRole(selectedRole.id)" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                Hapus
+            <button @click="deleteRole(selectedRole.id)"
+                :disabled="isDeletingRole"
+                :class="isDeletingRole ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-2">
+                <i x-show="isDeletingRole" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isDeletingRole ? 'Menghapus...' : 'Hapus'"></span>
             </button>
         </div>
     </div>
@@ -349,8 +366,11 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isAddingRole || !(selectedRole.role_name && selectedRole.role_name.trim())"
+                :class="(isAddingRole || !(selectedRole.role_name && selectedRole.role_name.trim())) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isAddingRole" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isAddingRole ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -413,8 +433,11 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isEditingRole || !(selectedRole.role_name && selectedRole.role_name.trim())"
+                :class="(isEditingRole || !(selectedRole.role_name && selectedRole.role_name.trim())) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isEditingRole" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isEditingRole ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </form>

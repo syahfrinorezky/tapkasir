@@ -1,11 +1,12 @@
 function cashierProducts() {
   return {
-    autoRefresh: true,
-    _autoTimer: null,
     products: [],
     categories: [],
     message: "",
     error: "",
+    // Loading flags
+    isLoading: false,
+    isSubmittingRestock: false,
     searchQuery: "",
     activeCategoryFilter: "all",
     dataProductPage: 1,
@@ -23,11 +24,6 @@ function cashierProducts() {
     init() {
       this.fetchProducts();
       this.fetchMyRestocks();
-      if (this.autoRefresh) this.startAuto();
-      this.$watch("autoRefresh", (val) => {
-        if (val) this.startAuto();
-        else this.stopAuto();
-      });
     },
 
     get filteredProducts() {
@@ -124,6 +120,7 @@ function cashierProducts() {
 
     async fetchProducts() {
       try {
+        this.isLoading = true;
         const res = await fetch(`/cashier/products/data`, {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
@@ -139,6 +136,8 @@ function cashierProducts() {
         console.error(e);
         this.error = "Terjadi kesalahan memuat produk.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -155,20 +154,6 @@ function cashierProducts() {
         }
       } catch (e) {
         console.error(e);
-      }
-    },
-
-    startAuto() {
-      this.stopAuto();
-      this._autoTimer = setInterval(() => {
-        this.fetchProducts();
-        this.fetchMyRestocks();
-      }, 5000);
-    },
-    stopAuto() {
-      if (this._autoTimer) {
-        clearInterval(this._autoTimer);
-        this._autoTimer = null;
       }
     },
 
@@ -205,6 +190,7 @@ function cashierProducts() {
         note: (this.restockNote || "").trim() || null,
       };
       try {
+        this.isSubmittingRestock = true;
         const res = await fetch(`/cashier/restocks`, {
           method: "POST",
           headers: {
@@ -227,6 +213,8 @@ function cashierProducts() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSubmittingRestock = false;
       }
     },
   };

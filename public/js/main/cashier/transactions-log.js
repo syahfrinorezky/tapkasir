@@ -1,5 +1,7 @@
 function transactionsLog() {
   return {
+    autoRefresh: true,
+    _autoRefreshTimer: null,
     date: new Date().toISOString().slice(0, 10),
     shiftId: "",
     shifts: [],
@@ -8,8 +10,6 @@ function transactionsLog() {
     showItemsModal: false,
     currentTransactionId: null,
     currentTransactionNo: null,
-    autoRefresh: true,
-    _autoRefreshTimer: null,
     dataTransactionsPage: 1,
     dataTransactionsPageSize: 10,
 
@@ -20,10 +20,6 @@ function transactionsLog() {
         if (this.autoRefresh) this.startAuto();
       });
 
-      this.$watch("autoRefresh", (val) => {
-        if (val) this.startAuto();
-        else this.stopAuto();
-      });
       this.$watch("date", () => {
         this.dataTransactionsPage = 1;
         this.fetchTransactions();
@@ -33,7 +29,20 @@ function transactionsLog() {
         this.fetchTransactions();
       });
     },
+    startAuto() {
+      this.stopAuto();
+      this._autoRefreshTimer = setInterval(
+        () => this.fetchTransactions(),
+        15000
+      );
+    },
 
+    stopAuto() {
+      if (this._autoRefreshTimer) {
+        clearInterval(this._autoRefreshTimer);
+        this._autoRefreshTimer = null;
+      }
+    },
     get filteredTransactions() {
       return Array.isArray(this.transactions) ? this.transactions : [];
     },
@@ -113,21 +122,6 @@ function transactionsLog() {
       } catch (err) {
         console.error(err);
         this.transactions = [];
-      }
-    },
-
-    startAuto() {
-      this.stopAuto();
-      this._autoRefreshTimer = setInterval(
-        () => this.fetchTransactions(),
-        5000
-      );
-    },
-
-    stopAuto() {
-      if (this._autoRefreshTimer) {
-        clearInterval(this._autoRefreshTimer);
-        this._autoRefreshTimer = null;
       }
     },
 

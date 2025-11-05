@@ -23,11 +23,6 @@ document.addEventListener("alpine:init", () => {
         await this.fetchDataAndRender();
         this.loaded = true;
         if (this.autoRefresh) this.startAuto();
-
-        this.$watch("autoRefresh", (val) => {
-          if (val) this.startAuto();
-          else this.stopAuto();
-        });
       } catch (err) {
         console.error("Gagal memuat data dashboard:", err);
       }
@@ -158,7 +153,7 @@ document.addEventListener("alpine:init", () => {
       this.stopAuto();
       this._autoRefreshTimer = setInterval(
         () => this.fetchDataAndRender(),
-        5000
+        60000
       );
     },
 

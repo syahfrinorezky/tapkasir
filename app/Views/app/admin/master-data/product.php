@@ -340,8 +340,18 @@ Manajemen Produk
                                                 <td class="px-4 py-3 text-center">
                                                     <template x-if="(r.status || '').toLowerCase() === 'pending'">
                                                         <div class="inline-flex items-center gap-2">
-                                                            <button @click="approveRestock(r.id)" class="px-2 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white"><i class="fas fa-check"></i></button>
-                                                            <button @click="rejectRestock(r.id)" class="px-2 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white"><i class="fas fa-times"></i></button>
+                                                            <button @click="approveRestock(r.id)"
+                                                                :disabled="approvingRestockId === r.id || rejectingRestockId === r.id"
+                                                                class="px-2 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-w-8">
+                                                                <i class="fas fa-spinner fa-spin" x-show="approvingRestockId === r.id"></i>
+                                                                <i class="fas fa-check" x-show="approvingRestockId !== r.id"></i>
+                                                            </button>
+                                                            <button @click="rejectRestock(r.id)"
+                                                                :disabled="approvingRestockId === r.id || rejectingRestockId === r.id"
+                                                                class="px-2 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-w-8">
+                                                                <i class="fas fa-spinner fa-spin" x-show="rejectingRestockId === r.id"></i>
+                                                                <i class="fas fa-times" x-show="rejectingRestockId !== r.id"></i>
+                                                            </button>
                                                         </div>
                                                     </template>
                                                     <template x-if="(r.status || '').toLowerCase() !== 'pending'">

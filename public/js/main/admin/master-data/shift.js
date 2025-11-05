@@ -1,7 +1,5 @@
 function shiftManagement() {
   return {
-    autoRefresh: true,
-    _autoRefreshTimer: null,
     cashiers: [],
     shifts: [],
     selectedCashier: null,
@@ -15,6 +13,12 @@ function shiftManagement() {
     selectedShiftId: null,
     message: "",
     error: "",
+    // Loading flags
+    isLoading: false,
+    isUpdatingCashierShift: false,
+    isAddingShift: false,
+    isEditingShift: false,
+    isDeletingShift: false,
     validationErrors: {
       name: "",
       start_time: "",
@@ -32,12 +36,6 @@ function shiftManagement() {
 
     init() {
       this.fetchData();
-      if (this.autoRefresh) this.startAuto();
-
-      this.$watch("autoRefresh", (val) => {
-        if (val) this.startAuto();
-        else this.stopAuto();
-      });
     },
 
     get paginatedCashiers() {
@@ -98,6 +96,7 @@ function shiftManagement() {
 
     async fetchData() {
       try {
+        this.isLoading = true;
         const res = await fetch(`/admin/shifts/data`, {
           headers: {
             "X-Requested-With": "XMLHttpRequest",
@@ -110,18 +109,8 @@ function shiftManagement() {
         console.error(e);
         this.error = "Gagal memuat data shift & kasir.";
         setTimeout(() => (this.error = ""), 3000);
-      }
-    },
-
-    startAuto() {
-      this.stopAuto();
-      this._autoRefreshTimer = setInterval(() => this.fetchData(), 5000);
-    },
-
-    stopAuto() {
-      if (this._autoRefreshTimer) {
-        clearInterval(this._autoRefreshTimer);
-        this._autoRefreshTimer = null;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -174,6 +163,7 @@ function shiftManagement() {
 
     async updateShift() {
       try {
+        this.isUpdatingCashierShift = true;
         const res = await fetch(
           `/admin/shifts/updateCashierShift/${this.selectedCashier.id}`,
           {
@@ -200,13 +190,20 @@ function shiftManagement() {
       } catch (e) {
         this.error = "Kesalahan koneksi.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isUpdatingCashierShift = false;
       }
     },
 
     async addShift() {
       try {
-        this.selectedShift.start_time = this.formatTimeToSeconds(this.selectedShift.start_time);
-        this.selectedShift.end_time = this.formatTimeToSeconds(this.selectedShift.end_time);
+        this.isAddingShift = true;
+        this.selectedShift.start_time = this.formatTimeToSeconds(
+          this.selectedShift.start_time
+        );
+        this.selectedShift.end_time = this.formatTimeToSeconds(
+          this.selectedShift.end_time
+        );
         const res = await fetch(`/admin/shifts/add`, {
           method: "POST",
           headers: {
@@ -237,14 +234,21 @@ function shiftManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan saat menambahkan shift.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isAddingShift = false;
       }
     },
 
     async editShift() {
       try {
+        this.isEditingShift = true;
         // normalize times to include seconds before sending to server
-        this.selectedShift.start_time = this.formatTimeToSeconds(this.selectedShift.start_time);
-        this.selectedShift.end_time = this.formatTimeToSeconds(this.selectedShift.end_time);
+        this.selectedShift.start_time = this.formatTimeToSeconds(
+          this.selectedShift.start_time
+        );
+        this.selectedShift.end_time = this.formatTimeToSeconds(
+          this.selectedShift.end_time
+        );
         const res = await fetch(`/admin/shifts/edit/${this.selectedShift.id}`, {
           method: "POST",
           headers: {
@@ -275,11 +279,14 @@ function shiftManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan saat memperbarui shift.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isEditingShift = false;
       }
     },
 
     async deleteShift(id) {
       try {
+        this.isDeletingShift = true;
         const res = await fetch(`/admin/shifts/deleteShift/${id}`, {
           method: "DELETE",
           headers: {
@@ -301,6 +308,8 @@ function shiftManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan saat menghapus shift.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingShift = false;
       }
     },
   };

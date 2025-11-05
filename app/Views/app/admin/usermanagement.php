@@ -169,11 +169,19 @@ Manajemen User
                                                     <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300 uppercase" x-text="user.status"></span>
                                                 </td>
                                                 <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
-                                                    <button @click="updateStatus(user.id, 'approved')" class="bg-green-500 hover:bg-green-600 p-2 rounded-md">
-                                                        <i class="fas fa-check text-white"></i>
+                                                    <button @click="updateStatus(user.id, 'approved')"
+                                                        :disabled="approvingUserId === user.id || rejectingUserId === user.id"
+                                                        :class="approvingUserId === user.id || rejectingUserId === user.id ? 'opacity-60 cursor-not-allowed' : ''"
+                                                        class="bg-green-500 hover:bg-green-600 p-2 rounded-md inline-flex items-center justify-center w-9 h-9">
+                                                        <i x-show="approvingUserId !== user.id" class="fas fa-check text-white"></i>
+                                                        <i x-show="approvingUserId === user.id" class="fas fa-circle-notch fa-spin text-white"></i>
                                                     </button>
-                                                    <button @click="updateStatus(user.id, 'rejected')" class="bg-red-500 hover:bg-red-600 p-2 rounded-md">
-                                                        <i class="fas fa-xmark text-white"></i>
+                                                    <button @click="updateStatus(user.id, 'rejected')"
+                                                        :disabled="approvingUserId === user.id || rejectingUserId === user.id"
+                                                        :class="approvingUserId === user.id || rejectingUserId === user.id ? 'opacity-60 cursor-not-allowed' : ''"
+                                                        class="bg-red-500 hover:bg-red-600 p-2 rounded-md inline-flex items-center justify-center w-9 h-9">
+                                                        <i x-show="rejectingUserId !== user.id" class="fas fa-xmark text-white"></i>
+                                                        <i x-show="rejectingUserId === user.id" class="fas fa-circle-notch fa-spin text-white"></i>
                                                     </button>
                                                 </td>
                                             </tr>
