@@ -12,17 +12,25 @@ class AuthController extends BaseController
     public function __construct()
     {
         helper('form');
+        date_default_timezone_set('Asia/Makassar');
     }
 
     private function isWithinShiftTime($startTime, $endTime)
     {
-        $currentTime = date('H:i');
+        $today = date('Y-m-d');
+        $now = time();
 
-        if (strtotime($endTime) < strtotime($startTime)) {
-            return $currentTime >= $startTime || $currentTime <= $endTime;
-        } else {
-            return $currentTime >= $startTime && $currentTime <= $endTime;
+        $startTs = strtotime("{$today} {$startTime}");
+        $endTs = strtotime("{$today} {$endTime}");
+
+        if ($endTs <= $startTs) {
+            $endTs += 86400;
+            if ($now < $startTs) {
+                $now += 86400;
+            }
         }
+
+        return ($now >= $startTs && $now <= $endTs);
     }
 
     public function login()
@@ -36,7 +44,7 @@ class AuthController extends BaseController
 
             try {
                 $userModel = new UserModel();
-                $cashierWorkModel = new CashierWorkModel(); 
+                $cashierWorkModel = new CashierWorkModel();
                 $shiftModel = new ShiftModel();
 
                 $email = $this->request->getPost('email');
@@ -103,12 +111,13 @@ class AuthController extends BaseController
                 if ($user['role_name'] === 'admin') {
                     return redirect()->to('/admin/dashboard');
                 } else {
-                    return redirect()->to('/cashier/dashboard');
+                    return redirect()->to('/cashier/transactions');
                 }
             } catch (\Throwable $th) {
                 return redirect()->back()->withInput()->with('error', 'Gagal masuk. Silahkan coba lagi.');
             }
         }
+
         return view('app/auth/login');
     }
 
@@ -149,3 +158,4 @@ class AuthController extends BaseController
         return redirect()->to('/');
     }
 }
+
