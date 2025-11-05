@@ -1,12 +1,23 @@
 function userManagement() {
   return {
-    autoRefresh: true,
-    _autoRefreshTimer: null,
     approved: [],
     pending: [],
     roles: [],
     message: "",
     error: "",
+    // Loading flags
+    isLoading: false,
+    // Pending approvals per-row flags
+    approvingUserId: null,
+    rejectingUserId: null,
+    // Edit user modal
+    isUpdatingInfo: false,
+    // Delete user modal
+    isDeletingUser: false,
+    // Roles modals
+    isAddingRole: false,
+    isEditingRole: false,
+    isDeletingRole: false,
     selectedUser: {
       id: null,
       nama_lengkap: "",
@@ -33,16 +44,10 @@ function userManagement() {
     dataRolesPageSize: 5,
 
     init() {
-      // initial load of roles and users
+      // initial load of roles and users (no auto-refresh)
       this.fetchRoles();
       this.fetchUsers("approved");
       this.fetchUsers("pending");
-      if (this.autoRefresh) this.startAuto();
-
-      this.$watch("autoRefresh", (val) => {
-        if (val) this.startAuto();
-        else this.stopAuto();
-      });
     },
 
     get paginatedUsers() {
@@ -196,6 +201,7 @@ function userManagement() {
       }
 
       try {
+        this.isAddingRole = true;
         const res = await fetch(`/admin/roles/add`, {
           method: "POST",
           headers: {
@@ -228,11 +234,14 @@ function userManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan saat menambahkan role.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isAddingRole = false;
       }
     },
 
     async editRole() {
       try {
+        this.isEditingRole = true;
         const res = await fetch(`/admin/roles/edit/${this.selectedRole.id}`, {
           method: "POST",
           headers: {
@@ -258,6 +267,8 @@ function userManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan saat memperbarui role.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isEditingRole = false;
       }
     },
 
@@ -283,24 +294,10 @@ function userManagement() {
       }
     },
 
-    startAuto() {
-      this.stopAuto();
-      this._autoRefreshTimer = setInterval(() => {
-        this.fetchRoles();
-        this.fetchUsers("approved");
-        this.fetchUsers("pending");
-      }, 5000);
-    },
-
-    stopAuto() {
-      if (this._autoRefreshTimer) {
-        clearInterval(this._autoRefreshTimer);
-        this._autoRefreshTimer = null;
-      }
-    },
-
     async updateStatus(id, status) {
       try {
+        if (status === "approved") this.approvingUserId = id;
+        if (status === "rejected") this.rejectingUserId = id;
         const res = await fetch(`/admin/users/updateStatus/${id}`, {
           method: "POST",
           headers: {
@@ -314,8 +311,8 @@ function userManagement() {
 
         if (res.ok) {
           this.message = data.message;
-          this.fetchUsers("pending");
-          this.fetchUsers("approved");
+          await this.fetchUsers("pending");
+          await this.fetchUsers("approved");
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal memperbarui status.";
@@ -324,11 +321,15 @@ function userManagement() {
       } catch (err) {
         this.error = "Terjadi kesalahan server.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        if (this.approvingUserId === id) this.approvingUserId = null;
+        if (this.rejectingUserId === id) this.rejectingUserId = null;
       }
     },
 
     async updateInfo() {
       try {
+        this.isUpdatingInfo = true;
         const res = await fetch(
           `/admin/users/updateInfo/${this.selectedUser.id}`,
           {
@@ -347,7 +348,7 @@ function userManagement() {
 
         if (res.ok) {
           this.message = data.message;
-          this.fetchUsers("approved");
+          await this.fetchUsers("approved");
           this.openEditModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
@@ -358,28 +359,40 @@ function userManagement() {
       } catch (error) {
         this.error = "Terjadi kesalahan server.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isUpdatingInfo = false;
       }
     },
 
     async deleteUser(id) {
-      const res = await fetch(`/admin/users/delete/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        this.message = data.message;
-        this.fetchUsers("approved");
+      try {
+        this.isDeletingUser = true;
+        const res = await fetch(`/admin/users/delete/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data.message;
+          await this.fetchUsers("approved");
+          this.openDeleteModal = false;
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeleteModal = false;
+          this.error = data.message || "Gagal menghapus user.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
         this.openDeleteModal = false;
-        setTimeout(() => (this.message = ""), 3000);
-      } else {
-        this.openDeleteModal = false;
-        this.error = data.message || "Gagal menghapus user.";
+        this.error = "Terjadi kesalahan server.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingUser = false;
       }
     },
 
     async deleteRole(id) {
       try {
+        this.isDeletingRole = true;
         const res = await fetch(`/admin/roles/delete/${id}`, {
           method: "DELETE",
           headers: {
@@ -402,6 +415,8 @@ function userManagement() {
         this.openRoleDeleteModal = false;
         this.error = "Terjadi kesalahan saat menghapus role.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingRole = false;
       }
     },
   };

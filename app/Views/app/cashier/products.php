@@ -287,7 +287,13 @@ Produk & Restock
 
                         <div class="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3">
                             <button @click="closeRestock()" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">Batal</button>
-                            <button @click="submitRestock()" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90">Kirim</button>
+                            <button @click="submitRestock()"
+                                :disabled="isSubmittingRestock || !restockQty || parseInt(restockQty) <= 0 || !(selectedProduct && selectedProduct.id)"
+                                :class="(isSubmittingRestock || !restockQty || parseInt(restockQty) <= 0 || !(selectedProduct && selectedProduct.id)) ? 'opacity-60 cursor-not-allowed' : ''"
+                                class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 inline-flex items-center gap-2">
+                                <i x-show="isSubmittingRestock" class="fas fa-circle-notch fa-spin"></i>
+                                <span x-text="isSubmittingRestock ? 'Mengirim...' : 'Kirim'"></span>
+                            </button>
                         </div>
                     </div>
                 </div>

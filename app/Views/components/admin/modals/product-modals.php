@@ -39,8 +39,9 @@
             <button @click="openDeleteProductModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="deleteProduct(selectedProduct.id)" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                Hapus
+            <button @click="deleteProduct(selectedProduct.id)" :disabled="isDeletingProduct" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isDeletingProduct"></i>
+                <span x-text="isDeletingProduct ? 'Menghapus…' : 'Hapus'"></span>
             </button>
         </div>
     </div>
@@ -90,8 +91,9 @@
             <button @click="openDeleteCategoryModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="deleteCategory(selectedCategory.id)" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                Hapus
+            <button @click="deleteCategory(selectedCategory.id)" :disabled="isDeletingCategory" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isDeletingCategory"></i>
+                <span x-text="isDeletingCategory ? 'Menghapus…' : 'Hapus'"></span>
             </button>
         </div>
     </div>
@@ -233,8 +235,10 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null || selectedProduct.stock === '' || selectedProduct.stock === null"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isSavingProduct"></i>
+                <span x-text="isSavingProduct ? 'Menyimpan…' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -379,8 +383,10 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null || selectedProduct.stock === '' || selectedProduct.stock === null"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isSavingProduct"></i>
+                <span x-text="isSavingProduct ? 'Menyimpan…' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -444,8 +450,10 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isSavingCategory || !(selectedCategory.category_name && selectedCategory.category_name.trim())"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isSavingCategory"></i>
+                <span x-text="isSavingCategory ? 'Menyimpan…' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -509,8 +517,10 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isSavingCategory || !(selectedCategory.category_name && selectedCategory.category_name.trim())"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isSavingCategory"></i>
+                <span x-text="isSavingCategory ? 'Menyimpan…' : 'Simpan'"></span>
             </button>
         </div>
     </form>

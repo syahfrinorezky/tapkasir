@@ -66,8 +66,11 @@
                 Batal
             </button>
             <button @click="updateShift()"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="!selectedShiftId || isUpdatingCashierShift"
+                :class="( !selectedShiftId || isUpdatingCashierShift ) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isUpdatingCashierShift" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isUpdatingCashierShift ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </div>
@@ -173,8 +176,11 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isAddingShift || !(selectedShift.name && selectedShift.name.trim()) || !selectedShift.start_time || !selectedShift.end_time || !selectedShift.status"
+                :class="(isAddingShift || !(selectedShift.name && selectedShift.name.trim()) || !selectedShift.start_time || !selectedShift.end_time || !selectedShift.status) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isAddingShift" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isAddingShift ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -280,8 +286,11 @@
             </button>
             <button
                 type="submit"
-                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition">
-                Simpan
+                :disabled="isEditingShift || !(selectedShift.name && selectedShift.name.trim()) || !selectedShift.start_time || !selectedShift.end_time || !selectedShift.status"
+                :class="(isEditingShift || !(selectedShift.name && selectedShift.name.trim()) || !selectedShift.start_time || !selectedShift.end_time || !selectedShift.status) ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition inline-flex items-center gap-2">
+                <i x-show="isEditingShift" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isEditingShift ? 'Menyimpan...' : 'Simpan'"></span>
             </button>
         </div>
     </form>
@@ -341,8 +350,11 @@
             </button>
             <button
                 @click="deleteShift(selectedShift.id)"
-                class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
-                Hapus
+                :disabled="isDeletingShift"
+                :class="isDeletingShift ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-2">
+                <i x-show="isDeletingShift" class="fas fa-circle-notch fa-spin"></i>
+                <span x-text="isDeletingShift ? 'Menghapus...' : 'Hapus'"></span>
             </button>
         </div>
     </div>

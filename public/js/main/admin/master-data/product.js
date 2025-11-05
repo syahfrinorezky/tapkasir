@@ -1,9 +1,14 @@
 function productManagement() {
   return {
-    autoRefresh: true,
-    _autoRefreshTimer: null,
     products: [],
     categories: [],
+    isLoading: false,
+    isSavingProduct: false,
+    isDeletingProduct: false,
+    isSavingCategory: false,
+    isDeletingCategory: false,
+    approvingRestockId: null,
+    rejectingRestockId: null,
     selectedProduct: {
       id: null,
       product_name: "",
@@ -47,15 +52,9 @@ function productManagement() {
     _previewUrls: new Set(),
 
     init() {
-      // initial load
+      // initial load only (no auto-refresh)
       this.fetchData();
       this.fetchRestocks();
-      if (this.autoRefresh) this.startAuto();
-
-      this.$watch("autoRefresh", (val) => {
-        if (val) this.startAuto();
-        else this.stopAuto();
-      });
     },
 
     get filteredProducts() {
@@ -128,6 +127,8 @@ function productManagement() {
 
     async fetchData() {
       try {
+        if (!this.products.length && !this.categories.length)
+          this.isLoading = true;
         const res = await fetch(`/admin/products/data`, {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
@@ -144,21 +145,8 @@ function productManagement() {
         console.error(e);
         this.error = "Gagal memuat data.";
         setTimeout(() => (this.error = ""), 3000);
-      }
-    },
-
-    startAuto() {
-      this.stopAuto();
-      this._autoRefreshTimer = setInterval(() => {
-        this.fetchData();
-        this.fetchRestocks();
-      }, 5000);
-    },
-
-    stopAuto() {
-      if (this._autoRefreshTimer) {
-        clearInterval(this._autoRefreshTimer);
-        this._autoRefreshTimer = null;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -231,6 +219,7 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
           return;
         }
+        this.isSavingProduct = true;
         const fd = new FormData();
         Object.entries(this.selectedProduct).forEach(([k, v]) => {
           if (k === "photo" && v instanceof File) fd.append("photo", v);
@@ -259,6 +248,8 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingProduct = false;
       }
     },
 
@@ -269,6 +260,7 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
           return;
         }
+        this.isSavingProduct = true;
         const fd = new FormData();
         Object.entries(this.selectedProduct).forEach(([k, v]) => {
           if (k === "photo" && v instanceof File) fd.append("photo", v);
@@ -300,11 +292,14 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingProduct = false;
       }
     },
 
     async deleteProduct(id) {
       try {
+        this.isDeletingProduct = true;
         const res = await fetch(`/admin/products/delete/${id}`, {
           method: "DELETE",
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -323,11 +318,14 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingProduct = false;
       }
     },
 
     async addCategory() {
       try {
+        this.isSavingCategory = true;
         const fd = new FormData();
         fd.append("category_name", this.selectedCategory.category_name || "");
         const res = await fetch(`/admin/products/addCategory`, {
@@ -352,11 +350,14 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingCategory = false;
       }
     },
 
     async editCategory() {
       try {
+        this.isSavingCategory = true;
         const fd = new FormData();
         fd.append("category_name", this.selectedCategory.category_name || "");
         const res = await fetch(
@@ -384,11 +385,14 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingCategory = false;
       }
     },
 
     async deleteCategory(id) {
       try {
+        this.isDeletingCategory = true;
         const res = await fetch(`/admin/products/deleteCategory/${id}`, {
           method: "DELETE",
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -407,6 +411,8 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingCategory = false;
       }
     },
 
@@ -527,6 +533,9 @@ function productManagement() {
     },
     async approveRestock(id) {
       try {
+        if (this.approvingRestockId === id || this.rejectingRestockId === id)
+          return;
+        this.approvingRestockId = id;
         const res = await fetch(`/admin/restocks/approve/${id}`, {
           method: "POST",
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -545,10 +554,15 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        if (this.approvingRestockId === id) this.approvingRestockId = null;
       }
     },
     async rejectRestock(id) {
       try {
+        if (this.approvingRestockId === id || this.rejectingRestockId === id)
+          return;
+        this.rejectingRestockId = id;
         const res = await fetch(`/admin/restocks/reject/${id}`, {
           method: "POST",
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -566,6 +580,8 @@ function productManagement() {
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        if (this.rejectingRestockId === id) this.rejectingRestockId = null;
       }
     },
   };
