@@ -13,7 +13,6 @@ function shiftManagement() {
     selectedShiftId: null,
     message: "",
     error: "",
-    // Loading flags
     isLoading: false,
     isUpdatingCashierShift: false,
     isAddingShift: false,
@@ -242,7 +241,6 @@ function shiftManagement() {
     async editShift() {
       try {
         this.isEditingShift = true;
-        // normalize times to include seconds before sending to server
         this.selectedShift.start_time = this.formatTimeToSeconds(
           this.selectedShift.start_time
         );

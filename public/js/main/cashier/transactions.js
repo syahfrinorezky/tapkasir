@@ -24,7 +24,6 @@ function cashierTransactions(baseUrl = "") {
       setTimeout(() => {
         if (this.$refs.barcodeInput) this.$refs.barcodeInput.focus();
       }, 300);
-      // Start shift status watcher with minimal polling
       this.startShiftWatcher();
     },
 
@@ -131,7 +130,6 @@ function cashierTransactions(baseUrl = "") {
         this.highlightedIndex = this.showSuggestions ? 0 : -1;
       } catch (e) {
         if (e?.name === "AbortError") {
-          // ignore aborted requests
           return;
         }
         console.error("Suggestion fetch failed", e);
@@ -491,7 +489,6 @@ function cashierTransactions(baseUrl = "") {
         if (this._shiftPollTimer) clearInterval(this._shiftPollTimer);
       } catch (e) {}
       this.pollShiftStatus();
-      // Poll every 30s to keep shift status in sync
       this._shiftPollTimer = setInterval(() => this.pollShiftStatus(), 30000);
     },
 
@@ -537,7 +534,6 @@ function cashierTransactions(baseUrl = "") {
     },
 
     startShiftCountdown(seconds) {
-      // Show a live countdown only when < 60s remaining
       this.shiftCountdownSec = Math.max(0, Math.floor(seconds));
       this.showShiftWarning = true;
       try {
@@ -554,7 +550,6 @@ function cashierTransactions(baseUrl = "") {
     },
 
     stopShiftCountdown() {
-      // Ensure no countdown timer is running
       try {
         if (this._shiftCountdownTimer) clearInterval(this._shiftCountdownTimer);
       } catch (e) {}

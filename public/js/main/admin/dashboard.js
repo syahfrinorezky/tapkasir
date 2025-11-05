@@ -57,7 +57,6 @@ document.addEventListener("alpine:init", () => {
     renderCharts() {
       const data = this.data;
 
-      // destroy old charts to avoid leaks
       try {
         if (this.salesChart) this.salesChart.destroy();
       } catch (e) {}

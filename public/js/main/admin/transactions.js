@@ -141,7 +141,6 @@ function transactionsManagement() {
 
     async openItems(transactionId) {
       this.currentTransactionId = transactionId;
-      // set the human-readable transaction number if available
       try {
         const tx = Array.isArray(this.transactions)
           ? this.transactions.find(

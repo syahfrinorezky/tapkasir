@@ -5,16 +5,11 @@ function userManagement() {
     roles: [],
     message: "",
     error: "",
-    // Loading flags
     isLoading: false,
-    // Pending approvals per-row flags
     approvingUserId: null,
     rejectingUserId: null,
-    // Edit user modal
     isUpdatingInfo: false,
-    // Delete user modal
     isDeletingUser: false,
-    // Roles modals
     isAddingRole: false,
     isEditingRole: false,
     isDeletingRole: false,
@@ -44,7 +39,6 @@ function userManagement() {
     dataRolesPageSize: 5,
 
     init() {
-      // initial load of roles and users (no auto-refresh)
       this.fetchRoles();
       this.fetchUsers("approved");
       this.fetchUsers("pending");

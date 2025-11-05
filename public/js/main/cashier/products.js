@@ -4,7 +4,6 @@ function cashierProducts() {
     categories: [],
     message: "",
     error: "",
-    // Loading flags
     isLoading: false,
     isSubmittingRestock: false,
     searchQuery: "",

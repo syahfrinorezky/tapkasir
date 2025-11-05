@@ -4,7 +4,6 @@ function transactionsLog() {
     _autoRefreshTimer: null,
     date: (() => {
       try {
-        // Use Asia/Makassar (WITA) date to align with server timezone
         return new Date().toLocaleDateString("en-CA", {
           timeZone: "Asia/Makassar",
         });

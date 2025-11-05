@@ -52,7 +52,6 @@ function productManagement() {
     _previewUrls: new Set(),
 
     init() {
-      // initial load only (no auto-refresh)
       this.fetchData();
       this.fetchRestocks();
     },
@@ -544,7 +543,7 @@ function productManagement() {
         if (res.ok) {
           this.message = data?.message || "Permintaan disetujui";
           await this.fetchRestocks();
-          await this.fetchData(); // refresh products stock
+          await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data?.message || "Gagal menyetujui";
