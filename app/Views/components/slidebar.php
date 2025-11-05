@@ -4,9 +4,9 @@ $current_uri = uri_string();
 
 if ($role === 'kasir') {
     $menu = [
-        ['type' => 'link', 'uri' => 'kasir/transactions', 'icon' => 'fas fa-exchange-alt', 'label' => 'Transaksi'],
-        ['type' => 'link', 'uri' => 'kasir/transactions/log', 'icon' => 'fas fa-file-alt', 'label' => 'Log Transaksi'],
-        ['type' => 'link', 'uri' => 'kasir/products', 'icon' => 'fas fa-box', 'label' => 'Produk'],
+        ['type' => 'link', 'uri' => 'cashier/transactions', 'icon' => 'fas fa-exchange-alt', 'label' => 'Transaksi'],
+        ['type' => 'link', 'uri' => 'cashier/transactions/log', 'icon' => 'fas fa-file-alt', 'label' => 'Log Transaksi'],
+        ['type' => 'link', 'uri' => 'cashier/products', 'icon' => 'fas fa-box', 'label' => 'Produk'],
     ];
 } else {
     $menu = [
