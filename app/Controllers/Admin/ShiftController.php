@@ -139,7 +139,6 @@ class ShiftController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['message' => 'Shift tidak ditemukan.']);
         }
 
-
         $data = $this->request->getJSON();
 
         $validation = \Config\Services::validation();
@@ -178,3 +177,4 @@ class ShiftController extends BaseController
         return $this->response->setJSON(['message' => 'Shift berhasil diperbarui.']);
     }
 }
+

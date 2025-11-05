@@ -13,7 +13,6 @@ class RoleController extends BaseController
         $roleModel = new RoleModel();
 
         if ($this->request->isAJAX()) {
-
             $query = $roleModel
                 ->select('id, role_name, created_at')
                 ->where('deleted_at', null)
@@ -73,3 +72,4 @@ class RoleController extends BaseController
             ->setJSON(['message' => 'Role berhasil dihapus.']);
     }
 }
+

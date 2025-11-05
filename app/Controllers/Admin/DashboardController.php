@@ -67,7 +67,6 @@ class DashboardController extends BaseController
             $totals[] = $found ? array_values($found)[0]['total'] : 0;
         }
 
-
         $morningShiftData = $transactionModel
             ->select('HOUR(transaction_date) as hour, SUM(total) as total')
             ->where('transaction_date >=', date('Y-m-d') . ' 06:00:00')
@@ -109,3 +108,4 @@ class DashboardController extends BaseController
         ]);
     }
 }
+
