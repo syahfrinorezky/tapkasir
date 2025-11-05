@@ -285,6 +285,114 @@ Manajemen Produk
                             </div>
                         </div>
                     </div>
+
+                    <!-- Permintaan Restock -->
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h1 class="font-bold text-lg text-gray-700">
+                                <i class="fas fa-warehouse text-lg text-primary inline-flex mr-1"></i>
+                                Permintaan Restock
+                            </h1>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-primary text-white sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Peminta</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Produk</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Qty</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Status</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 text-sm">
+                                        <template x-if="restocks.length === 0">
+                                            <tr>
+                                                <td colspan="5" class="py-6">
+                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <span class="text-center">Tidak ada permintaan</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+
+                                        <template x-for="r in paginatedRestocks" :key="r.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3">
+                                                    <div class="flex flex-col">
+                                                        <span class="font-medium" x-text="r.requester || '-' "></span>
+                                                        <span class="text-xs text-gray-500" x-text="formatDateTime(r.created_at)"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <div class="flex flex-col">
+                                                        <span x-text="r.product_name"></span>
+                                                        <span class="text-xs text-gray-500" x-text="r.barcode"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 text-center" x-text="r.quantity"></td>
+                                                <td class="px-4 py-3">
+                                                    <span :class="statusClass(r.status)" x-text="statusLabel(r)"></span>
+                                                </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <template x-if="(r.status || '').toLowerCase() === 'pending'">
+                                                        <div class="inline-flex items-center gap-2">
+                                                            <button @click="approveRestock(r.id)" class="px-2 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white"><i class="fas fa-check"></i></button>
+                                                            <button @click="rejectRestock(r.id)" class="px-2 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white"><i class="fas fa-times"></i></button>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="(r.status || '').toLowerCase() !== 'pending'">
+                                                        <span class="text-gray-400 text-xs">Tidak ada aksi</span>
+                                                    </template>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="restocks.length === 0 ? 0 : ((restocksPage - 1) * restocksPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(restocksPage * restocksPageSize, restocks.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="restocks.length"></span>
+                                    permintaan
+                                </div>
+
+                                <div class="flex items-center gap-2" x-show="totalRestockPages > 1">
+                                    <button
+                                        @click="changeRestocksPage(restocksPage - 1)"
+                                        :disabled="restocksPage === 1"
+                                        :class="restocksPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getRestocksNumber()" :key="page">
+                                        <button
+                                            @click="changeRestocksPage(page)"
+                                            :class="page === restocksPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeRestocksPage(restocksPage + 1)"
+                                        :disabled="restocksPage === totalRestockPages"
+                                        :class="restocksPage === totalRestockPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <?= $this->include('components/admin/modals/product-modals'); ?>
