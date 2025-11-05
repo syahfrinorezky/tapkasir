@@ -24,9 +24,10 @@ class TransactionController extends BaseController
         $shiftId = $this->request->getGet('shift_id');
 
         $builder = $transactionModel
-            ->select('transactions.*, users.nama_lengkap as cashier, cashier_works.work_date as cashier_work_date, cashier_works.shift_id')
+            ->select('transactions.*, users.nama_lengkap as cashier, cashier_works.work_date as cashier_work_date, cashier_works.shift_id, shifts.name as shift_name')
             ->join('users', 'users.id = transactions.user_id', 'left')
             ->join('cashier_works', 'cashier_works.id = transactions.cashier_work_id', 'left')
+            ->join('shifts', 'shifts.id = cashier_works.shift_id', 'left')
             ->where('transactions.deleted_at', null);
 
         if (!empty($date)) {
