@@ -59,7 +59,6 @@ class Filters extends BaseFilters
         'after' => [
             'pagecache',   // Web Page Caching
             'performance', // Performance Metrics
-            'toolbar',     // Debug Toolbar
         ],
     ];
 
@@ -81,6 +80,12 @@ class Filters extends BaseFilters
         'after' => [
             // 'honeypot',
             // 'secureheaders',
+            // Pindahkan toolbar ke globals agar bisa dikecualikan di route tertentu
+            'toolbar' => [
+                'except' => [
+                    'cashier/transactions/receipt/*',
+                ],
+            ],
         ],
     ];
 

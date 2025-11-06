@@ -13,7 +13,6 @@
 
         html,
         body {
-            height: 100%;
             margin: 0;
             padding: 0;
             font-family: Arial, Helvetica, sans-serif;
@@ -80,11 +79,25 @@
             font-size: 11px;
         }
 
+        #debug-icon,
+        #toolbarContainer,
+        .debug-bar,
+        .ci-debugbar,
+        [id*="debugbar"],
+        [class*="debugbar"] {
+            display: none !important;
+        }
+
         @media print {
+            @page {
+                size: 76mm auto;
+                margin: 0;
+            }
 
             html,
             body {
                 width: 100%;
+                height: auto !important;
                 background: none;
             }
 
@@ -94,8 +107,25 @@
                 align-items: flex-start;
             }
 
+            .receipt {
+                page-break-inside: avoid;
+                margin-left: 2mm;
+            }
+
             .no-print {
-                display: none;
+                display: none !important;
+            }
+
+            #debug-icon,
+            #toolbarContainer,
+            .debug-bar,
+            .ci-debugbar,
+            [id*="debugbar"],
+            [class*="debugbar"],
+            [id*="debug"],
+            [class*="debug"] {
+                display: none !important;
+                visibility: hidden !important;
             }
         }
     </style>
