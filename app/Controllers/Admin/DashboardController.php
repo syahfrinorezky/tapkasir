@@ -79,7 +79,7 @@ class DashboardController extends BaseController
             ->select('HOUR(transaction_date) as hour, SUM(total) as total')
             ->groupStart()
             ->where('transaction_date >=', date('Y-m-d', strtotime('-1 day')) . ' 18:00:00')
-            ->where('transaction_date <=', date('Y-m-d') . ' 23:59:59')
+            ->where('transaction_date <=', date('Y-m-d', strtotime('-1 day')) . ' 23:59:59')
             ->groupEnd()
             ->orGroupStart()
             ->where('transaction_date >=', date('Y-m-d') . ' 00:00:00')
@@ -108,4 +108,3 @@ class DashboardController extends BaseController
         ]);
     }
 }
-
