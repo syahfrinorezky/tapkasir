@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\ProductBatchModel;
+
+class ProductBatchController extends BaseController
+{
+    public function productBatches($productId)
+    {
+        $productId = (int) $productId;
+        if ($productId <= 0) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Produk tidak valid']);
+        }
+
+        $batchModel = new ProductBatchModel();
+        $batches = $batchModel
+            ->where('product_id', $productId)
+            ->where('deleted_at', null)
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        return $this->response->setJSON(['batches' => $batches]);
+    }
+}
