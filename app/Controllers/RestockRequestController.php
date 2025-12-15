@@ -5,10 +5,13 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\RestockRequestModel;
 use App\Models\ProductModel;
+use App\Models\ProductBatchModel;
+use App\Libraries\StockService;
 use CodeIgniter\I18n\Time;
 
 class RestockRequestController extends BaseController
 {
+
     public function cashierCreate()
     {
         $session = session();
@@ -18,7 +21,18 @@ class RestockRequestController extends BaseController
         $data = $this->request->getJSON(true);
         $productId = (int) ($data['product_id'] ?? 0);
         $qty = max(1, (int) ($data['quantity'] ?? 1));
-        $note = trim((string) ($data['note'] ?? '')) ?: null;
+        $noteText = trim((string) ($data['note'] ?? '')) ?: null;
+
+        $details = [
+            'expired_date'   => ($data['expired_date'] ?? null) ?: null,
+            'purchase_price' => isset($data['purchase_price']) ? (float) $data['purchase_price'] : null,
+            'rack'           => $data['rack'] ?? null,
+            'row'            => $data['row'] ?? null,
+            'slot'           => $data['slot'] ?? null,
+            'receipt_temp'   => $data['receipt_temp'] ?? null,
+            'note'           => $noteText,
+        ];
+        $note = json_encode($details);
 
         if ($productId <= 0) return $this->response->setStatusCode(400)->setJSON(['message' => 'Produk tidak valid']);
         $productModel = new ProductModel();
@@ -80,12 +94,35 @@ class RestockRequestController extends BaseController
 
         $model = new RestockRequestModel();
         $productModel = new ProductModel();
+        $batchModel = new ProductBatchModel();
         $req = $model->find($id);
         if (!$req || $req['status'] !== 'pending') return $this->response->setStatusCode(404)->setJSON(['message' => 'Permintaan tidak ditemukan/sudah diproses']);
 
         $db = \Config\Database::connect();
         $db->transStart();
         try {
+            $body = $this->request->getJSON(true) ?? [];
+
+            $noteDetails = [];
+            if (!empty($req['note'])) {
+                try {
+                    $decoded = json_decode((string) $req['note'], true);
+                    if (is_array($decoded)) $noteDetails = $decoded;
+                } catch (\Throwable $e) {
+                }
+            }
+
+            $expired = isset($body['expired_date']) && $body['expired_date'] !== ''
+                ? $body['expired_date']
+                : ($noteDetails['expired_date'] ?? null);
+            $purchase = isset($body['purchase_price'])
+                ? (float) $body['purchase_price']
+                : (float) ($noteDetails['purchase_price'] ?? 0.0);
+            $rack = $body['rack'] ?? ($noteDetails['rack'] ?? null);
+            $row = $body['row'] ?? ($noteDetails['row'] ?? null);
+            $slot = $body['slot'] ?? ($noteDetails['slot'] ?? null);
+            $receiptImage = $body['receipt_image'] ?? ($noteDetails['receipt_temp'] ?? null);
+
             $model->update($id, [
                 'status' => 'approved',
                 'approved_by' => $adminId,
@@ -94,8 +131,28 @@ class RestockRequestController extends BaseController
 
             $product = $productModel->find($req['product_id']);
             if ($product) {
-                $newStock = (int)($product['stock'] ?? 0) + (int)($req['quantity'] ?? 0);
-                $productModel->update($product['id'], ['stock' => $newStock]);
+                $qty = (int) ($req['quantity'] ?? 0);
+                $batchCode = 'B' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+
+                if ($receiptImage && strpos($receiptImage, 'writable/') === 0) {
+                    $newPath = $this->moveReceiptToPublic($receiptImage);
+                    if ($newPath) $receiptImage = $newPath;
+                }
+
+                $batchModel->insert([
+                    'product_id' => $product['id'],
+                    'batch_code' => $batchCode,
+                    'expired_date' => $expired,
+                    'purchase_price' => $purchase,
+                    'initial_stock' => $qty,
+                    'current_stock' => $qty,
+                    'rack' => $rack,
+                    'row' => $row,
+                    'slot' => $slot,
+                    'receipt_image' => $receiptImage,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
             }
 
             $db->transComplete();
@@ -126,5 +183,53 @@ class RestockRequestController extends BaseController
         if ($ok) return $this->response->setJSON(['message' => 'Permintaan restock ditolak']);
         return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menolak permintaan']);
     }
-}
+    public function uploadReceipt()
+    {
+        $session = session();
+        $userId = (int) $session->get('user_id');
+        if (!$userId) return $this->response->setStatusCode(401)->setJSON(['message' => 'Unauthenticated']);
 
+        $file = $this->request->getFile('receipt');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'File tidak valid']);
+        }
+
+        $ext = strtolower($file->getClientExtension());
+        $allowed = ['jpg', 'jpeg', 'png', 'pdf', 'heic', 'webp'];
+        if (!in_array($ext, $allowed, true)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tipe file tidak didukung']);
+        }
+
+        $publicTempDir = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'restock_temp';
+        if (!is_dir($publicTempDir)) @mkdir($publicTempDir, 0775, true);
+
+        $newName = 'tmp_' . $userId . '_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        if (!$file->move($publicTempDir, $newName)) {
+            return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menyimpan file']);
+        }
+
+        $relPublicPath = 'uploads/restock_temp/' . $newName;
+        return $this->response->setJSON(['path' => $relPublicPath, 'name' => $file->getClientName()]);
+    }
+
+    private function moveReceiptToPublic(string $tempPath): ?string
+    {
+        $root = rtrim(FCPATH, '/\\');
+        $base = rtrim(ROOTPATH, '/\\');
+
+        $fullTemp = $base . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $tempPath);
+        if (!is_file($fullTemp)) return null;
+
+        $targetDir = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'restocks';
+        if (!is_dir($targetDir)) @mkdir($targetDir, 0775, true);
+
+        $ext = pathinfo($fullTemp, PATHINFO_EXTENSION) ?: 'jpg';
+        $fileName = 'receipt_' . date('Ymd_His') . '_' . substr(md5($fullTemp . microtime(true)), 0, 6) . '.' . $ext;
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
+
+        if (@rename($fullTemp, $targetPath)) {
+            return 'uploads/restocks/' . $fileName;
+        }
+        return null;
+    }
+}
