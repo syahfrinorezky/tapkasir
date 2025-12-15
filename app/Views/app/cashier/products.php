@@ -90,9 +90,16 @@ Produk & Restock
                                             <td class="px-4 py-3 text-sm" x-text="product.product_name"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="formatCurrency(product.price)"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="product.category_name"></td>
-                                            <td class="px-4 py-3 text-sm text-center" x-text="product.stock"></td>
+                                            <td class="px-4 py-3 text-sm text-center">
+                                                <span :class="stockClass(product.stock)" x-text="product.stock"></span>
+                                            </td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="product.barcode"></td>
                                             <td class="px-4 py-3 text-sm space-x-2 flex items-center justify-center">
+                                                <button type="button" @click="openDetail(product)"
+                                                    title="Detail"
+                                                    class="flex items-center justify-center p-2 bg-primary hover:bg-primary/80 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                                                 <button type="button" @click="openRestock(product)"
                                                     title="Ajukan Restock"
                                                     class="flex items-center justify-center px-3 py-1.5 bg-primary hover:bg-primary/80 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer text-sm">
@@ -235,70 +242,238 @@ Produk & Restock
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Restock Modal -->
-                <div x-cloak x-show="openRestockModal" @click.self="closeRestock()"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-
-                    <div x-cloak x-show="openRestockModal"
-                        x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                        x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                        x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
-                        class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
-
-                        <div class="bg-primary flex items-center justify-between px-6 py-4">
-                            <h3 class="text-lg font-semibold text-white">
-                                Permintaan Restock
-                            </h3>
-                            <button @click="closeRestock()" class="p-2 rounded-md bg-white/10 hover:bg-white/20 text-white">
-                                <i class="fas fa-times"></i>
-                            </button>
+                        <!-- Restock Modal -->
+                        <div
+                            x-cloak
+                            x-show="openRestockModal"
+                            @click.self="closeRestock()"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         </div>
 
-                        <div class="px-6 py-5 space-y-4">
-                            <div>
-                                <label class="text-sm text-gray-600">Produk</label>
-                                <div class="mt-1 px-3 py-2 rounded-md border bg-gray-50" x-text="selectedProduct?.product_name || '-' "></div>
+                        <div
+                            x-cloak
+                            x-show="openRestockModal"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+                            class="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+                            <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden">
+
+                                <!-- Permintaan Restock Modal -->
+                                <div class="bg-primary flex items-center justify-between px-5 py-4">
+                                    <h3 class="text-lg font-semibold text-white">Permintaan Restock</h3>
+                                    <button @click="closeRestock()" class="p-2 rounded-md bg-white/10 hover:bg-white/20 text-white">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <div class="px-5 py-4 space-y-3 max-h-[70vh] overflow-y-auto">
+
+                                    <div>
+                                        <label class="text-sm text-gray-600">Produk</label>
+                                        <div class="mt-1 px-3 py-2 rounded-md border bg-gray-50"
+                                            x-text="selectedProduct?.product_name || '-'"></div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="text-sm text-gray-600">Jumlah</label>
+                                            <div class="mt-1 flex items-center gap-1">
+                                                <button @click="decQty()" class="px-2 py-2 bg-gray-100 rounded hover:bg-gray-200">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="text" x-model="restockQty" @input="sanitizeQty()"
+                                                    class="w-full text-center px-2 py-2 rounded-md border focus:ring-primary focus:border-primary" />
+                                                <button @click="incQty()" class="px-2 py-2 bg-gray-100 rounded hover:bg-gray-200">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="text-sm text-gray-600">Expired</label>
+                                            <input type="date" x-model="restockExpiredDate"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="text-sm text-gray-600">Harga Beli</label>
+                                            <input type="number" x-model="restockPurchasePrice"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+
+                                        <div>
+                                            <label class="text-sm text-gray-600">Rak</label>
+                                            <input type="text" x-model="restockRack"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="text-sm text-gray-600">Baris</label>
+                                            <input type="text" x-model="restockRow"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+
+                                        <div>
+                                            <label class="text-sm text-gray-600">Slot</label>
+                                            <input type="text" x-model="restockSlot"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-sm text-gray-600">Bukti Struk</label>
+                                        <div
+                                            class="mt-1 p-4 border-2 border-dashed rounded-md text-center text-gray-500 hover:border-primary/60 hover:text-primary/80 cursor-pointer"
+                                            @click="receiptPick()"
+                                            @dragover.prevent
+                                            @drop.prevent="handleReceiptDrop($event)">
+                                            <i class="fas fa-cloud-upload-alt text-xl mb-1"></i>
+                                            <p class="text-sm" x-text="receiptFileName ? 'File: ' + receiptFileName : 'Upload file'"></p>
+                                            <input type="file" x-ref="receiptInput" class="hidden" @change="receiptChange($event)" accept="image/*,.pdf">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-sm text-gray-600">Catatan</label>
+                                        <textarea x-model="restockNote" rows="2"
+                                            class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm"
+                                            placeholder="Contoh: stok akhir pekan"></textarea>
+                                    </div>
+
+                                </div>
+
+                                <div class="px-5 py-4 bg-gray-50 flex flex-row justify-end items-center gap-2">
+                                    <button @click="closeRestock()"
+                                        class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">Batal</button>
+
+                                    <button @click="submitRestock()"
+                                        :disabled="isSubmittingRestock || !restockQty || parseInt(restockQty)<=0"
+                                        :class="(isSubmittingRestock || !restockQty || parseInt(restockQty)<=0) ? 'opacity-60 cursor-not-allowed' : ''"
+                                        class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 flex items-center justify-center gap-2">
+                                        <i x-show="isSubmittingRestock" class="fas fa-circle-notch fa-spin"></i>
+                                        <span x-text="isSubmittingRestock ? 'Mengirim...' : 'Kirim'"></span>
+                                    </button>
+                                </div>
+
                             </div>
-                            <div>
-                                <label class="text-sm text-gray-600">Jumlah</label>
-                                <div class="mt-1 flex items-center gap-2">
-                                    <button type="button" @click="decQty()" class="px-2 py-2 rounded-md bg-gray-100 hover:bg-gray-200"><i class="fas fa-minus"></i></button>
-                                    <input type="text" x-model="restockQty" @input="sanitizeQty()" class="w-24 text-center px-3 py-2 rounded-md border focus:ring-primary focus:border-primary" />
-                                    <button type="button" @click="incQty()" class="px-2 py-2 rounded-md bg-gray-100 hover:bg-gray-200"><i class="fas fa-plus"></i></button>
+                        </div>
+
+
+                        <!-- Product Detail Modal -->
+                        <div x-cloak x-show="openDetailModal" @click.self="closeDetail()"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50"></div>
+
+                        <div
+                            x-cloak
+                            x-show="openDetailModal"
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                            role="dialog"
+                            aria-modal="true">
+                            <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
+                                <div class="bg-primary flex items-center justify-between px-5 py-4">
+                                    <h3 class="text-lg font-semibold text-white">Detail Produk</h3>
+                                    <button @click="closeDetail()" class="p-2 rounded hover:bg-white/10">
+                                        <i class="fas fa-times text-white"></i>
+                                    </button>
+                                </div>
+
+                                <div class="px-5 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-20 h-20 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                                            <template x-if="selectedProduct?.photo">
+                                                <img :src="selectedProduct.photo" alt="Photo" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!selectedProduct?.photo">
+                                                <img src="<?= base_url('images/placeholder-product.svg') ?>" alt="No photo" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800" x-text="selectedProduct?.product_name"></h4>
+                                            <p class="text-sm text-gray-600" x-text="formatCurrency(selectedProduct?.price || 0)"></p>
+                                            <p class="text-sm text-gray-500">Kategori: <span x-text="selectedProduct?.category_name || '-'"></span></p>
+                                            <p class="text-sm text-gray-500">Stok: <span :class="stockClass(selectedProduct?.stock || 0)" x-text="selectedProduct?.stock || 0"></span></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h4 class="font-semibold text-gray-800 mb-2">Daftar Batch Aktif</h4>
+                                        <div class="bg-white rounded-lg border">
+                                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                                <table class="w-full min-w-max text-sm">
+                                                    <thead class="bg-gray-100 sticky top-0 z-10">
+                                                        <tr>
+                                                            <th class="px-3 py-2 text-left">Expired</th>
+                                                            <th class="px-3 py-2 text-right">Stock</th>
+                                                            <th class="px-3 py-2 text-right">Harga Beli</th>
+                                                            <th class="px-3 py-2 text-left">Rak</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-200">
+                                                        <template x-if="!selectedProduct || visibleBatches.length === 0">
+                                                            <tr>
+                                                                <td colspan="4" class="px-3 py-4 text-center text-gray-500">Tidak ada batch aktif yang ditampilkan</td>
+                                                            </tr>
+                                                        </template>
+                                                        <template x-for="b in visibleBatches" :key="b.id">
+                                                            <tr class="hover:bg-gray-50">
+                                                                <td class="px-3 py-2" x-text="b.expired_date || '-' "></td>
+                                                                <td class="px-3 py-2 text-right" x-text="b.current_stock"></td>
+                                                                <td class="px-3 py-2 text-right" x-text="formatCurrency(b.purchase_price || 0)"></td>
+                                                                <td class="px-3 py-2">
+                                                                    <span x-text="[b.rack, b.row, b.slot].filter(Boolean).join(' / ') || '-' "></span>
+                                                                </td>
+                                                            </tr>
+                                                        </template>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">Catatan: batch yang expired atau near-expired (≤ 7 hari) tidak ditampilkan.</div>
+                                    </div>
+
+                                    <div class="mt-4 flex flex-col items-center">
+                                        <div class="bg-white p-4 rounded-md shadow-inner">
+                                            <img :src="'<?= base_url('cashier/products/barcode/image/') ?>' + encodeURIComponent(selectedProduct?.barcode || '')" alt="Barcode" class="w-56 h-auto">
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-2">Kode: <span class="font-mono" x-text="selectedProduct?.barcode || '-'"></span></p>
+                                    </div>
+                                </div>
+
+                                <div class="px-5 py-4 bg-gray-50 flex items-center justify-center gap-3">
+                                    <button @click="closeDetail()" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100">Tutup</button>
                                 </div>
                             </div>
-                            <div>
-                                <label class="text-sm text-gray-600">Catatan (opsional)</label>
-                                <textarea x-model="restockNote" rows="3" class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary" placeholder="Contoh: stok untuk minggu depan"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3">
-                            <button @click="closeRestock()" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">Batal</button>
-                            <button @click="submitRestock()"
-                                :disabled="isSubmittingRestock || !restockQty || parseInt(restockQty) <= 0 || !(selectedProduct && selectedProduct.id)"
-                                :class="(isSubmittingRestock || !restockQty || parseInt(restockQty) <= 0 || !(selectedProduct && selectedProduct.id)) ? 'opacity-60 cursor-not-allowed' : ''"
-                                class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 inline-flex items-center gap-2">
-                                <i x-show="isSubmittingRestock" class="fas fa-circle-notch fa-spin"></i>
-                                <span x-text="isSubmittingRestock ? 'Mengirim...' : 'Kirim'"></span>
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 </main>
 <?= $this->endSection() ?>
 

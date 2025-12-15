@@ -7,7 +7,10 @@ use App\Controllers\Admin\ShiftController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\TransactionController;
-use App\Controllers\TransactionApiController;
+use App\Controllers\ProductBatchController;
+use App\Controllers\RestockRequestController;
+use App\Controllers\Cashier\TransactionController as CashierTransactionController;
+use App\Controllers\Cashier\ProductController as CashierProductController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -47,6 +50,7 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     // Product management
     $routes->get('products', [ProductController::class, 'index'], ['as' => 'admin.product']);
     $routes->get('products/data', [ProductController::class, 'data'], ['as' => 'admin.product.data']);
+    $routes->get('products/batches/(:num)', [ProductBatchController::class, 'productBatches/$1']);
     $routes->get('products/barcode/image/(:segment)', [ProductController::class, 'barcodeImage/$1']);
     $routes->get('products/barcode/save/(:segment)', [ProductController::class, 'barcodeSave/$1']);
     $routes->post('products/add', [ProductController::class, 'add'], ['as' => 'admin.product.add']);
@@ -55,9 +59,9 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('products/uploadPhoto/(:num)', [ProductController::class, 'uploadPhoto/$1'], ['as' => 'admin.product.uploadPhoto']);
 
     // Restock admin
-    $routes->get('restocks/data', [App\Controllers\RestockRequestController::class, 'adminList']);
-    $routes->post('restocks/approve/(:num)', [App\Controllers\RestockRequestController::class, 'adminApprove/$1']);
-    $routes->post('restocks/reject/(:num)', [App\Controllers\RestockRequestController::class, 'adminReject/$1']);
+    $routes->get('restocks/data', [RestockRequestController::class, 'adminList']);
+    $routes->post('restocks/approve/(:num)', [RestockRequestController::class, 'adminApprove/$1']);
+    $routes->post('restocks/reject/(:num)', [RestockRequestController::class, 'adminReject/$1']);
 
     // Category management
     $routes->post('products/addCategory', [ProductController::class, 'addCategory'], ['as' => 'admin.product.addCategory']);
@@ -82,26 +86,32 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
 // cashier
 $routes->group('cashier', ['filter' => 'role:kasir'], function ($routes) {
     // Transactions
-    $routes->get('transactions', [App\Controllers\Cashier\TransactionController::class, 'index'], ['as' => 'cashier.transactions']);
-    $routes->get('transactions/product', [App\Controllers\Cashier\TransactionController::class, 'product']);
-    $routes->get('transactions/product/(:segment)', [App\Controllers\Cashier\TransactionController::class, 'product']);
-    $routes->get('transactions/receipt/(:num)', [App\Controllers\Cashier\TransactionController::class, 'receipt']);
-    $routes->post('transactions/create', [App\Controllers\Cashier\TransactionController::class, 'create']);
+    $routes->get('transactions', [CashierTransactionController::class, 'index'], ['as' => 'cashier.transactions']);
+    $routes->get('transactions/product', [CashierTransactionController::class, 'product']);
+    $routes->get('transactions/product/(:segment)', [CashierTransactionController::class, 'product']);
+    $routes->get('transactions/receipt/(:num)', [CashierTransactionController::class, 'receipt']);
+    $routes->post('transactions/create', [CashierTransactionController::class, 'create']);
     // Shift status
-    $routes->get('shift/status', [App\Controllers\Cashier\TransactionController::class, 'shiftStatus']);
+    $routes->get('shift/status', [CashierTransactionController::class, 'shiftStatus']);
 
     // Cashier products
-    $routes->get('products', [App\Controllers\Cashier\ProductController::class, 'index'], ['as' => 'cashier.products']);
-    $routes->get('products/data', [App\Controllers\Admin\ProductController::class, 'data']);
+    $routes->get('products', [CashierProductController::class, 'index'], ['as' => 'cashier.products']);
+    $routes->get('products/data', [ProductController::class, 'data']);
+    // Product batches for UI modal
+    $routes->get('products/batches/(:num)', [ProductBatchController::class, 'productBatches/$1']);
+
+    // Barcode image accessible for cashier
+    $routes->get('products/barcode/image/(:segment)', [ProductController::class, 'barcodeImage/$1']);
 
     // Restock
-    $routes->get('restocks/my', [App\Controllers\RestockRequestController::class, 'cashierList']);
-    $routes->post('restocks', [App\Controllers\RestockRequestController::class, 'cashierCreate']);
+    $routes->get('restocks/my', [RestockRequestController::class, 'cashierList']);
+    $routes->post('restocks', [RestockRequestController::class, 'cashierCreate']);
+    $routes->post('restocks/uploadReceipt', [RestockRequestController::class, 'uploadReceipt']);
 
     // Cashier Transaction Logs (personal)
-    $routes->get('transactions/log', [App\Controllers\Cashier\TransactionController::class, 'log'], ['as' => 'cashier.transactions.log']);
-    $routes->get('transactions/log/data', [App\Controllers\Cashier\TransactionController::class, 'logData'], ['as' => 'cashier.transactions.log.data']);
-    $routes->get('transactions/log/items/(:num)', [App\Controllers\Cashier\TransactionController::class, 'logItems/$1'], ['as' => 'cashier.transactions.log.items']);
+    $routes->get('transactions/log', [CashierTransactionController::class, 'log'], ['as' => 'cashier.transactions.log']);
+    $routes->get('transactions/log/data', [CashierTransactionController::class, 'logData'], ['as' => 'cashier.transactions.log.data']);
+    $routes->get('transactions/log/items/(:num)', [CashierTransactionController::class, 'logItems/$1'], ['as' => 'cashier.transactions.log.items']);
     // Shifts (for filter dropdown)
-    $routes->get('shifts/data', [App\Controllers\Cashier\TransactionController::class, 'shiftsData']);
+    $routes->get('shifts/data', [CashierTransactionController::class, 'shiftsData']);
 });

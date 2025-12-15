@@ -179,35 +179,6 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stok</label>
-                    <div class="relative">
-                        <i class="fas fa-boxes-stacked absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input
-                            type="number"
-                            placeholder="Jumlah stok"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                            x-model="selectedProduct.stock"
-                            min="0"
-                            required>
-                    </div>
-                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.stock" x-text="validationErrors.stock"></p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Barcode</label>
-                    <div class="relative">
-                        <i class="fas fa-barcode absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input
-                            type="text"
-                            placeholder="Kode barcode"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                            x-model="selectedProduct.barcode">
-                    </div>
-                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.barcode" x-text="validationErrors.barcode"></p>
-                </div>
-            </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Foto Produk</label>
@@ -235,7 +206,7 @@
             </button>
             <button
                 type="submit"
-                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null || selectedProduct.stock === '' || selectedProduct.stock === null"
+                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null"
                 class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
                 <i class="fas fa-spinner fa-spin" x-show="isSavingProduct"></i>
                 <span x-text="isSavingProduct ? 'Menyimpan…' : 'Simpan'"></span>
@@ -278,7 +249,6 @@
         </div>
 
         <div class="px-5 py-5 grid grid-cols-1 gap-4">
-            <!-- Form fields sama seperti Add Product Modal -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Produk</label>
                 <div class="relative">
@@ -325,35 +295,6 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stok</label>
-                    <div class="relative">
-                        <i class="fas fa-boxes-stacked absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input
-                            type="number"
-                            placeholder="Jumlah stok"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                            x-model="selectedProduct.stock"
-                            min="0"
-                            required>
-                    </div>
-                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.stock" x-text="validationErrors.stock"></p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Barcode</label>
-                    <div class="relative">
-                        <i class="fas fa-barcode absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input
-                            type="text"
-                            placeholder="Kode barcode"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-                            x-model="selectedProduct.barcode">
-                    </div>
-                    <p class="text-red-500 text-xs italic mt-1" x-show="validationErrors.barcode" x-text="validationErrors.barcode"></p>
-                </div>
-            </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Foto Produk</label>
@@ -383,7 +324,7 @@
             </button>
             <button
                 type="submit"
-                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null || selectedProduct.stock === '' || selectedProduct.stock === null"
+                :disabled="isSavingProduct || !(selectedProduct.product_name && selectedProduct.product_name.trim()) || selectedProduct.price === '' || selectedProduct.price === null || selectedProduct.category_id === '' || selectedProduct.category_id === null"
                 class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 focus:ring-2 focus:ring-primary/30 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
                 <i class="fas fa-spinner fa-spin" x-show="isSavingProduct"></i>
                 <span x-text="isSavingProduct ? 'Menyimpan…' : 'Simpan'"></span>
@@ -574,6 +515,54 @@
                 </div>
             </div>
 
+            <div class="mt-4">
+                <h4 class="font-semibold text-gray-800 mb-2">Daftar Batch Aktif</h4>
+                <div class="bg-white rounded-lg border">
+                    <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                        <table class="w-full min-w-max text-sm">
+                            <thead class="bg-gray-100 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Expired</th>
+                                    <th class="px-3 py-2 text-right">Stock</th>
+                                    <th class="px-3 py-2 text-right">Harga Beli</th>
+                                    <th class="px-3 py-2 text-left">Rak</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <template x-if="!(selectedProduct && selectedProduct.batches && selectedProduct.batches.length) ||
+                                                     (selectedProduct && selectedProduct.batches && selectedProduct.batches.filter(b => {
+                                                        const exp = b.expired_date ? new Date(b.expired_date) : null;
+                                                        const today = new Date();
+                                                        const diffDays = exp ? Math.ceil((exp - today) / (1000*60*60*24)) : null;
+                                                        return (!exp || diffDays > 7) && (b.current_stock ?? 0) >= 0;
+                                                     }).length === 0)">
+                                    <tr>
+                                        <td colspan="4" class="px-3 py-4 text-center text-gray-500">Tidak ada batch aktif yang ditampilkan</td>
+                                    </tr>
+                                </template>
+
+                                <template x-for="b in (selectedProduct?.batches || []).filter(b => {
+                                        const exp = b.expired_date ? new Date(b.expired_date) : null;
+                                        const today = new Date();
+                                        const diffDays = exp ? Math.ceil((exp - today) / (1000*60*60*24)) : null;
+                                        return (!exp || diffDays > 7) && (b.current_stock ?? 0) >= 0;
+                                    })" :key="b.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-2" x-text="b.expired_date || '-' "></td>
+                                        <td class="px-3 py-2 text-right" x-text="b.current_stock"></td>
+                                        <td class="px-3 py-2 text-right" x-text="formatCurrency(b.purchase_price || 0)"></td>
+                                        <td class="px-3 py-2">
+                                            <span x-text="[b.rack, b.row, b.slot].filter(Boolean).join(' / ') || '-' "></span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">Catatan: batch yang expired atau near-expired (≤ 7 hari) tidak ditampilkan.</div>
+            </div>
+
             <div class="mt-4 flex flex-col items-center">
                 <div class="bg-white p-4 rounded-md shadow-inner">
                     <img :src="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct?.barcode || '')" alt="Barcode" class="w-56 h-auto">
@@ -587,5 +576,114 @@
             <button @click="downloadBarcode()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">Unduh Barcode</button>
             <button @click="openViewProductModal = false" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100">Tutup</button>
         </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Persetujuan Restock -->
+<div
+    x-cloak
+    x-show="approveModalOpen"
+    @click.self="closeApproveRestock()"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+</div>
+
+<div
+    x-cloak
+    x-show="approveModalOpen"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+    x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true">
+
+    <div class="w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden">
+
+        <div class="bg-primary flex items-center justify-between px-5 py-4">
+            <h3 class="text-lg font-semibold text-white">Konfirmasi Persetujuan Restock</h3>
+            <button @click="closeApproveRestock()" class="p-2 rounded hover:bg-white/10">
+                <i class="fas fa-times text-white text-lg"></i>
+            </button>
+        </div>
+
+        <div class="px-5 py-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+
+            <div class="space-y-1">
+                <p class="text-xs text-gray-500">Produk</p>
+                <p class="font-medium text-gray-800" x-text="selectedRestock?.product_name"></p>
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-xs text-gray-500">Qty</p>
+                <p class="font-medium text-gray-800" x-text="selectedRestock?.quantity"></p>
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-xs text-gray-500">Expired Date</p>
+                <p class="font-medium text-gray-800" x-text="restockDetails.expired_date || '-'"></p>
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-xs text-gray-500">Harga Pembelian</p>
+                <p class="font-medium text-gray-800" x-text="formatCurrency(restockDetails.purchase_price || 0)"></p>
+            </div>
+
+            <div class="space-y-1 col-span-2">
+                <p class="text-xs text-gray-500">Lokasi</p>
+                <p class="font-medium text-gray-800 break-all"
+                    x-text="[restockDetails.rack, restockDetails.row, restockDetails.slot].filter(Boolean).join(' / ') || '-'">
+                </p>
+            </div>
+
+            <div class="space-y-1 col-span-2">
+                <p class="text-xs text-gray-500">Catatan</p>
+                <p class="font-medium text-gray-800 break-words"
+                    x-text="restockDetails.note || '-'"></p>
+            </div>
+
+            <div class="space-y-1 col-span-2">
+                <p class="text-xs text-gray-500">Bukti</p>
+
+                <template x-if="restockDetails.receipt_temp || restockDetails.receipt_image">
+                    <a :href="previewUrl(restockDetails)" target="_blank"
+                        class="text-primary underline hover:text-primary/80 text-sm">
+                        Lihat bukti
+                    </a>
+                </template>
+
+                <template x-if="!(restockDetails.receipt_temp || restockDetails.receipt_image)">
+                    <div class="text-gray-400 text-sm">Tidak ada bukti.</div>
+                </template>
+            </div>
+
+        </div>
+
+        <div class="px-5 py-4 bg-gray-50 flex flex-col sm:flex-row items-center justify-end gap-2">
+            <button
+                @click="closeApproveRestock()"
+                class="px-4 py-2 w-full sm:w-auto rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition">
+                Batal
+            </button>
+
+            <button
+                @click="confirmApproveRestock()"
+                :disabled="approving"
+                :class="approving ? 'opacity-60 cursor-not-allowed' : ''"
+                class="px-4 py-2 w-full sm:w-auto rounded-lg bg-green-600 text-white hover:bg-green-700 transition flex items-center justify-center gap-2">
+
+                <i x-show="approving" class="fas fa-circle-notch fa-spin"></i>
+                <span>Konfirmasi Setuju</span>
+            </button>
+        </div>
+
     </div>
 </div>

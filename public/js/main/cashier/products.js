@@ -16,9 +16,18 @@ function cashierProducts() {
     restocksPageSize: 5,
 
     openRestockModal: false,
+    openDetailModal: false,
     selectedProduct: null,
     restockQty: "1",
     restockNote: "",
+    restockExpiredDate: "",
+    restockPurchasePrice: "",
+    restockRack: "",
+    restockRow: "",
+    restockSlot: "",
+    receiptTempPath: "",
+    receiptFileName: "",
+    receiptUploading: false,
 
     init() {
       this.fetchProducts();
@@ -117,6 +126,13 @@ function cashierProducts() {
       return "Pending";
     },
 
+    stockClass(v) {
+      const n = Number(v || 0);
+      if (n < 15) return "text-red-600 font-semibold";
+      if (n < 30) return "text-yellow-600 font-semibold";
+      return "text-gray-700";
+    },
+
     async fetchProducts() {
       try {
         this.isLoading = true;
@@ -160,11 +176,96 @@ function cashierProducts() {
       this.selectedProduct = { ...p };
       this.restockQty = "1";
       this.restockNote = "";
+      this.restockExpiredDate = "";
+      this.restockPurchasePrice = "";
+      this.restockRack = "";
+      this.restockRow = "";
+      this.restockSlot = "";
+      this.receiptTempPath = "";
+      this.receiptFileName = "";
+      this.receiptUploading = false;
       this.openRestockModal = true;
     },
     closeRestock() {
       this.openRestockModal = false;
       this.selectedProduct = null;
+    },
+    receiptPick() {
+      this.$refs?.receiptInput?.click?.();
+    },
+    async receiptChange(e) {
+      const file = e?.target?.files?.[0];
+      if (file) await this.uploadReceipt(file);
+    },
+    async handleReceiptDrop(e) {
+      const dt = e.dataTransfer;
+      if (!dt || !dt.files || !dt.files.length) return;
+      const file = dt.files[0];
+      await this.uploadReceipt(file);
+    },
+    async uploadReceipt(file) {
+      try {
+        this.receiptUploading = true;
+        const form = new FormData();
+        form.append("receipt", file);
+        const res = await fetch(`/cashier/restocks/uploadReceipt`, {
+          method: "POST",
+          body: form,
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (res.ok && data?.path) {
+          this.receiptTempPath = data.path;
+          this.receiptFileName = data.name || file.name;
+        } else {
+          this.error = data?.message || "Gagal mengunggah bukti.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan saat unggah.";
+        setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.receiptUploading = false;
+      }
+    },
+    async openDetail(p) {
+      this.selectedProduct = { ...p, batches: [] };
+      try {
+        const res = await fetch(`/cashier/products/batches/${p.id}`, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (data && Array.isArray(data.batches)) {
+          this.selectedProduct.batches = data.batches;
+        } else {
+          this.selectedProduct.batches = [];
+        }
+      } catch (e) {
+        console.error(e);
+        this.selectedProduct.batches = [];
+      }
+      this.openDetailModal = true;
+    },
+    closeDetail() {
+      this.openDetailModal = false;
+      this.selectedProduct = null;
+    },
+    get visibleBatches() {
+      const list =
+        this.selectedProduct && Array.isArray(this.selectedProduct.batches)
+          ? this.selectedProduct.batches
+          : [];
+      const now = new Date();
+      return list.filter((b) => {
+        if (!b) return false;
+        if (!b.expired_date) {
+          return Number(b.current_stock || 0) > 0;
+        }
+        const d = new Date(String(b.expired_date));
+        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        return d > now && diff > 7 && Number(b.current_stock || 0) > 0;
+      });
     },
     sanitizeQty() {
       const onlyNums = String(this.restockQty || "").replace(/[^0-9]/g, "");
@@ -187,6 +288,14 @@ function cashierProducts() {
         product_id: this.selectedProduct.id,
         quantity: parseInt(this.restockQty || "1", 10) || 1,
         note: (this.restockNote || "").trim() || null,
+        expired_date: this.restockExpiredDate || null,
+        purchase_price: this.restockPurchasePrice
+          ? Number(this.restockPurchasePrice)
+          : null,
+        rack: (this.restockRack || "").trim() || null,
+        row: (this.restockRow || "").trim() || null,
+        slot: (this.restockSlot || "").trim() || null,
+        receipt_temp: this.receiptTempPath || null,
       };
       try {
         this.isSubmittingRestock = true;

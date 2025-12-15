@@ -17,7 +17,6 @@ class ProductModel extends Model
         'product_name',
         'price',
         'category_id',
-        'stock',
         'barcode',
     ];
 
@@ -50,4 +49,19 @@ class ProductModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getStock(int $productId): int
+    {
+        $batchModel = new ProductBatchModel();
+        $query = $batchModel->selectSum('current_stock')
+            ->where('product_id', $productId)
+            ->where('deleted_at', null)
+            ->groupStart()
+                ->where('expired_date >', date('Y-m-d'))
+                ->orWhere('expired_date', null)
+            ->groupEnd()
+            ->first();
+            
+        return (int) ($query['current_stock'] ?? 0);
+    }
 }

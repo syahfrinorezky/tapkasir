@@ -15,6 +15,7 @@ class TransactionItemModel extends Model
     protected $allowedFields    = [
         'transaction_id',
         'product_id',
+        'batch_id',
         'quantity',
         'subtotal',
     ];
