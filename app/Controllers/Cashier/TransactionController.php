@@ -9,6 +9,8 @@ use App\Models\TransactionItemModel;
 use App\Models\CashierWorkModel;
 use App\Models\ShiftModel;
 use App\Models\UserModel;
+use App\Models\ProductBatchModel;
+use App\Libraries\StockService;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
 
@@ -48,7 +50,20 @@ class TransactionController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['message' => 'Produk tidak ditemukan']);
         }
 
-        if (isset($product['stock']) && (int) $product['stock'] <= 0) {
+        $batchModel = new ProductBatchModel();
+        $sum = (int) ($batchModel
+            ->select('COALESCE(SUM(current_stock),0) AS total')
+            ->where('product_id', $product['id'])
+            ->groupStart()
+            ->where('expired_date >', date('Y-m-d'))
+            ->orWhere('expired_date', null)
+            ->groupEnd()
+            ->where('deleted_at', null)
+            ->first()['total'] ?? 0);
+
+        $product['stock'] = $sum;
+
+        if ($sum <= 0) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Stok produk kosong']);
         }
 
@@ -78,101 +93,147 @@ class TransactionController extends BaseController
         $transactionModel = new TransactionModel();
         $itemModel = new TransactionItemModel();
         $productModel = new ProductModel();
-
-        $total = 0;
-        foreach ($data['items'] as $it) {
-            $p = $productModel->find($it['product_id']);
-            if (!$p) {
-                return $this->response->setStatusCode(404)->setJSON(['message' => 'Produk tidak ditemukan: ' . $it['product_id']]);
-            }
-
-            $qty = max(1, (int) $it['quantity']);
-
-            if (isset($p['stock'])) {
-                if ((int) $p['stock'] <= 0) {
-                    return $this->response->setStatusCode(400)->setJSON(['message' => 'Stok produk kosong: ' . ($p['product_name'] ?? $p['barcode'] ?? $p['id'])]);
-                }
-                if ($qty > (int) $p['stock']) {
-                    return $this->response->setStatusCode(400)->setJSON(['message' => 'Stok produk tidak mencukupi: ' . ($p['product_name'] ?? $p['barcode'] ?? $p['id']) . ' (stok: ' . (int) $p['stock'] . ')']);
-                }
-            }
-
-            $subtotal = $p['price'] * $qty;
-            $total += $subtotal;
-        }
-
+        $batchModel = new ProductBatchModel();
         $db = \Config\Database::connect();
-        $db->transStart();
 
-        try {
-            $now = Time::now(config('App')->appTimezone ?? 'Asia/Makassar');
+        $maxRetries = 3;
+        $attempt = 0;
+        $transactionId = null;
+        $success = false;
+        $errorMessage = 'Gagal menyimpan transaksi logic error';
 
-            $prefixDate = $now->format('Ymd');
-            $prefix = 'TAP' . $prefixDate . '-';
+        do {
+            $attempt++;
+            $db->transStart();
 
-            $last = $transactionModel
-                ->select('no_transaction')
-                ->where('DATE(transaction_date)', $now->toDateString())
-                ->like('no_transaction', $prefix, 'after')
-                ->orderBy('no_transaction', 'DESC')
-                ->first();
+            try {
+                $now = Time::now(config('App')->appTimezone ?? 'Asia/Makassar');
+                
+                $prefixDate = $now->format('Ymd');
+                $prefix = 'TAP' . $prefixDate . '-';
 
-            $seq = 1;
-            if ($last && !empty($last['no_transaction'])) {
-                if (preg_match('/-(\d{4,})$/', $last['no_transaction'], $m)) {
-                    $seq = (int) $m[1] + 1;
-                }
-            } else {
-                $countToday = $transactionModel
+                $last = $transactionModel
+                    ->select('no_transaction')
                     ->where('DATE(transaction_date)', $now->toDateString())
-                    ->countAllResults();
-                $seq = max(1, (int) $countToday + 1);
-            }
+                    ->like('no_transaction', $prefix, 'after')
+                    ->orderBy('id', 'DESC')
+                    ->first();
 
-            $noTransaction = $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+                $seq = 1;
+                if ($last && !empty($last['no_transaction'])) {
+                    if (preg_match('/-(\d{4,})$/', $last['no_transaction'], $m)) {
+                        $seq = (int) $m[1] + 1;
+                    }
+                } else {
+                    $countToday = $transactionModel
+                        ->where('DATE(transaction_date)', $now->toDateString())
+                        ->countAllResults();
+                    $seq = max(1, (int) $countToday + 1);
+                }
+                
+                if ($attempt > 1) {
+                    $seq += ($attempt - 1);
+                }
 
-            $transactionId = $transactionModel->insert([
-                'no_transaction' => $noTransaction,
-                'user_id' => $userId,
-                'cashier_work_id' => $cashierWork['id'],
-                'transaction_date' => $now->toDateTimeString(),
-                'total' => $total,
-                'payment' => $data['payment'] ?? 0,
-                'change' => max(0, ($data['payment'] ?? 0) - $total),
-                'status' => 'completed',
-                'created_at' => $now->toDateTimeString()
-            ], true);
+                $noTransaction = $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
 
-            foreach ($data['items'] as $it) {
-                $p = $productModel->find($it['product_id']);
-                $qty = (int) $it['quantity'];
-                $subtotal = $p['price'] * $qty;
+                $total = 0;
+                $allocations = [];
+                $itemsData = [];
 
-                $itemModel->insert([
-                    'transaction_id' => $transactionId,
-                    'product_id' => $p['id'],
-                    'quantity' => $qty,
-                    'subtotal' => $subtotal,
+                foreach ($data['items'] as $it) {
+                    $p = $productModel->find($it['product_id']);
+                    if (!$p) {
+                         throw new \RuntimeException('Produk tidak ditemukan: ' . $it['product_id']);
+                    }
+
+                    $qty = max(1, (int) $it['quantity']);
+                    $sellingPrice = (float) $p['price'];
+
+                    $alloc = StockService::allocateFromBatches((int) $p['id'], $qty);
+                    
+                    $subtotal = $sellingPrice * $qty;
+                    $total += $subtotal;
+                    
+                    $itemsData[] = [
+                        'product' => $p,
+                        'qty' => $qty,
+                        'price' => $sellingPrice,
+                        'alloc' => $alloc,
+                        'subtotal' => $subtotal,
+                    ];
+                }
+
+                $transactionId = $transactionModel->insert([
+                    'no_transaction' => $noTransaction,
+                    'user_id' => $userId,
+                    'cashier_work_id' => $cashierWork['id'],
+                    'transaction_date' => $now->toDateTimeString(),
+                    'total' => $total,
+                    'payment' => $data['payment'] ?? 0,
+                    'change' => max(0, ($data['payment'] ?? 0) - $total),
+                    'status' => 'completed',
                     'created_at' => $now->toDateTimeString()
-                ]);
+                ], true);
 
-                if (isset($p['stock'])) {
-                    $newStock = max(0, $p['stock'] - $qty);
-                    $productModel->update($p['id'], ['stock' => $newStock]);
+                foreach ($itemsData as $item) {
+                     foreach ($item['alloc'] as $al) {
+                        $batchId = (int) $al['batch_id'];
+                        $takeQty = (int) $al['qty'];
+                        
+                        $itemModel->insert([
+                            'transaction_id' => $transactionId,
+                            'product_id' => $item['product']['id'],
+                            'batch_id' => $batchId,
+                            'quantity' => $takeQty,
+                            'subtotal' => $item['price'] * $takeQty,
+                            'created_at' => $now->toDateTimeString()
+                        ]);
+
+                        $batchModel
+                            ->where('id', $batchId)
+                            ->where('current_stock >=', $takeQty)
+                            ->decrement('current_stock', $takeQty);
+
+                        if ($db->affectedRows() === 0) {
+                            throw new \RuntimeException('Stok batch berubah/tidak cukup saat proses simpan. Silakan coba lagi.');
+                        }
+                     }
+                }
+
+                $db->transComplete();
+                
+                if ($db->transStatus() === false) {
+                    $error = $db->error();
+                    if (isset($error['code']) && $error['code'] == 1062) {
+                         continue;
+                    }
+                    throw new \Exception('Gagal menyimpan transaksi: ' . ($error['message'] ?? 'Unknown error'));
+                }
+                
+                $success = true;
+                break;
+
+            } catch (\Throwable $th) {
+                $db->transRollback();
+                $errorMessage = $th->getMessage();
+                
+                if (strpos($errorMessage, 'Duplicate entry') !== false) {
+                    continue;
+                }
+                
+                if (strpos($errorMessage, 'Stok') !== false) {
+                    break;
                 }
             }
 
-            $db->transComplete();
+        } while ($attempt < $maxRetries);
 
-            if ($db->transStatus() === false) {
-                throw new \Exception('Gagal menyimpan transaksi');
-            }
-
-            return $this->response->setJSON(['message' => 'Transaksi berhasil', 'transaction_id' => $transactionId]);
-        } catch (\Throwable $th) {
-            $db->transRollback();
-            return $this->response->setStatusCode(500)->setJSON(['message' => $th->getMessage()]);
+        if ($success) {
+             return $this->response->setJSON(['message' => 'Transaksi berhasil', 'transaction_id' => $transactionId]);
         }
+        
+        return $this->response->setStatusCode(500)->setJSON(['message' => $errorMessage]);
     }
 
     public function receipt($id)
@@ -186,12 +247,21 @@ class TransactionController extends BaseController
             return $this->response->setStatusCode(404)->setBody('Transaksi tidak ditemukan');
         }
 
-        $items = $itemModel->where('transaction_id', $id)->findAll();
-        $productModel = new ProductModel();
+        $items = $itemModel
+            ->select('transaction_items.*, products.product_name, products.price as selling_price, product_batches.purchase_price as purchase_price')
+            ->join('products', 'products.id = transaction_items.product_id', 'left')
+            ->join('product_batches', 'product_batches.id = transaction_items.batch_id', 'left')
+            ->where('transaction_items.transaction_id', $id)
+            ->where('transaction_items.deleted_at', null)
+            ->findAll();
+
         $itemsWithProduct = [];
         foreach ($items as $it) {
-            $p = $productModel->find($it['product_id']);
-            $it['product_name'] = $p['product_name'] ?? ($p['barcode'] ?? 'Item');
+            $sp = (float) ($it['selling_price'] ?? 0);
+            $pp = (float) ($it['purchase_price'] ?? 0);
+            $qty = (int) ($it['quantity'] ?? 0);
+            $it['profit'] = ($sp - $pp) * $qty;
+            $it['margin'] = $sp - $pp;
             $itemsWithProduct[] = $it;
         }
 
@@ -326,11 +396,20 @@ class TransactionController extends BaseController
         }
 
         $items = $itemModel
-            ->select('transaction_items.*, products.product_name, products.price as price')
+            ->select('transaction_items.*, products.product_name, products.price as selling_price, product_batches.purchase_price as purchase_price')
             ->join('products', 'products.id = transaction_items.product_id', 'left')
+            ->join('product_batches', 'product_batches.id = transaction_items.batch_id', 'left')
             ->where('transaction_items.transaction_id', $transactionId)
             ->where('transaction_items.deleted_at', null)
             ->findAll();
+
+        foreach ($items as &$it) {
+            $sp = (float) ($it['selling_price'] ?? 0);
+            $pp = (float) ($it['purchase_price'] ?? 0);
+            $qty = (int) ($it['quantity'] ?? 0);
+            $it['profit'] = ($sp - $pp) * $qty;
+            $it['margin'] = $sp - $pp;
+        }
 
         return $this->response->setJSON(['items' => $items]);
     }
@@ -346,4 +425,3 @@ class TransactionController extends BaseController
         return $this->response->setJSON(['shifts' => $shifts]);
     }
 }
-
