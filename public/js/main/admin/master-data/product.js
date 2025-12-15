@@ -14,9 +14,13 @@ function productManagement() {
       product_name: "",
       price: "",
       category_id: "",
-      stock: "",
-      barcode: "",
       photo: null,
+    },
+    stockClass(v) {
+      const n = Number(v || 0);
+      if (n < 15) return "text-red-600 font-semibold";
+      if (n < 30) return "text-yellow-600 font-semibold";
+      return "text-gray-700";
     },
     selectedCategory: {
       id: null,
@@ -30,8 +34,6 @@ function productManagement() {
       product_name: "",
       price: "",
       category_id: "",
-      stock: "",
-      barcode: "",
       category_name: "",
     },
     openAddProductModal: false,
@@ -50,10 +52,76 @@ function productManagement() {
     restocksPage: 1,
     restocksPageSize: 5,
     _previewUrls: new Set(),
+    approveModalOpen: false,
+    approving: false,
+    selectedRestock: null,
+    restockDetails: {},
 
     init() {
       this.fetchData();
       this.fetchRestocks();
+    },
+    parseDetails(note) {
+      if (!note) return {};
+      try {
+        const d = JSON.parse(note);
+        if (d && typeof d === "object") return d;
+        return {};
+      } catch {
+        return {};
+      }
+    },
+    previewUrl(details) {
+      const path = details?.receipt_image || details?.receipt_temp;
+      if (!path) return "#";
+      if (String(path).startsWith("http")) return path;
+      return "/" + String(path).replace(/^\/+/, "");
+    },
+    openApproveRestock(r) {
+      this.selectedRestock = r;
+      this.restockDetails = this.parseDetails(r.note);
+      this.approveModalOpen = true;
+      this.approving = false;
+    },
+    closeApproveRestock() {
+      this.approveModalOpen = false;
+      this.approving = false;
+      this.selectedRestock = null;
+      this.restockDetails = {};
+    },
+    async confirmApproveRestock() {
+      if (!this.selectedRestock?.id) return;
+      try {
+        this.approving = true;
+        const res = await fetch(
+          `/admin/restocks/approve/${this.selectedRestock.id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({}),
+          }
+        );
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data?.message || "Permintaan disetujui";
+          this.closeApproveRestock();
+          await this.fetchRestocks();
+          await this.fetchData();
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data?.message || "Gagal menyetujui";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.approving = false;
+      }
     },
 
     get filteredProducts() {
@@ -192,7 +260,7 @@ function productManagement() {
 
     async openViewProduct(p) {
       this.clearSelectedProduct();
-      this.selectedProduct = { ...p };
+      this.selectedProduct = { ...p, batches: [] };
       this.barcodeImageUrl = null;
       this.openViewProductModal = true;
 
@@ -209,6 +277,32 @@ function productManagement() {
       } catch (e) {
         console.error("Gagal generate barcode:", e);
       }
+
+      try {
+        const rb = await fetch(`/admin/products/batches/${p.id}`, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const bj = await rb.json();
+        if (bj && Array.isArray(bj.batches)) {
+          this.selectedProduct.batches = bj.batches;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    get visibleBatches() {
+      const list =
+        this.selectedProduct && Array.isArray(this.selectedProduct.batches)
+          ? this.selectedProduct.batches
+          : [];
+      const now = new Date();
+      return list.filter((b) => {
+        if (!b) return false;
+        if (!b.expired_date) return Number(b.current_stock || 0) > 0;
+        const d = new Date(String(b.expired_date));
+        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        return d > now && diff > 7 && Number(b.current_stock || 0) > 0;
+      });
     },
 
     async addProduct() {
@@ -265,6 +359,7 @@ function productManagement() {
           if (k === "photo" && v instanceof File) fd.append("photo", v);
           else if (k !== "photo") fd.append(k, v || "");
         });
+        // Do not send stock/barcode on edit
         const res = await fetch(
           `/admin/products/edit/${this.selectedProduct.id}`,
           {
@@ -470,8 +565,6 @@ function productManagement() {
         product_name: "",
         price: "",
         category_id: "",
-        stock: "",
-        barcode: "",
         photo: null,
       };
       this.validationErrors = {};
@@ -531,31 +624,8 @@ function productManagement() {
       return "Pending";
     },
     async approveRestock(id) {
-      try {
-        if (this.approvingRestockId === id || this.rejectingRestockId === id)
-          return;
-        this.approvingRestockId = id;
-        const res = await fetch(`/admin/restocks/approve/${id}`, {
-          method: "POST",
-          headers: { "X-Requested-With": "XMLHttpRequest" },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          this.message = data?.message || "Permintaan disetujui";
-          await this.fetchRestocks();
-          await this.fetchData();
-          setTimeout(() => (this.message = ""), 3000);
-        } else {
-          this.error = data?.message || "Gagal menyetujui";
-          setTimeout(() => (this.error = ""), 3000);
-        }
-      } catch (e) {
-        console.error(e);
-        this.error = "Terjadi kesalahan";
-        setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        if (this.approvingRestockId === id) this.approvingRestockId = null;
-      }
+      /* kept for backwards compatibility if used elsewhere */
+      this.openApproveRestock({ id });
     },
     async rejectRestock(id) {
       try {
