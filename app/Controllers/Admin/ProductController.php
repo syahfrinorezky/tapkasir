@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
+use App\Models\StorageLocationModel;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class ProductController extends BaseController
@@ -21,6 +22,7 @@ class ProductController extends BaseController
     {
         $productModel = new ProductModel();
         $categoryModel = new CategoryModel();
+        $locationModel = new StorageLocationModel();
 
         $products = $productModel
             ->select('products.*, categories.category_name')
@@ -33,6 +35,12 @@ class ProductController extends BaseController
             ->where('deleted_at', null)
             ->findAll();
 
+        $locations = $locationModel
+            ->where('deleted_at', null)
+            ->orderBy('rack', 'ASC')
+            ->orderBy('row', 'ASC')
+            ->findAll();
+
         foreach ($products as &$product) {
             if (!empty($product['photo'])) {
                 $product['photo'] = base_url('uploads/products/' . basename($product['photo']));
@@ -42,7 +50,8 @@ class ProductController extends BaseController
 
         return $this->response->setJSON([
             'products' => $products,
-            'categories' => $categories
+            'categories' => $categories,
+            'locations' => $locations
         ]);
     }
 
@@ -316,5 +325,91 @@ class ProductController extends BaseController
         $url = base_url('uploads/barcodes/' . $filename);
 
         return $this->response->setJSON(['message' => 'ok', 'url' => $url]);
+    }
+
+    public function addLocation()
+    {
+        $locationModel = new StorageLocationModel();
+        
+        $rules = [
+            'rack' => 'required',
+            'row' => 'required',
+            'status' => 'required|in_list[active,inactive]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal',
+                'validation' => $this->validator->getErrors()
+            ]);
+        }
+
+        $rack = $this->request->getPost('rack');
+        $row = $this->request->getPost('row');
+        
+        $exists = $locationModel->where('rack', $rack)->where('row', $row)->where('deleted_at', null)->first();
+        if ($exists) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Lokasi Rack dan Row ini sudah ada.']);
+        }
+
+        $data = [
+            'rack' => $rack,
+            'row' => $row,
+            'description' => $this->request->getPost('description'),
+            'status' => $this->request->getPost('status')
+        ];
+
+        if ($locationModel->insert($data)) {
+            return $this->response->setJSON(['message' => 'Lokasi berhasil ditambahkan']);
+        }
+        return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menambah lokasi']);
+    }
+
+    public function editLocation($id)
+    {
+        $locationModel = new StorageLocationModel();
+
+        $rules = [
+            'rack' => 'required',
+            'row' => 'required',
+            'status' => 'required|in_list[active,inactive]'
+        ];
+
+        if (!$this->validate($rules)) {
+             return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Validasi gagal',
+                'validation' => $this->validator->getErrors()
+            ]);
+        }
+        
+        $rack = $this->request->getPost('rack');
+        $row = $this->request->getPost('row');
+        
+        $exists = $locationModel->where('rack', $rack)->where('row', $row)->where('id !=', $id)->where('deleted_at', null)->first();
+        if ($exists) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Lokasi Rack dan Row ini sudah ada.']);
+        }
+
+        $data = [
+            'rack' => $rack,
+            'row' => $row,
+            'description' => $this->request->getPost('description'),
+            'status' => $this->request->getPost('status')
+        ];
+
+        if ($locationModel->update($id, $data)) {
+            return $this->response->setJSON(['message' => 'Lokasi berhasil diperbarui']);
+        }
+        return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal memperbarui lokasi']);
+    }
+
+    public function deleteLocation($id)
+    {
+        $locationModel = new StorageLocationModel();
+
+        if ($locationModel->delete($id)) {
+            return $this->response->setJSON(['message' => 'Lokasi berhasil dihapus']);
+        }
+        return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menghapus lokasi']);
     }
 }

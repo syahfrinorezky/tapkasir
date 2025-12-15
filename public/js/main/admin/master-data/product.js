@@ -2,11 +2,14 @@ function productManagement() {
   return {
     products: [],
     categories: [],
+    locations: [],
     isLoading: false,
     isSavingProduct: false,
     isDeletingProduct: false,
     isSavingCategory: false,
     isDeletingCategory: false,
+    isSavingLocation: false,
+    isDeletingLocation: false,
     approvingRestockId: null,
     rejectingRestockId: null,
     selectedProduct: {
@@ -26,6 +29,13 @@ function productManagement() {
       id: null,
       category_name: "",
     },
+    selectedLocation: {
+      id: null,
+      rack: "",
+      row: "",
+      description: "",
+      status: "active",
+    },
     message: "",
     error: "",
     searchQuery: "",
@@ -43,11 +53,16 @@ function productManagement() {
     openAddCategoryModal: false,
     openEditCategoryModal: false,
     openDeleteCategoryModal: false,
+    openAddLocationModal: false,
+    openEditLocationModal: false,
+    openDeleteLocationModal: false,
     barcodeImageUrl: null,
     dataProductPage: 1,
     dataProductPageSize: 10,
     dataCategoriesPage: 1,
     dataCategoriesPageSize: 5,
+    locationsPage: 1,
+    locationsPageSize: 5,
     restocks: [],
     restocksPage: 1,
     restocksPageSize: 5,
@@ -161,6 +176,14 @@ function productManagement() {
         Math.ceil(this.categories.length / this.dataCategoriesPageSize) || 1
       );
     },
+    get paginatedLocations() {
+      const start = (this.locationsPage - 1) * this.locationsPageSize;
+      const end = start + this.locationsPageSize;
+      return this.locations.slice(start, end);
+    },
+    get totalLocationsPages() {
+      return Math.ceil(this.locations.length / this.locationsPageSize) || 1;
+    },
 
     changeDataProductPage(page) {
       if (page >= 1 && page <= this.totalProductPages)
@@ -170,11 +193,18 @@ function productManagement() {
       if (page >= 1 && page <= this.totalCategoriesPages)
         this.dataCategoriesPage = page;
     },
+    changeLocationsPage(page) {
+      if (page >= 1 && page <= this.totalLocationsPages)
+        this.locationsPage = page;
+    },
     getDataProductsNumber() {
       return Array.from({ length: this.totalProductPages }, (_, i) => i + 1);
     },
     getDataCategoriesNumber() {
       return Array.from({ length: this.totalCategoriesPages }, (_, i) => i + 1);
+    },
+    getLocationsNumber() {
+      return Array.from({ length: this.totalLocationsPages }, (_, i) => i + 1);
     },
     getProductRowNumber(i) {
       return (this.dataProductPage - 1) * this.dataProductPageSize + i + 1;
@@ -206,6 +236,7 @@ function productManagement() {
         }
         this.products = Array.isArray(data.products) ? data.products : [];
         this.categories = Array.isArray(data.categories) ? data.categories : [];
+        this.locations = Array.isArray(data.locations) ? data.locations : [];
         this.calculateProductCount();
         this.activeCategoryFilter = "all";
       } catch (e) {
@@ -507,6 +538,116 @@ function productManagement() {
         setTimeout(() => (this.error = ""), 3000);
       } finally {
         this.isDeletingCategory = false;
+      }
+    },
+
+    openAddLocation() {
+      this.selectedLocation = {
+        id: null,
+        rack: "",
+        row: "",
+        description: "",
+        status: "active",
+      };
+      this.openAddLocationModal = true;
+    },
+    openEditLocation(l) {
+      this.selectedLocation = { ...l };
+      this.openEditLocationModal = true;
+    },
+    openDeleteLocation(l) {
+      this.selectedLocation = l;
+      this.openDeleteLocationModal = true;
+    },
+
+    async addLocation() {
+      try {
+        this.isSavingLocation = true;
+        const fd = new FormData();
+        Object.entries(this.selectedLocation).forEach(([k, v]) =>
+          fd.append(k, v || "")
+        );
+        const res = await fetch(`/admin/products/addLocation`, {
+          method: "POST",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+          body: fd,
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data.message || "Lokasi berhasil ditambahkan";
+          await this.fetchData();
+          this.openAddLocationModal = false;
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data.message || "Gagal menambah lokasi";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingLocation = false;
+      }
+    },
+
+    async editLocation() {
+      try {
+        this.isSavingLocation = true;
+        const fd = new FormData();
+        Object.entries(this.selectedLocation).forEach(([k, v]) =>
+          fd.append(k, v || "")
+        );
+        const res = await fetch(
+          `/admin/products/editLocation/${this.selectedLocation.id}`,
+          {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            body: fd,
+          }
+        );
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data.message || "Lokasi berhasil diperbarui";
+          await this.fetchData();
+          this.openEditLocationModal = false;
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data.message || "Gagal memperbarui lokasi";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isSavingLocation = false;
+      }
+    },
+
+    async deleteLocation(id) {
+      try {
+        this.isDeletingLocation = true;
+        const res = await fetch(`/admin/products/deleteLocation/${id}`, {
+          method: "DELETE",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await res.json();
+        if (res.ok) {
+          this.message = data.message || "Lokasi berhasil dihapus";
+          await this.fetchData();
+          this.openDeleteLocationModal = false;
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.error = data.message || "Gagal menghapus lokasi";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (e) {
+        console.error(e);
+        this.error = "Terjadi kesalahan";
+        setTimeout(() => (this.error = ""), 3000);
+      } finally {
+        this.isDeletingLocation = false;
       }
     },
 

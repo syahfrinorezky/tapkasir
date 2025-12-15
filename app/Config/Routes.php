@@ -68,6 +68,11 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('products/editCategory/(:num)', [ProductController::class, 'editCategory/$1'], ['as' => 'admin.product.editCategory']);
     $routes->delete('products/deleteCategory/(:num)', [ProductController::class, 'deleteCategory/$1'], ['as' => 'admin.product.deleteCategory']);
 
+    // Storage Location management
+    $routes->post('products/addLocation', [ProductController::class, 'addLocation'], ['as' => 'admin.product.addLocation']);
+    $routes->post('products/editLocation/(:num)', [ProductController::class, 'editLocation/$1'], ['as' => 'admin.product.editLocation']);
+    $routes->delete('products/deleteLocation/(:num)', [ProductController::class, 'deleteLocation/$1'], ['as' => 'admin.product.deleteLocation']);
+
 
     // Shift management
     $routes->get('shifts', [ShiftController::class, 'index'], ['as' => 'admin.shift']);

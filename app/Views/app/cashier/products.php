@@ -282,7 +282,7 @@ Produk & Restock
 
                                     <div>
                                         <label class="text-sm text-gray-600">Produk</label>
-                                        <div class="mt-1 px-3 py-2 rounded-md border bg-gray-50"
+                                        <div class="mt-1 px-3 py-2 rounded-md border bg-gray-50 text-sm"
                                             x-text="selectedProduct?.product_name || '-'"></div>
                                     </div>
 
@@ -294,13 +294,12 @@ Produk & Restock
                                                     <i class="fas fa-minus"></i>
                                                 </button>
                                                 <input type="text" x-model="restockQty" @input="sanitizeQty()"
-                                                    class="w-full text-center px-2 py-2 rounded-md border focus:ring-primary focus:border-primary" />
+                                                    class="w-full text-center px-2 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm" />
                                                 <button @click="incQty()" class="px-2 py-2 bg-gray-100 rounded hover:bg-gray-200">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </div>
                                         </div>
-
                                         <div>
                                             <label class="text-sm text-gray-600">Expired</label>
                                             <input type="date" x-model="restockExpiredDate"
@@ -314,26 +313,23 @@ Produk & Restock
                                             <input type="number" x-model="restockPurchasePrice"
                                                 class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
                                         </div>
-
                                         <div>
-                                            <label class="text-sm text-gray-600">Rak</label>
-                                            <input type="text" x-model="restockRack"
-                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
+                                            <label class="text-sm text-gray-600">Slot (Opsional)</label>
+                                            <input type="text" x-model="restockSlot"
+                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm"
+                                                placeholder="Contoh: A-1">
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="text-sm text-gray-600">Baris</label>
-                                            <input type="text" x-model="restockRow"
-                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
-                                        </div>
-
-                                        <div>
-                                            <label class="text-sm text-gray-600">Slot</label>
-                                            <input type="text" x-model="restockSlot"
-                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
-                                        </div>
+                                    <div>
+                                        <label class="text-sm text-gray-600">Lokasi Penyimpanan</label>
+                                        <select x-model="restockLocationId" @change="onRestockLocationChange()"
+                                            class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm bg-white">
+                                            <option value="">-- Pilih Lokasi --</option>
+                                            <template x-for="loc in locations.filter(l => l.status === 'active').sort((a,b) => (a.rack || '').localeCompare(b.rack || '') || (a.row || '').localeCompare(b.row || ''))" :key="loc.id">
+                                                <option :value="loc.id" x-text="`${loc.rack} - ${loc.row}`"></option>
+                                            </template>
+                                        </select>
                                     </div>
 
                                     <div>

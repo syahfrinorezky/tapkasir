@@ -29,6 +29,7 @@ class RestockRequestController extends BaseController
             'rack'           => $data['rack'] ?? null,
             'row'            => $data['row'] ?? null,
             'slot'           => $data['slot'] ?? null,
+            'location_id'    => $data['location_id'] ?? null,
             'receipt_temp'   => $data['receipt_temp'] ?? null,
             'note'           => $noteText,
         ];
@@ -121,6 +122,7 @@ class RestockRequestController extends BaseController
             $rack = $body['rack'] ?? ($noteDetails['rack'] ?? null);
             $row = $body['row'] ?? ($noteDetails['row'] ?? null);
             $slot = $body['slot'] ?? ($noteDetails['slot'] ?? null);
+            $locationId = $body['location_id'] ?? ($noteDetails['location_id'] ?? null); 
             $receiptImage = $body['receipt_image'] ?? ($noteDetails['receipt_temp'] ?? null);
 
             $model->update($id, [
@@ -149,6 +151,7 @@ class RestockRequestController extends BaseController
                     'rack' => $rack,
                     'row' => $row,
                     'slot' => $slot,
+                    'location_id' => $locationId, 
                     'receipt_image' => $receiptImage,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),

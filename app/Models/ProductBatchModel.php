@@ -22,6 +22,7 @@ class ProductBatchModel extends Model
         'rack',
         'row',
         'slot',
+        'location_id',
         'receipt_image',
     ];
 
