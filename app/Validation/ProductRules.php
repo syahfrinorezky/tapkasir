@@ -27,20 +27,6 @@ class ProductRules
                 'is_not_unique' => 'Kategori produk tidak valid.',
             ],
         ],
-        'stock' => [
-            'rules' => 'required|integer|greater_than_equal_to[0]',
-            'errors' => [
-                'required' => 'Stok produk dibutuhkan.',
-                'integer' => 'Stok produk harus berupa angka bulat.',
-                'greater_than_equal_to' => 'Stok produk tidak boleh kurang dari 0.',
-            ],
-        ],
-        'barcode' => [
-            'rules' => 'permit_empty|is_unique[products.barcode]',
-            'errors' => [
-                'is_unique' => 'Barcode sudah terdaftar.',
-            ],
-        ],
     ];
 
 
@@ -63,17 +49,6 @@ class ProductRules
             'errors' => [
                 'is_not_unique' => 'Kategori produk tidak valid.',
             ],
-        ],
-        'stock' => [
-            'rules' => 'permit_empty|integer|greater_than_equal_to[0]',
-            'errors' => [
-                'integer' => 'Stok produk harus berupa angka bulat.',
-                'greater_than_equal_to' => 'Stok produk tidak boleh kurang dari 0.',
-            ],
-        ],
-        'barcode' => [
-            'rules' => 'permit_empty',
-            'errors' => [],
         ],
     ];
 }
