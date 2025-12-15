@@ -37,6 +37,7 @@ class ProductController extends BaseController
             if (!empty($product['photo'])) {
                 $product['photo'] = base_url('uploads/products/' . basename($product['photo']));
             }
+            $product['stock'] = $productModel->getStock($product['id']);
         }
 
         return $this->response->setJSON([
@@ -76,7 +77,6 @@ class ProductController extends BaseController
             'product_name' => $this->request->getPost('product_name'),
             'price' => $this->request->getPost('price'),
             'category_id' => $this->request->getPost('category_id'),
-            'stock' => $this->request->getPost('stock'),
         ];
 
         $rules = (new \App\Validation\ProductRules())->create;
@@ -132,7 +132,6 @@ class ProductController extends BaseController
             'product_name' => $this->request->getPost('product_name'),
             'price' => $this->request->getPost('price'),
             'category_id' => $this->request->getPost('category_id'),
-            'stock' => $this->request->getPost('stock'),
         ];
 
         $rules = (new \App\Validation\ProductRules())->update;
@@ -319,4 +318,3 @@ class ProductController extends BaseController
         return $this->response->setJSON(['message' => 'ok', 'url' => $url]);
     }
 }
-
