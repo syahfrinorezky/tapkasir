@@ -2,6 +2,7 @@ function cashierProducts() {
   return {
     products: [],
     categories: [],
+    locations: [],
     message: "",
     error: "",
     isLoading: false,
@@ -25,6 +26,7 @@ function cashierProducts() {
     restockRack: "",
     restockRow: "",
     restockSlot: "",
+    restockLocationId: "",
     receiptTempPath: "",
     receiptFileName: "",
     receiptUploading: false,
@@ -147,6 +149,7 @@ function cashierProducts() {
         }
         this.products = Array.isArray(data.products) ? data.products : [];
         this.categories = Array.isArray(data.categories) ? data.categories : [];
+        this.locations = Array.isArray(data.locations) ? data.locations : [];
       } catch (e) {
         console.error(e);
         this.error = "Terjadi kesalahan memuat produk.";
@@ -178,9 +181,11 @@ function cashierProducts() {
       this.restockNote = "";
       this.restockExpiredDate = "";
       this.restockPurchasePrice = "";
+      this.restockPurchasePrice = "";
       this.restockRack = "";
       this.restockRow = "";
       this.restockSlot = "";
+      this.restockLocationId = "";
       this.receiptTempPath = "";
       this.receiptFileName = "";
       this.receiptUploading = false;
@@ -295,6 +300,7 @@ function cashierProducts() {
         rack: (this.restockRack || "").trim() || null,
         row: (this.restockRow || "").trim() || null,
         slot: (this.restockSlot || "").trim() || null,
+        location_id: this.restockLocationId || null,
         receipt_temp: this.receiptTempPath || null,
       };
       try {
@@ -323,6 +329,20 @@ function cashierProducts() {
         setTimeout(() => (this.error = ""), 3000);
       } finally {
         this.isSubmittingRestock = false;
+      }
+    },
+    onRestockLocationChange() {
+      if (!this.restockLocationId) {
+        this.restockRack = "";
+        this.restockRow = "";
+        return;
+      }
+      const loc = this.locations.find(
+        (l) => String(l.id) === String(this.restockLocationId)
+      );
+      if (loc) {
+        this.restockRack = loc.rack;
+        this.restockRow = loc.row;
       }
     },
   };

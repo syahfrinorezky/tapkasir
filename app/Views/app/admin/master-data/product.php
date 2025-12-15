@@ -128,7 +128,7 @@ Manajemen Produk
                                 </tbody>
                             </table>
                         </div>
-                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                             <div class="text-sm text-gray-600">
                                 Menampilkan
                                 <span class="font-semibold" x-text="filteredProducts.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
@@ -247,7 +247,7 @@ Manajemen Produk
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                                 <div class="text-sm text-gray-600">
                                     Menampilkan
                                     <span class="font-semibold" x-text="categories.length === 0 ? 0 : ((dataCategoriesPage - 1) * dataCategoriesPageSize) + 1"></span>
@@ -280,6 +280,117 @@ Manajemen Produk
                                         @click="changeDataCategoriesPage(dataCategoriesPage + 1)"
                                         :disabled="dataCategoriesPage === totalCategoriesPages"
                                         :class="dataCategoriesPage === totalCategoriesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Lokasi Penyimpanan -->
+                    <div class="flex flex-col space-y-2">
+                         <div class="flex justify-between items-center">
+                            <h1 class="font-bold text-lg text-gray-700">
+                                <i class="fas fa-warehouse text-lg text-primary inline-flex mr-1"></i>
+                                Lokasi Penyimpanan
+                            </h1>
+
+                            <button @click="openAddLocation()" type="button"
+                                class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-plus text-primary"></i>
+                            </button>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                <table class="w-full min-w-max text-sm">
+                                    <thead class="bg-primary text-white sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left font-semibold">Rak</th>
+                                            <th class="px-3 py-2 text-center font-semibold">Baris</th>
+                                            <th class="px-3 py-2 text-center font-semibold">Status</th>
+                                            <th class="px-3 py-2 text-center font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="locations.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-6">
+                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <span class="text-center">Belum ada lokasi penyimpanan</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+
+                                        <template x-for="(loc, index) in paginatedLocations" :key="loc.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-3 py-2" x-text="loc.rack"></td>
+                                                <td class="px-3 py-2 text-center" x-text="loc.row"></td>
+                                                <td class="px-3 py-2 text-center">
+                                                    <span :class="loc.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                                                        x-text="loc.status === 'active' ? 'Active' : 'Inactive'">
+                                                    </span>
+                                                </td>
+                                                <td class="px-3 py-2 text-center">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            @click="openEditLocation(loc)"
+                                                            title="Edit Lokasi"
+                                                            class="flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition">
+                                                            <i class="fas fa-pen"></i>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            @click="openDeleteLocation(loc)"
+                                                            title="Hapus Lokasi"
+                                                            class="flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="locations.length === 0 ? 0 : ((locationsPage - 1) * locationsPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(locationsPage * locationsPageSize, locations.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="locations.length"></span>
+                                    lokasi
+                                </div>
+
+                                <div class="flex items-center gap-2" x-show="totalLocationsPages > 1">
+                                    <button
+                                        @click="changeLocationsPage(locationsPage - 1)"
+                                        :disabled="locationsPage === 1"
+                                        :class="locationsPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getLocationsNumber()" :key="page">
+                                        <button
+                                            @click="changeLocationsPage(page)"
+                                            :class="page === locationsPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeLocationsPage(locationsPage + 1)"
+                                        :disabled="locationsPage === totalLocationsPages"
+                                        :class="locationsPage === totalLocationsPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
@@ -365,7 +476,7 @@ Manajemen Produk
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                                 <div class="text-sm text-gray-600">
                                     Menampilkan
                                     <span class="font-semibold" x-text="restocks.length === 0 ? 0 : ((restocksPage - 1) * restocksPageSize) + 1"></span>
