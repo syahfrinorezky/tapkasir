@@ -21,6 +21,10 @@ class TransactionModel extends Model
         'payment',
         'change',
         'status',
+        'payment_method',
+        'payment_status',
+        'snap_token',
+        'midtrans_id',
     ];
 
     protected bool $allowEmptyInserts = false;
