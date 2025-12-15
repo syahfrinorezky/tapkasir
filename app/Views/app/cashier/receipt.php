@@ -195,6 +195,12 @@
                 </td>
             </tr>
             <tr>
+                <td class="small">Metode Bayar</td>
+                <td class="small" style="text-align:right">
+                    <?= strtoupper($transaction['payment_method'] ?? 'cash') === 'QRIS' ? 'QRIS' : 'Tunai' ?>
+                </td>
+            </tr>
+            <tr>
                 <td class="small">Pembayaran</td>
                 <td class="small" style="text-align:right">
                     Rp <?= number_format($transaction['payment'], 0, ',', '.') ?>

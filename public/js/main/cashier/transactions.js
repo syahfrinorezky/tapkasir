@@ -4,6 +4,7 @@ function cashierTransactions(baseUrl = "") {
     barcode: "",
     cart: [],
     payment: 0,
+    paymentMethod: "cash",
     showReceiptModal: false,
     message: "",
     error: "",
@@ -321,7 +322,7 @@ function cashierTransactions(baseUrl = "") {
         return;
       }
 
-      if (this.payment < this.total) {
+      if (this.paymentMethod === "cash" && this.payment < this.total) {
         this.error = "Pembayaran kurang dari total";
         setTimeout(() => (this.error = ""), 3000);
         return;
@@ -340,7 +341,11 @@ function cashierTransactions(baseUrl = "") {
             "Content-Type": "application/json",
             "X-Requested-With": "XMLHttpRequest",
           },
-          body: JSON.stringify({ items, payment: this.payment }),
+          body: JSON.stringify({
+            items,
+            payment: this.paymentMethod === "cash" ? this.payment : this.total,
+            payment_method: this.paymentMethod,
+          }),
         });
 
         const json = await res.json();
@@ -349,15 +354,56 @@ function cashierTransactions(baseUrl = "") {
           throw new Error(json.message || "Gagal menyimpan transaksi");
         }
 
-        this.message = "Transaksi berhasil";
-        this.cart = [];
-        this.payment = 0;
+        if (this.paymentMethod === "qris" && json.snap_token) {
+          if (typeof window.snap === "undefined") {
+            throw new Error("Midtrans Snap JS not loaded");
+          }
+          window.snap.pay(json.snap_token, {
+            onSuccess: async (result) => {
+              try {
+                await fetch("/cashier/transactions/finish", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                  },
+                  body: JSON.stringify({
+                    transaction_id: json.transaction_id,
+                    midtrans_id: result.transaction_id,
+                    payment_type: result.payment_type,
+                  }),
+                });
+              } catch (e) {
+                console.error("Failed to update transaction status", e);
+              }
 
-        setTimeout(() => (this.message = ""), 3000);
-        if (this.$refs.barcodeInput) this.$refs.barcodeInput.focus();
+              this.message = "Pembayaran Berhasil!";
+              this.cart = [];
+              this.payment = 0;
+              setTimeout(() => (this.message = ""), 3000);
+              if (json.transaction_id) {
+                this.showReceipt(json.transaction_id);
+              }
+            },
+            onPending: (result) => {
+              this.message = "Menunggu pembayaran...";
+            },
+            onError: (result) => {
+              this.error = "Pembayaran Gagal!";
+            },
+            onClose: () => {},
+          });
+        } else {
+          this.message = "Transaksi berhasil";
+          this.cart = [];
+          this.payment = 0;
 
-        if (json.transaction_id) {
-          await this.showReceipt(json.transaction_id);
+          setTimeout(() => (this.message = ""), 3000);
+          if (this.$refs.barcodeInput) this.$refs.barcodeInput.focus();
+
+          if (json.transaction_id) {
+            await this.showReceipt(json.transaction_id);
+          }
         }
       } catch (error) {
         console.error("Transaction error:", error);

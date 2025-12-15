@@ -13,12 +13,22 @@ use App\Models\ProductBatchModel;
 use App\Libraries\StockService;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\I18n\Time;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class TransactionController extends BaseController
 {
     public function index()
     {
-        return view('app/cashier/transactions');
+        $midtransConfig = config('Midtrans');
+        $snapUrl = $midtransConfig->isProduction
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+
+        return view('app/cashier/transactions', [
+            'midtransClientKey' => $midtransConfig->clientKey,
+            'snapUrl' => $snapUrl
+        ]);
     }
 
     public function product($barcode = null)
@@ -28,11 +38,17 @@ class TransactionController extends BaseController
         $q = $this->request->getGet('q');
         if ($q !== null) {
             $products = $productModel
+                ->select('products.*, (SELECT COALESCE(SUM(current_stock), 0) FROM product_batches WHERE product_batches.product_id = products.id AND product_batches.deleted_at IS NULL AND (product_batches.expired_date > CURDATE() OR product_batches.expired_date IS NULL)) as real_stock')
+                ->groupStart()
                 ->like('barcode', $q)
                 ->orLike('product_name', $q)
-                ->where('stock >', 0)
-                ->where('deleted_at', null)
+                ->groupEnd()
+                ->having('real_stock >', 0)
                 ->findAll(10);
+
+            foreach ($products as &$p) {
+                $p['stock'] = $p['real_stock'];
+            }
 
             return $this->response->setJSON(['products' => $products]);
         }
@@ -101,6 +117,11 @@ class TransactionController extends BaseController
         $transactionId = null;
         $success = false;
         $errorMessage = 'Gagal menyimpan transaksi logic error';
+        $snapToken = null;
+
+        $paymentMethod = $data['payment_method'] ?? 'cash';
+        $paymentStatus = ($paymentMethod === 'cash') ? 'paid' : 'pending';
+        $status = ($paymentMethod === 'cash') ? 'completed' : 'pending';
 
         do {
             $attempt++;
@@ -108,7 +129,7 @@ class TransactionController extends BaseController
 
             try {
                 $now = Time::now(config('App')->appTimezone ?? 'Asia/Makassar');
-                
+
                 $prefixDate = $now->format('Ymd');
                 $prefix = 'TAP' . $prefixDate . '-';
 
@@ -130,7 +151,7 @@ class TransactionController extends BaseController
                         ->countAllResults();
                     $seq = max(1, (int) $countToday + 1);
                 }
-                
+
                 if ($attempt > 1) {
                     $seq += ($attempt - 1);
                 }
@@ -140,27 +161,35 @@ class TransactionController extends BaseController
                 $total = 0;
                 $allocations = [];
                 $itemsData = [];
+                $midtransItems = [];
 
                 foreach ($data['items'] as $it) {
                     $p = $productModel->find($it['product_id']);
                     if (!$p) {
-                         throw new \RuntimeException('Produk tidak ditemukan: ' . $it['product_id']);
+                        throw new \RuntimeException('Produk tidak ditemukan: ' . $it['product_id']);
                     }
 
                     $qty = max(1, (int) $it['quantity']);
                     $sellingPrice = (float) $p['price'];
 
                     $alloc = StockService::allocateFromBatches((int) $p['id'], $qty);
-                    
+
                     $subtotal = $sellingPrice * $qty;
                     $total += $subtotal;
-                    
+
                     $itemsData[] = [
                         'product' => $p,
                         'qty' => $qty,
                         'price' => $sellingPrice,
                         'alloc' => $alloc,
                         'subtotal' => $subtotal,
+                    ];
+
+                    $midtransItems[] = [
+                        'id' => $it['product_id'],
+                        'price' => (int)$sellingPrice,
+                        'quantity' => $qty,
+                        'name' => substr($p['product_name'], 0, 50)
                     ];
                 }
 
@@ -172,15 +201,17 @@ class TransactionController extends BaseController
                     'total' => $total,
                     'payment' => $data['payment'] ?? 0,
                     'change' => max(0, ($data['payment'] ?? 0) - $total),
-                    'status' => 'completed',
+                    'status' => $status,
+                    'payment_method' => $paymentMethod,
+                    'payment_status' => $paymentStatus,
                     'created_at' => $now->toDateTimeString()
                 ], true);
 
                 foreach ($itemsData as $item) {
-                     foreach ($item['alloc'] as $al) {
+                    foreach ($item['alloc'] as $al) {
                         $batchId = (int) $al['batch_id'];
                         $takeQty = (int) $al['qty'];
-                        
+
                         $itemModel->insert([
                             'transaction_id' => $transactionId,
                             'product_id' => $item['product']['id'],
@@ -198,42 +229,102 @@ class TransactionController extends BaseController
                         if ($db->affectedRows() === 0) {
                             throw new \RuntimeException('Stok batch berubah/tidak cukup saat proses simpan. Silakan coba lagi.');
                         }
-                     }
+                    }
+                }
+
+                if ($paymentMethod === 'qris') {
+                    $midtransConfig = config('Midtrans');
+                    Config::$serverKey = $midtransConfig->serverKey;
+                    Config::$isProduction = $midtransConfig->isProduction;
+                    Config::$isSanitized = $midtransConfig->isSanitized;
+                    Config::$is3ds = $midtransConfig->is3ds;
+
+                    Config::$curlOptions = [
+                        CURLOPT_SSL_VERIFYPEER => false,
+                        CURLOPT_SSL_VERIFYHOST => false,
+                        CURLOPT_HTTPHEADER => [],
+                    ];
+
+                    $params = [
+                        'transaction_details' => [
+                            'order_id' => $noTransaction,
+                            'gross_amount' => (int) $total,
+                        ],
+                        'item_details' => $midtransItems,
+                        'customer_details' => [
+                            'first_name' => 'Customer',
+                            'email' => 'customer@example.com',
+                        ],
+                    ];
+
+                    $snapToken = Snap::getSnapToken($params);
+                    $transactionModel->update($transactionId, ['snap_token' => $snapToken]);
                 }
 
                 $db->transComplete();
-                
+
                 if ($db->transStatus() === false) {
                     $error = $db->error();
                     if (isset($error['code']) && $error['code'] == 1062) {
-                         continue;
+                        continue;
                     }
                     throw new \Exception('Gagal menyimpan transaksi: ' . ($error['message'] ?? 'Unknown error'));
                 }
-                
+
                 $success = true;
                 break;
-
             } catch (\Throwable $th) {
                 $db->transRollback();
                 $errorMessage = $th->getMessage();
-                
+
                 if (strpos($errorMessage, 'Duplicate entry') !== false) {
                     continue;
                 }
-                
+
                 if (strpos($errorMessage, 'Stok') !== false) {
                     break;
                 }
             }
-
         } while ($attempt < $maxRetries);
 
         if ($success) {
-             return $this->response->setJSON(['message' => 'Transaksi berhasil', 'transaction_id' => $transactionId]);
+            return $this->response->setJSON([
+                'message' => 'Transaksi berhasil',
+                'transaction_id' => $transactionId,
+                'snap_token' => $snapToken,
+                'payment_method' => $paymentMethod
+            ]);
         }
-        
+
         return $this->response->setStatusCode(500)->setJSON(['message' => $errorMessage]);
+    }
+
+    public function finishPayment()
+    {
+        $data = $this->request->getJSON(true);
+        $transactionId = $data['transaction_id'] ?? null;
+        $midtransId = $data['midtrans_id'] ?? null;
+
+        if (!$transactionId) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaction ID required']);
+        }
+
+        $transactionModel = new TransactionModel();
+        $transaction = $transactionModel->find($transactionId);
+
+        if (!$transaction) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'Transaction not found']);
+        }
+
+        $updateData = [
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'midtrans_id' => $midtransId,
+        ];
+
+        $transactionModel->update($transactionId, $updateData);
+
+        return $this->response->setJSON(['message' => 'Payment finished']);
     }
 
     public function receipt($id)

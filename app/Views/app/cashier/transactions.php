@@ -26,7 +26,6 @@ Transaksi Kasir
             </div>
 
             <div class="px-4 md:px-6 lg:px-8">
-                <!-- Notifications -->
                 <template x-if="message">
                     <div x-text="message" class="fixed top-10 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
                 </template>
@@ -35,7 +34,6 @@ Transaksi Kasir
                     <div x-text="error" class="fixed top-10 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
                 </template>
 
-                <!-- Shift ending warning -->
                 <template x-if="showShiftWarning">
                     <div class="fixed top-20 right-5 left-5 md:left-auto md:w-[360px] bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3 rounded-md shadow z-50">
                         <div class="flex items-start gap-2">
@@ -48,7 +46,6 @@ Transaksi Kasir
                     </div>
                 </template>
 
-                <!-- Loading Overlay -->
                 <template x-if="isLoading">
                     <div class="fixed inset-0 bg-black/50 z-40 flex items-center justify-center">
                         <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
@@ -166,7 +163,6 @@ Transaksi Kasir
                                 </table>
                             </div>
 
-                            <!-- Cart pagination controls -->
                             <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
                                 <div class="text-sm text-gray-600">
                                     Menampilkan
@@ -215,6 +211,24 @@ Transaksi Kasir
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="text-sm text-gray-700 block mb-1">Metode Pembayaran</label>
+                                    <div class="flex rounded-md shadow-sm" role="group">
+                                        <button type="button"
+                                            @click="paymentMethod = 'cash'"
+                                            :class="paymentMethod === 'cash' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                            class="flex-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary">
+                                            <i class="fas fa-money-bill-wave mr-2"></i> Tunai
+                                        </button>
+                                        <button type="button"
+                                            @click="paymentMethod = 'qris'"
+                                            :class="paymentMethod === 'qris' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                                            class="flex-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary">
+                                            <i class="fas fa-qrcode mr-2"></i> QRIS
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3" x-show="paymentMethod === 'cash'">
                                     <label class="text-sm text-gray-700">Pembayaran</label>
                                     <input
                                         type="number"
@@ -223,7 +237,7 @@ Transaksi Kasir
                                         class="w-full border rounded px-3 py-2 mt-1 disabled:opacity-50">
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-3" x-show="paymentMethod === 'cash'">
                                     <div class="text-sm text-gray-600">Kembalian</div>
                                     <div
                                         class="text-lg font-medium"
@@ -233,7 +247,7 @@ Transaksi Kasir
 
                                 <button
                                     @click="submitTransaction()"
-                                    :disabled="isLoading || cart.length === 0 || payment < total"
+                                    :disabled="isLoading || cart.length === 0 || (paymentMethod === 'cash' && payment < total)"
                                     class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
                                     <template x-if="isLoading">
                                         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -241,11 +255,10 @@ Transaksi Kasir
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
                                     </template>
-                                    <span x-text="isLoading ? 'Memproses...' : 'Bayar'"></span>
+                                    <span x-text="isLoading ? 'Memproses...' : (paymentMethod === 'qris' ? 'Generate QRIS' : 'Bayar')"></span>
                                 </button>
 
-                                <!-- Payment Validation Warning -->
-                                <template x-if="payment > 0 && payment < total">
+                                <template x-if="paymentMethod === 'cash' && payment > 0 && payment < total">
                                     <div class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
                                         Pembayaran kurang dari total
                                     </div>
@@ -256,10 +269,9 @@ Transaksi Kasir
                 </div>
             </div>
         </div>
-    </div>
-    <!-- </main> -->
-    <?= $this->endSection() ?>
+        </divection() ?>
 
-    <?= $this->section('scripts') ?>
-    <script src="<?= base_url('js/main/cashier/transactions.js') ?>"></script>
-    <?= $this->endSection() ?>
+        <?= $this->section('scripts') ?>
+        <script src="<?= $snapUrl ?>" data-client-key="<?= $midtransClientKey ?>"></script>
+        <script src="<?= base_url('js/main/cashier/transactions.js') ?>"></script>
+        <?= $this->endSection() ?>
