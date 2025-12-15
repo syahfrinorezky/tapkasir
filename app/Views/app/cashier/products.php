@@ -308,16 +308,10 @@ Produk & Restock
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-3">
-                                        <div>
+                                        <div class="col-span-2">
                                             <label class="text-sm text-gray-600">Harga Beli</label>
                                             <input type="number" x-model="restockPurchasePrice"
                                                 class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="text-sm text-gray-600">Slot (Opsional)</label>
-                                            <input type="text" x-model="restockSlot"
-                                                class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm"
-                                                placeholder="Contoh: A-1">
                                         </div>
                                     </div>
 
@@ -444,7 +438,7 @@ Produk & Restock
                                                                 <td class="px-3 py-2 text-right" x-text="b.current_stock"></td>
                                                                 <td class="px-3 py-2 text-right" x-text="formatCurrency(b.purchase_price || 0)"></td>
                                                                 <td class="px-3 py-2">
-                                                                    <span x-text="[b.rack, b.row, b.slot].filter(Boolean).join(' / ') || '-' "></span>
+                                                                    <span x-text="[b.rack, b.row].filter(Boolean).join(' / ') || '-' "></span>
                                                                 </td>
                                                             </tr>
                                                         </template>

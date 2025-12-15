@@ -16,9 +16,11 @@ class ProductBatchController extends BaseController
 
         $batchModel = new ProductBatchModel();
         $batches = $batchModel
-            ->where('product_id', $productId)
-            ->where('deleted_at', null)
-            ->orderBy('created_at', 'DESC')
+            ->select('product_batches.*, storage_locations.rack, storage_locations.row')
+            ->join('storage_locations', 'storage_locations.id = product_batches.location_id', 'left')
+            ->where('product_batches.product_id', $productId)
+            ->where('product_batches.deleted_at', null)
+            ->orderBy('product_batches.created_at', 'DESC')
             ->findAll();
 
         return $this->response->setJSON(['batches' => $batches]);

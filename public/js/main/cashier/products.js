@@ -25,7 +25,7 @@ function cashierProducts() {
     restockPurchasePrice: "",
     restockRack: "",
     restockRow: "",
-    restockSlot: "",
+
     restockLocationId: "",
     receiptTempPath: "",
     receiptFileName: "",
@@ -184,7 +184,7 @@ function cashierProducts() {
       this.restockPurchasePrice = "";
       this.restockRack = "";
       this.restockRow = "";
-      this.restockSlot = "";
+
       this.restockLocationId = "";
       this.receiptTempPath = "";
       this.receiptFileName = "";
@@ -299,7 +299,7 @@ function cashierProducts() {
           : null,
         rack: (this.restockRack || "").trim() || null,
         row: (this.restockRow || "").trim() || null,
-        slot: (this.restockSlot || "").trim() || null,
+
         location_id: this.restockLocationId || null,
         receipt_temp: this.receiptTempPath || null,
       };

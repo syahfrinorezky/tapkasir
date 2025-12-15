@@ -19,9 +19,6 @@ class ProductBatchModel extends Model
         'purchase_price',
         'initial_stock',
         'current_stock',
-        'rack',
-        'row',
-        'slot',
         'location_id',
         'receipt_image',
     ];

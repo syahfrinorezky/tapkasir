@@ -552,7 +552,7 @@
                                         <td class="px-3 py-2 text-right" x-text="b.current_stock"></td>
                                         <td class="px-3 py-2 text-right" x-text="formatCurrency(b.purchase_price || 0)"></td>
                                         <td class="px-3 py-2">
-                                            <span x-text="[b.rack, b.row, b.slot].filter(Boolean).join(' / ') || '-' "></span>
+                                            <span x-text="[b.rack, b.row].filter(Boolean).join(' / ') || '-' "></span>
                                         </td>
                                     </tr>
                                 </template>
@@ -640,7 +640,7 @@
             <div class="space-y-1 col-span-2">
                 <p class="text-xs text-gray-500">Lokasi</p>
                 <p class="font-medium text-gray-800 break-all"
-                    x-text="[restockDetails.rack, restockDetails.row, restockDetails.slot].filter(Boolean).join(' / ') || '-'">
+                    x-text="[restockDetails.rack, restockDetails.row].filter(Boolean).join(' / ') || '-'">
                 </p>
             </div>
 

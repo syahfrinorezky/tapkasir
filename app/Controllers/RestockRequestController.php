@@ -23,13 +23,23 @@ class RestockRequestController extends BaseController
         $qty = max(1, (int) ($data['quantity'] ?? 1));
         $noteText = trim((string) ($data['note'] ?? '')) ?: null;
 
+        $rack = null;
+        $row = null;
+        if (!empty($data['location_id'])) {
+            $locModel = new \App\Models\StorageLocationModel();
+            $loc = $locModel->find($data['location_id']);
+            if ($loc) {
+                $rack = $loc['rack'];
+                $row = $loc['row'];
+            }
+        }
+
         $details = [
             'expired_date'   => ($data['expired_date'] ?? null) ?: null,
             'purchase_price' => isset($data['purchase_price']) ? (float) $data['purchase_price'] : null,
-            'rack'           => $data['rack'] ?? null,
-            'row'            => $data['row'] ?? null,
-            'slot'           => $data['slot'] ?? null,
             'location_id'    => $data['location_id'] ?? null,
+            'rack'           => $rack,
+            'row'            => $row,
             'receipt_temp'   => $data['receipt_temp'] ?? null,
             'note'           => $noteText,
         ];
@@ -119,9 +129,6 @@ class RestockRequestController extends BaseController
             $purchase = isset($body['purchase_price'])
                 ? (float) $body['purchase_price']
                 : (float) ($noteDetails['purchase_price'] ?? 0.0);
-            $rack = $body['rack'] ?? ($noteDetails['rack'] ?? null);
-            $row = $body['row'] ?? ($noteDetails['row'] ?? null);
-            $slot = $body['slot'] ?? ($noteDetails['slot'] ?? null);
             $locationId = $body['location_id'] ?? ($noteDetails['location_id'] ?? null); 
             $receiptImage = $body['receipt_image'] ?? ($noteDetails['receipt_temp'] ?? null);
 
@@ -148,9 +155,6 @@ class RestockRequestController extends BaseController
                     'purchase_price' => $purchase,
                     'initial_stock' => $qty,
                     'current_stock' => $qty,
-                    'rack' => $rack,
-                    'row' => $row,
-                    'slot' => $slot,
                     'location_id' => $locationId, 
                     'receipt_image' => $receiptImage,
                     'created_at' => date('Y-m-d H:i:s'),
