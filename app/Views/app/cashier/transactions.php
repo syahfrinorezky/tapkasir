@@ -269,9 +269,11 @@ Transaksi Kasir
                 </div>
             </div>
         </div>
-        </divection() ?>
+    </div>
+</main>
+<?= $this->endSection() ?>
 
-        <?= $this->section('scripts') ?>
-        <script src="<?= $snapUrl ?>" data-client-key="<?= $midtransClientKey ?>"></script>
-        <script src="<?= base_url('js/main/cashier/transactions.js') ?>"></script>
-        <?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<script src="<?= $snapUrl ?>" data-client-key="<?= $midtransClientKey ?>"></script>
+<script src="<?= base_url('js/main/cashier/transactions.js') ?>"></script>
+<?= $this->endSection() ?>
