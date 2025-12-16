@@ -8,7 +8,7 @@ class AddPaymentMethodToTransactions extends Migration
 {
     public function up()
     {
-        $this->forge->addColumn('transactions', [
+        $fields = [
             'payment_method' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 20,
@@ -27,7 +27,13 @@ class AddPaymentMethodToTransactions extends Migration
                 'null'       => true,
                 'after'      => 'payment_status',
             ],
-        ]);
+        ];
+
+        foreach ($fields as $fieldName => $fieldDef) {
+            if (! $this->db->fieldExists($fieldName, 'transactions')) {
+                $this->forge->addColumn('transactions', [$fieldName => $fieldDef]);
+            }
+        }
     }
 
     public function down()
