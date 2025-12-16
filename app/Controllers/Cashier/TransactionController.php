@@ -247,7 +247,7 @@ class TransactionController extends BaseController
 
                     $params = [
                         'transaction_details' => [
-                            'order_id' => $noTransaction,
+                            'order_id' => $noTransaction . '-' . $transactionId,
                             'gross_amount' => (int) $total,
                         ],
                         'item_details' => $midtransItems,
