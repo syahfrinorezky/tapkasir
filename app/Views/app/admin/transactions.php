@@ -75,7 +75,8 @@ Log Transaksi
                                         <template x-if="!shiftId">
                                             <th class="px-2 py-2 text-left text-sm font-semibold">Shift</th>
                                         </template>
-                                        <th class="px-2 py-2 text-right text-sm font-semibold">Total</th>
+                                        <th class="px-2 py-2 text-center text-sm font-semibold">Total</th>
+                                        <th class="px-2 py-2 text-center text-sm font-semibold">Metode</th>
                                         <th class="px-2 py-2 text-center text-sm font-semibold">Tanggal</th>
                                         <th class="px-2 py-2 text-center text-sm font-semibold">Aksi</th>
                                     </tr>
@@ -83,7 +84,7 @@ Log Transaksi
                                 <tbody class="divide-y divide-gray-100 text-sm">
                                     <template x-if="filteredTransactions.length === 0">
                                         <tr>
-                                            <td :colspan="shiftId ? 6 : 7" class="text-center py-6 text-gray-500">
+                                            <td :colspan="shiftId ? 7 : 8" class="text-center py-6 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
                                                     <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
                                                     <span>Tidak ada transaksi</span>
@@ -97,9 +98,15 @@ Log Transaksi
                                             <td class="px-2 py-2 text-left" x-text="t.no_transaction ?? t.id"></td>
                                             <td class="px-2 py-2 text-left" x-text="t.cashier ?? '-'"></td>
                                             <td class="px-2 py-2 text-left" x-text="t.shift_name || t.shift || '-'" x-show="!shiftId"></td>
-                                            <td class="px-2 py-2 text-right font-medium" x-text="formatCurrency(t.total)"></td>
-                                            <td class="px-2 py-2 text-center" x-text="t.transaction_date ?? t.created_at ?? '-'"></td>
+                                            <td class="px-2 py-2 text-center font-medium" x-text="formatCurrency(t.total)"></td>
                                             <td class="px-2 py-2 text-center">
+                                                <span class="px-2 py-1 rounded text-xs font-semibold"
+                                                    :class="t.payment_method === 'qris' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
+                                                    x-text="t.payment_method === 'qris' ? 'QRIS' : 'Tunai'">
+                                                </span>
+                                            </td>
+                                            <td class="px-2 py-2 text-center" x-text="t.transaction_date ?? t.created_at ?? '-'"></td>
+                                            <td class="px-2 py-2 flex justify-center">
                                                 <button @click="openItems(t.id)" title="Lihat Items" class="flex items-center justify-center p-2 bg-primary text-white rounded-md hover:bg-primary/80 transition-colors duration-300 ease-in-out cursor-pointer">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
@@ -241,16 +248,12 @@ Log Transaksi
                                                 <td class="px-3 py-2 text-sm" x-text="i + 1"></td>
                                                 <td class="px-3 py-2 text-sm" x-text="it.product_name ?? '-'"></td>
                                                 <td class="px-3 py-2 text-sm text-center" x-text="it.quantity"></td>
-                                                <td class="px-3 py-2 text-sm text-center" x-text="formatCurrency(it.price)"></td>
+                                                <td class="px-3 py-2 text-sm text-center" x-text="formatCurrency(it.selling_price)"></td>
                                                 <td class="px-3 py-2 text-sm text-center" x-text="formatCurrency(it.subtotal)"></td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
-                            </div>
-
-                            <div class="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3">
-                                <button @click="closeItems()" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">Tutup</button>
                             </div>
                         </div>
                     </div>
