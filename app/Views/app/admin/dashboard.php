@@ -111,5 +111,6 @@ Dashboard Admin
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+
 <script src="<?= base_url('js/main/admin/dashboard.js') ?>"></script>
 <?= $this->endSection() ?>

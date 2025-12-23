@@ -30,7 +30,7 @@ document.addEventListener("alpine:init", () => {
 
     async fetchDataAndRender() {
       try {
-        const res = await fetch("/admin/dashboard/data");
+        const res = await fetch(`/admin/dashboard/data`);
         const json = await res.json();
 
         this.data = {

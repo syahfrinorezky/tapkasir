@@ -39,8 +39,12 @@ class DashboardController extends BaseController
             ->countAllResults();
 
         $productNeedRestock = $productModel
-            ->where('stock <', 10)
-            ->countAllResults();
+            ->select('products.id')
+            ->join('product_batches', 'product_batches.product_id = products.id AND product_batches.deleted_at IS NULL', 'left')
+            ->groupBy('products.id')
+            ->having('SUM(COALESCE(product_batches.current_stock, 0)) <', 10, false)
+            ->get()
+            ->getNumRows();
 
         $salesData = $transactionModel
             ->select('DATE(transaction_date) as date, SUM(total) as total')
@@ -88,6 +92,7 @@ class DashboardController extends BaseController
             ->groupBy('HOUR(transaction_date)')
             ->orderBy('HOUR(transaction_date)', 'ASC')
             ->findAll();
+
 
         $morningHours = array_map(fn($r) => sprintf('%02d:00', $r['hour']), $morningShiftData);
         $morningTotals = array_map(fn($r) => (float)$r['total'], $morningShiftData);
