@@ -10,34 +10,48 @@ class AddPaymentMethodToTransactions extends Migration
     {
         $fields = [
             'payment_method' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 20,
-                'default'    => 'cash',
-                'after'      => 'change',
+                'default' => 'cash',
+                'after' => 'change',
             ],
             'payment_status' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 20,
-                'default'    => 'paid',
-                'after'      => 'payment_method',
+                'default' => 'paid',
+                'after' => 'payment_method',
             ],
             'snap_token' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 255,
-                'null'       => true,
-                'after'      => 'payment_status',
+                'null' => true,
+                'after' => 'payment_status',
             ],
         ];
 
         foreach ($fields as $fieldName => $fieldDef) {
-            if (! $this->db->fieldExists($fieldName, 'transactions')) {
-                $this->forge->addColumn('transactions', [$fieldName => $fieldDef]);
-            }
+            $this->addColumnSilently('transactions', $fieldName, $fieldDef);
         }
     }
 
     public function down()
     {
-        $this->forge->dropColumn('transactions', ['payment_method', 'payment_status', 'snap_token']);
+        $this->dropColumnSilently('transactions', ['payment_method', 'payment_status', 'snap_token']);
+    }
+
+    private function addColumnSilently(string $table, string $fieldName, array $fieldDef)
+    {
+        try {
+            $this->forge->addColumn($table, [$fieldName => $fieldDef]);
+        } catch (\Throwable $e) {
+        }
+    }
+
+    private function dropColumnSilently(string $table, $columns)
+    {
+        try {
+            $this->forge->dropColumn($table, $columns);
+        } catch (\Throwable $e) {
+        }
     }
 }

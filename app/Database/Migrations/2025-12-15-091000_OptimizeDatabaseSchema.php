@@ -21,26 +21,26 @@ class OptimizeDatabaseSchema extends Migration
         $this->db->query("CREATE INDEX `idx_transactions_user` ON `transactions` (`user_id`)");
 
         $this->db->query("UPDATE `transactions` SET `no_transaction` = CONCAT('TAP-OLD-', id) WHERE `no_transaction` IS NULL");
-        
+
         $this->forge->modifyColumn('transactions', [
             'no_transaction' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => false,
+                'null' => false,
             ],
         ]);
         $this->db->query("ALTER TABLE `transactions` ADD UNIQUE KEY `transactions_no_transaction_unique` (`no_transaction`)");
 
         $tables = ['users', 'products', 'product_batches', 'transactions', 'transaction_items', 'restock_requests', 'cashier_works'];
-        
+
         foreach ($tables as $table) {
             $tableFields = $this->db->getFieldNames($table);
-            
+
             if (in_array('created_at', $tableFields)) {
-                 $this->db->query("ALTER TABLE `$table` MODIFY `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP");
+                $this->db->query("ALTER TABLE `$table` MODIFY `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP");
             }
             if (in_array('updated_at', $tableFields)) {
-                 $this->db->query("ALTER TABLE `$table` MODIFY `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                $this->db->query("ALTER TABLE `$table` MODIFY `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
             }
         }
     }
@@ -51,40 +51,49 @@ class OptimizeDatabaseSchema extends Migration
         if (!in_array('stock', $fields)) {
             $this->forge->addColumn('products', [
                 'stock' => [
-                    'type'       => 'INT',
+                    'type' => 'INT',
                     'constraint' => 11,
-                    'null'       => false,
-                    'default'    => 0,
+                    'null' => false,
+                    'default' => 0,
                 ],
             ]);
         }
-        
-        $this->db->query("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_product_id_foreign`");
-        $this->db->query("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_user_id_foreign`");
-        $this->db->query("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_approved_by_foreign`");
 
-        $this->db->query("DROP INDEX `idx_transactions_date` ON `transactions`");
-        $this->db->query("DROP INDEX `idx_transactions_user` ON `transactions`");
+        $this->tryQuery("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_product_id_foreign`");
+        $this->tryQuery("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_user_id_foreign`");
+        $this->tryQuery("ALTER TABLE `restock_requests` DROP FOREIGN KEY `restock_requests_approved_by_foreign`");
 
-        $this->db->query("ALTER TABLE `transactions` DROP INDEX `transactions_no_transaction_unique`");
+        $this->tryQuery("DROP INDEX `idx_transactions_date` ON `transactions`");
+        $this->tryQuery("DROP INDEX `idx_transactions_user` ON `transactions`");
+
+        $this->tryQuery("ALTER TABLE `transactions` DROP INDEX `transactions_no_transaction_unique`");
+
         $this->forge->modifyColumn('transactions', [
             'no_transaction' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 50, 
-                'null'       => true,
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => true,
             ],
         ]);
 
         $tables = ['users', 'products', 'product_batches', 'transactions', 'transaction_items', 'restock_requests', 'cashier_works'];
         foreach ($tables as $table) {
             $tableFields = $this->db->getFieldNames($table);
-            
+
             if (in_array('created_at', $tableFields)) {
-                 $this->db->query("ALTER TABLE `$table` MODIFY `created_at` DATETIME NULL");
+                $this->db->query("ALTER TABLE `$table` MODIFY `created_at` DATETIME NULL");
             }
             if (in_array('updated_at', $tableFields)) {
-                 $this->db->query("ALTER TABLE `$table` MODIFY `updated_at` DATETIME NULL");
+                $this->db->query("ALTER TABLE `$table` MODIFY `updated_at` DATETIME NULL");
             }
+        }
+    }
+
+    private function tryQuery(string $query)
+    {
+        try {
+            $this->db->query($query);
+        } catch (\Throwable $e) {
         }
     }
 }
