@@ -29,6 +29,12 @@ $routes->post('masuk', [AuthController::class, 'login'], ['as' => 'login']);
 // logout
 $routes->get('logout', [AuthController::class, 'logout'], ['as' => 'logout']);
 
+// Password Reset
+$routes->get('lupa-password', [AuthController::class, 'forgotPassword']);
+$routes->post('lupa-password', [AuthController::class, 'sendResetLink']);
+$routes->get('reset-password/(:segment)', [AuthController::class, 'resetPassword/$1']);
+$routes->post('reset-password', [AuthController::class, 'attemptReset']);
+
 // admin
 $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('dashboard', [DashboardController::class, 'index'], ['as' => 'admin.dashboard']);
