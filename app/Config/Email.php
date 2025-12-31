@@ -6,8 +6,8 @@ use CodeIgniter\Config\BaseConfig;
 
 class Email extends BaseConfig
 {
-    public string $fromEmail  = '';
-    public string $fromName   = '';
+    public string $fromEmail = '';
+    public string $fromName = '';
     public string $recipients = '';
 
     /**
@@ -18,7 +18,7 @@ class Email extends BaseConfig
     /**
      * The mail sending protocol: mail, sendmail, smtp
      */
-    public string $protocol = 'mail';
+    public string $protocol = 'smtp';
 
     /**
      * The server path to Sendmail.
@@ -43,12 +43,12 @@ class Email extends BaseConfig
     /**
      * SMTP Port
      */
-    public int $SMTPPort = 25;
+    public int $SMTPPort = 587;
 
     /**
      * SMTP Timeout (in seconds)
      */
-    public int $SMTPTimeout = 5;
+    public int $SMTPTimeout = 30;
 
     /**
      * Enable persistent SMTP connections
@@ -63,6 +63,20 @@ class Email extends BaseConfig
      *             465 should set this to ''.
      */
     public string $SMTPCrypto = 'tls';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Load from .env
+        $this->fromEmail = env('email.fromEmail', 'noreply@tapkasir.com');
+        $this->fromName = env('email.fromName', 'Tapkasir');
+        $this->SMTPHost = env('email.SMTPHost', '');
+        $this->SMTPUser = env('email.SMTPUser', '');
+        $this->SMTPPass = env('email.SMTPPass', '');
+        $this->SMTPPort = (int) env('email.SMTPPort', 587);
+        $this->SMTPCrypto = env('email.SMTPCrypto', 'tls');
+    }
 
     /**
      * Enable word-wrap
