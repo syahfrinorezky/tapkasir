@@ -79,5 +79,5 @@
 </main>
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
-<script src="<?= base_url('js/main/auth/password.js') ?>"></script>
+<script src="<?= base_url('js/main/auth/auth.js') ?>"></script>
 <?= $this->endSection() ?>
