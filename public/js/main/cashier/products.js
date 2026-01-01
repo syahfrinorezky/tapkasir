@@ -314,9 +314,12 @@ function cashierProducts() {
           body: JSON.stringify(payload),
         });
         const data = await res.json();
+        
+        this.isSubmittingRestock = false;
+
         if (res.ok) {
-          this.message = data?.message || "Permintaan restock dikirim.";
           this.openRestockModal = false;
+          this.message = data?.message || "Permintaan restock dikirim.";
           this.fetchMyRestocks();
           setTimeout(() => (this.message = ""), 3000);
         } else {
@@ -324,11 +327,10 @@ function cashierProducts() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSubmittingRestock = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSubmittingRestock = false;
       }
     },
     onRestockLocationChange() {
