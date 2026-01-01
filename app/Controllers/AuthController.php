@@ -14,25 +14,19 @@ class AuthController extends BaseController
     public function __construct()
     {
         helper('form');
-        date_default_timezone_set('Asia/Makassar');
     }
 
     private function isWithinShiftTime($startTime, $endTime)
     {
-        $today = date('Y-m-d');
-        $now = time();
+        $now = strtotime(date('H:i:s'));
+        $start = strtotime($startTime);
+        $end = strtotime($endTime);
 
-        $startTs = strtotime("{$today} {$startTime}");
-        $endTs = strtotime("{$today} {$endTime}");
-
-        if ($endTs <= $startTs) {
-            $endTs += 86400;
-            if ($now < $startTs) {
-                $now += 86400;
-            }
+        if ($start <= $end) {
+            return $now >= $start && $now <= $end;
         }
 
-        return ($now >= $startTs && $now <= $endTs);
+        return $now >= $start || $now <= $end;
     }
 
     public function login()

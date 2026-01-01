@@ -171,13 +171,7 @@ Manajemen Produk
 
                 <div class="flex flex-col gap-4 w-full 2xl:w-1/3">
                     <div class="flex flex-col space-y-2">
-                        <template x-if="message">
-                            <div x-text="message" class="fixed top-10 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
-                        </template>
-
-                        <template x-if="error">
-                            <div x-text="error" class="fixed top-10 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
-                        </template>
+                        <?= $this->include('components/notifications') ?>
 
                         <div class="flex justify-between items-center">
                             <h1 class="font-bold text-lg text-gray-700">

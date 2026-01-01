@@ -120,9 +120,12 @@ function productManagement() {
           }
         );
         const data = await res.json();
+        
+        this.approving = false;
+
         if (res.ok) {
-          this.message = data?.message || "Permintaan disetujui";
           this.closeApproveRestock();
+          this.message = data?.message || "Permintaan disetujui";
           await this.fetchRestocks();
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
@@ -131,11 +134,10 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.approving = false;
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.approving = false;
       }
     },
 
@@ -355,12 +357,15 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
+        
+        this.isSavingProduct = false;
+
         if (data.status || res.ok) {
           this.validationErrors = {};
-          this.message = data.message || "Produk berhasil ditambahkan";
-          await this.fetchData();
           this.openAddProductModal = false;
           this.clearSelectedProduct();
+          this.message = data.message || "Produk berhasil ditambahkan";
+          await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else if (data.validation) {
           this.validationErrors = data.validation;
@@ -369,11 +374,10 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingProduct = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingProduct = false;
       }
     },
 
@@ -390,7 +394,6 @@ function productManagement() {
           if (k === "photo" && v instanceof File) fd.append("photo", v);
           else if (k !== "photo") fd.append(k, v || "");
         });
-        // Do not send stock/barcode on edit
         const res = await fetch(
           `/admin/products/edit/${this.selectedProduct.id}`,
           {
@@ -400,12 +403,15 @@ function productManagement() {
           }
         );
         const data = await res.json();
+        
+        this.isSavingProduct = false;
+
         if (data.status || res.ok) {
           this.validationErrors = {};
-          this.message = data.message || "Produk berhasil diperbarui";
-          await this.fetchData();
           this.openEditProductModal = false;
           this.clearSelectedProduct();
+          this.message = data.message || "Produk berhasil diperbarui";
+          await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else if (data.validation) {
           this.validationErrors = data.validation;
@@ -414,11 +420,10 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingProduct = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingProduct = false;
       }
     },
 
@@ -430,21 +435,23 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+        
+        this.isDeletingProduct = false;
+
         if (data.status || res.ok) {
+          this.openDeleteProductModal = false;
           this.message = data.message || "Produk berhasil dihapus";
           await this.fetchData();
-          this.openDeleteProductModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menghapus produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isDeletingProduct = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingProduct = false;
       }
     },
 
@@ -459,11 +466,14 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
+        
+        this.isSavingCategory = false;
+
         if (data.status || res.ok) {
           this.validationErrors = {};
+          this.openAddCategoryModal = false;
           this.message = data.message || "Kategori berhasil ditambahkan";
           await this.fetchData();
-          this.openAddCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else if (data.validation) {
           this.validationErrors = data.validation;
@@ -472,11 +482,10 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingCategory = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingCategory = false;
       }
     },
 
@@ -494,11 +503,14 @@ function productManagement() {
           }
         );
         const data = await res.json();
+        
+        this.isSavingCategory = false;
+
         if (data.status || res.ok) {
           this.validationErrors = {};
+          this.openEditCategoryModal = false;
           this.message = data.message || "Kategori berhasil diperbarui";
           await this.fetchData();
-          this.openEditCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else if (data.validation) {
           this.validationErrors = data.validation;
@@ -507,11 +519,10 @@ function productManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingCategory = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingCategory = false;
       }
     },
 
@@ -523,21 +534,23 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+        
+        this.isDeletingCategory = false;
+
         if (data.status || res.ok) {
+          this.openDeleteCategoryModal = false;
           this.message = data.message || "Kategori berhasil dihapus";
           await this.fetchData();
-          this.openDeleteCategoryModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menghapus kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isDeletingCategory = false;
         console.error(e);
         this.error = "Terjadi kesalahan.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingCategory = false;
       }
     },
 
@@ -573,21 +586,23 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
+        
+        this.isSavingLocation = false;
+
         if (res.ok) {
+          this.openAddLocationModal = false;
           this.message = data.message || "Lokasi berhasil ditambahkan";
           await this.fetchData();
-          this.openAddLocationModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menambah lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingLocation = false;
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingLocation = false;
       }
     },
 
@@ -607,21 +622,23 @@ function productManagement() {
           }
         );
         const data = await res.json();
+        
+        this.isSavingLocation = false;
+
         if (res.ok) {
+          this.openEditLocationModal = false;
           this.message = data.message || "Lokasi berhasil diperbarui";
           await this.fetchData();
-          this.openEditLocationModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal memperbarui lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isSavingLocation = false;
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isSavingLocation = false;
       }
     },
 
@@ -633,21 +650,23 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
+        
+        this.isDeletingLocation = false;
+
         if (res.ok) {
+          this.openDeleteLocationModal = false;
           this.message = data.message || "Lokasi berhasil dihapus";
           await this.fetchData();
-          this.openDeleteLocationModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.error = data.message || "Gagal menghapus lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isDeletingLocation = false;
         console.error(e);
         this.error = "Terjadi kesalahan";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingLocation = false;
       }
     },
 
@@ -765,7 +784,6 @@ function productManagement() {
       return "Pending";
     },
     async approveRestock(id) {
-      /* kept for backwards compatibility if used elsewhere */
       this.openApproveRestock({ id });
     },
     async rejectRestock(id) {

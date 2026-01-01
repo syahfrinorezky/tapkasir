@@ -24,20 +24,21 @@ function loginApp() {
                 if (data.csrf_token) document.querySelectorAll('input[name="csrf_test_name"]').forEach(e => e.value = data.csrf_token);
                 
                 if (data.success) {
+                    this.loading = false;
                     this.message = data.message;
                     setTimeout(() => {
                         window.location.href = data.redirect;
                     }, 1000);
                 } else {
+                    this.loading = false;
                     this.error = data.message;
                     if (data.errors) this.errors = data.errors;
                     setTimeout(() => (this.error = ""), 3000);
                 }
             } catch (e) {
+                this.loading = false;
                 this.error = "Terjadi kesalahan server.";
                 setTimeout(() => (this.error = ""), 3000);
-            } finally {
-                this.loading = false;
             }
         }
     };
@@ -71,6 +72,7 @@ function registerApp() {
                 if (data.csrf_token) document.querySelectorAll('input[name="csrf_test_name"]').forEach(e => e.value = data.csrf_token);
 
                 if (data.success) {
+                    this.loading = false;
                     this.message = data.message;
                     this.nama_lengkap = '';
                     this.email = '';
@@ -79,15 +81,15 @@ function registerApp() {
                         window.location.href = data.redirect;
                     }, 1500);
                 } else {
+                    this.loading = false;
                     this.error = data.message;
                     if (data.errors) this.errors = data.errors;
                     setTimeout(() => (this.error = ""), 3000);
                 }
             } catch (e) {
+                this.loading = false;
                 this.error = "Terjadi kesalahan server.";
                 setTimeout(() => (this.error = ""), 3000);
-            } finally {
-                this.loading = false;
             }
         }
     };

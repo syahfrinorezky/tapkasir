@@ -208,11 +208,13 @@ function userManagement() {
         });
 
         const data = await res.json();
+        
+        this.isAddingRole = false;
 
         if (res.ok) {
+          this.openRoleModal = false;
           this.message = data.message;
           await this.fetchRoles();
-          this.openRoleModal = false;
 
           this.selectedRole = {
             id: null,
@@ -226,10 +228,9 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
+        this.isAddingRole = false;
         this.error = "Terjadi kesalahan saat menambahkan role.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isAddingRole = false;
       }
     },
 
@@ -247,11 +248,13 @@ function userManagement() {
         });
 
         const data = await res.json();
+        
+        this.isEditingRole = false;
 
         if (res.ok) {
+          this.openRoleEditModal = false;
           this.message = data.message;
           await this.fetchRoles();
-          this.openRoleEditModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.openRoleEditModal = false;
@@ -259,10 +262,9 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
+        this.isEditingRole = false;
         this.error = "Terjadi kesalahan saat memperbarui role.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isEditingRole = false;
       }
     },
 
@@ -302,6 +304,9 @@ function userManagement() {
           }),
         });
         const data = await res.json();
+        
+        if (this.approvingUserId === id) this.approvingUserId = null;
+        if (this.rejectingUserId === id) this.rejectingUserId = null;
 
         if (res.ok) {
           this.message = data.message;
@@ -313,11 +318,10 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (err) {
-        this.error = "Terjadi kesalahan server.";
-        setTimeout(() => (this.error = ""), 3000);
-      } finally {
         if (this.approvingUserId === id) this.approvingUserId = null;
         if (this.rejectingUserId === id) this.rejectingUserId = null;
+        this.error = "Terjadi kesalahan server.";
+        setTimeout(() => (this.error = ""), 3000);
       }
     },
 
@@ -339,11 +343,13 @@ function userManagement() {
           }
         );
         const data = await res.json();
+        
+        this.isUpdatingInfo = false;
 
         if (res.ok) {
+          this.openEditModal = false;
           this.message = data.message;
           await this.fetchUsers("approved");
-          this.openEditModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.openEditModal = false;
@@ -351,10 +357,9 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
+        this.isUpdatingInfo = false;
         this.error = "Terjadi kesalahan server.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isUpdatingInfo = false;
       }
     },
 
@@ -365,10 +370,13 @@ function userManagement() {
           method: "DELETE",
         });
         const data = await res.json();
+        
+        this.isDeletingUser = false;
+
         if (res.ok) {
+          this.openDeleteModal = false;
           this.message = data.message;
           await this.fetchUsers("approved");
-          this.openDeleteModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.openDeleteModal = false;
@@ -376,11 +384,10 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isDeletingUser = false;
         this.openDeleteModal = false;
         this.error = "Terjadi kesalahan server.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingUser = false;
       }
     },
 
@@ -394,11 +401,13 @@ function userManagement() {
           },
         });
         const data = await res.json();
+        
+        this.isDeletingRole = false;
 
         if (res.ok) {
+          this.openRoleDeleteModal = false;
           this.message = data.message;
           await this.fetchRoles();
-          this.openRoleDeleteModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.openRoleDeleteModal = false;
@@ -406,11 +415,10 @@ function userManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
+        this.isDeletingRole = false;
         this.openRoleDeleteModal = false;
         this.error = "Terjadi kesalahan saat menghapus role.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingRole = false;
       }
     },
   };

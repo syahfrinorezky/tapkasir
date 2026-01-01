@@ -175,10 +175,12 @@ function shiftManagement() {
           }
         );
         const data = await res.json();
+        
+        this.isUpdatingCashierShift = false;
 
         if (res.ok) {
-          this.message = data.message;
           this.openEditModal = false;
+          this.message = data.message;
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
@@ -187,10 +189,9 @@ function shiftManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (e) {
+        this.isUpdatingCashierShift = false;
         this.error = "Kesalahan koneksi.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isUpdatingCashierShift = false;
       }
     },
 
@@ -213,12 +214,14 @@ function shiftManagement() {
         });
 
         const data = await res.json();
+        
+        this.isAddingShift = false;
 
         if (res.ok) {
           this.clearValidation();
+          this.openAddShiftModal = false;
           this.message = data.message;
           await this.fetchData();
-          this.openAddShiftModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           if (data && data.validation) {
@@ -231,10 +234,9 @@ function shiftManagement() {
           }
         }
       } catch (error) {
+        this.isAddingShift = false;
         this.error = "Terjadi kesalahan saat menambahkan shift.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isAddingShift = false;
       }
     },
 
@@ -257,12 +259,14 @@ function shiftManagement() {
         });
 
         const data = await res.json();
+        
+        this.isEditingShift = false;
 
         if (res.ok) {
           this.clearValidation();
+          this.openEditShiftModal = false;
           this.message = data.message;
           await this.fetchData();
-          this.openEditShiftModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           if (data && data.validation) {
@@ -275,10 +279,9 @@ function shiftManagement() {
           }
         }
       } catch (error) {
+        this.isEditingShift = false;
         this.error = "Terjadi kesalahan saat memperbarui shift.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isEditingShift = false;
       }
     },
 
@@ -292,11 +295,13 @@ function shiftManagement() {
           },
         });
         const data = await res.json();
+        
+        this.isDeletingShift = false;
 
         if (res.ok) {
+          this.openDeleteShiftModal = false;
           this.message = data.message;
           await this.fetchData();
-          this.openDeleteShiftModal = false;
           setTimeout(() => (this.message = ""), 3000);
         } else {
           this.openDeleteShiftModal = false;
@@ -304,10 +309,9 @@ function shiftManagement() {
           setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
+        this.isDeletingShift = false;
         this.error = "Terjadi kesalahan saat menghapus shift.";
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isDeletingShift = false;
       }
     },
   };

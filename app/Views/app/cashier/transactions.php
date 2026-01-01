@@ -26,13 +26,7 @@ Transaksi Kasir
             </div>
 
             <div class="px-4 md:px-6 lg:px-8">
-                <template x-if="message">
-                    <div x-text="message" class="fixed top-10 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
-                </template>
-
-                <template x-if="error">
-                    <div x-text="error" class="fixed top-10 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-md z-50"></div>
-                </template>
+                <?= $this->include('components/notifications') ?>
 
                 <template x-if="showShiftWarning">
                     <div class="fixed top-20 right-5 left-5 md:left-auto md:w-[360px] bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3 rounded-md shadow z-50">

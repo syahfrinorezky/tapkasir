@@ -355,6 +355,7 @@ function cashierTransactions(baseUrl = "") {
         }
 
         if (this.paymentMethod === "qris" && json.snap_token) {
+          this.isLoading = false;
           if (typeof window.snap === "undefined") {
             throw new Error("Midtrans Snap JS not loaded");
           }
@@ -394,6 +395,7 @@ function cashierTransactions(baseUrl = "") {
             onClose: () => {},
           });
         } else {
+          this.isLoading = false;
           this.message = "Transaksi berhasil";
           this.cart = [];
           this.payment = 0;
@@ -406,11 +408,10 @@ function cashierTransactions(baseUrl = "") {
           }
         }
       } catch (error) {
+        this.isLoading = false;
         console.error("Transaction error:", error);
         this.error = error.message;
         setTimeout(() => (this.error = ""), 3000);
-      } finally {
-        this.isLoading = false;
       }
     },
 
