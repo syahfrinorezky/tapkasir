@@ -23,15 +23,8 @@ Masuk
         <div class="w-full md:w-1/2 p-6 lg:p-8 flex flex-col space-y-4">
             <h1 class="text-center font-primary text-lg md:text-xl text-primary font-bold">Masuk</h1>
 
-            <?= $this->include('components/alert') ?>
-            
             <div x-data="loginApp()" class="w-full">
-                <div x-show="message" x-transition class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <span class="block sm:inline" x-text="message"></span>
-                </div>
-                <div x-show="error" x-transition class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <span class="block sm:inline" x-text="error"></span>
-                </div>
+                <?= $this->include('components/notifications') ?>
 
                 <form @submit.prevent="submit">
                     <?= csrf_field() ?>
