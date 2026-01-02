@@ -164,12 +164,16 @@ class TransactionController extends BaseController
                 $midtransItems = [];
 
                 foreach ($data['items'] as $it) {
+                    if (empty($it['product_id'])) {
+                        throw new \RuntimeException('Product ID tidak valid pada item transaksi.');
+                    }
+                    
                     $p = $productModel->find($it['product_id']);
                     if (!$p) {
                         throw new \RuntimeException('Produk tidak ditemukan: ' . $it['product_id']);
                     }
 
-                    $qty = max(1, (int) $it['quantity']);
+                    $qty = max(1, (int) ($it['quantity'] ?? 1));
                     $sellingPrice = (float) $p['price'];
 
                     $alloc = StockService::allocateFromBatches((int) $p['id'], $qty);
@@ -240,8 +244,6 @@ class TransactionController extends BaseController
                     Config::$is3ds = $midtransConfig->is3ds;
 
                     Config::$curlOptions = [
-                        CURLOPT_SSL_VERIFYPEER => false,
-                        CURLOPT_SSL_VERIFYHOST => false,
                         CURLOPT_HTTPHEADER => [],
                     ];
 

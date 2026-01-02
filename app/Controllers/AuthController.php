@@ -18,15 +18,16 @@ class AuthController extends BaseController
 
     private function isWithinShiftTime($startTime, $endTime)
     {
-        $now = strtotime(date('H:i:s'));
+        $now = \CodeIgniter\I18n\Time::now(config('App')->appTimezone ?? 'Asia/Makassar');
+        $currentTime = strtotime($now->format('H:i:s'));
         $start = strtotime($startTime);
         $end = strtotime($endTime);
 
         if ($start <= $end) {
-            return $now >= $start && $now <= $end;
+            return $currentTime >= $start && $currentTime <= $end;
         }
 
-        return $now >= $start || $now <= $end;
+        return $currentTime >= $start || $currentTime <= $end;
     }
 
     public function login()

@@ -70,6 +70,13 @@ class UserController extends BaseController
                 $data['nama_lengkap'] = $nama;
             }
             if ($email && $email !== $user['email']) {
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    return $this->response->setStatusCode(400)->setJSON(['message' => 'Format email tidak valid']);
+                }
+                $exists = $userModel->where('email', $email)->where('id !=', $id)->first();
+                if ($exists) {
+                    return $this->response->setStatusCode(400)->setJSON(['message' => 'Email sudah digunakan user lain']);
+                }
                 $data['email'] = $email;
             }
             if ($role && $role !== $user['role_id']) {

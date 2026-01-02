@@ -112,8 +112,15 @@ class ProductController extends BaseController
 
         $photo = $this->request->getFile('photo');
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $mime = $photo->getMimeType();
+            if (!in_array($mime, ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'])) {
+                 return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'Format gambar tidak valid (hanya jpg, jpeg, png, webp)'
+                ]);
+            }
+
             $newName = $photo->getRandomName();
-            $photo->move(ROOTPATH . 'public/uploads/products', $newName);
+            $photo->move(FCPATH . 'uploads/products', $newName);
             $data['photo'] = 'uploads/products/' . $newName;
         }
 
@@ -158,11 +165,18 @@ class ProductController extends BaseController
 
         $photo = $this->request->getFile('photo');
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $mime = $photo->getMimeType();
+            if (!in_array($mime, ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'])) {
+                 return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'Format gambar tidak valid (hanya jpg, jpeg, png, webp)'
+                ]);
+            }
+
             $newName = $photo->getRandomName();
-            $photo->move(ROOTPATH . 'public/uploads/products', $newName);
+            $photo->move(FCPATH . 'uploads/products', $newName);
             $data['photo'] = 'uploads/products/' . $newName;
             if ($currentProduct && $currentProduct['photo']) {
-                $oldPhotoPath = ROOTPATH . 'public/' . $currentProduct['photo'];
+                $oldPhotoPath = FCPATH . $currentProduct['photo'];
                 if (file_exists($oldPhotoPath)) unlink($oldPhotoPath);
             }
         }
@@ -196,7 +210,7 @@ class ProductController extends BaseController
         }
 
         if ($product['photo']) {
-            $photoPath = ROOTPATH . 'public/' . $product['photo'];
+            $photoPath = FCPATH . $product['photo'];
             if (file_exists($photoPath)) unlink($photoPath);
         }
 
