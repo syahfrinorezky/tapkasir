@@ -74,7 +74,7 @@ if (!function_exists('is_active')) {
                                 <i class="<?= $item['icon'] ?> text-primary text-xl"></i>
                                 <span><?= esc($item['label']) ?></span>
                             </div>
-                            <i x-bind:class="dropDown === 1 ? 'fa-chevron-up' : 'fa-chevron-down'" class="fas text-gray-400 transition-transform duration-300"></i>
+                            <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300" :style="dropDown === 1 ? 'transform: rotate(180deg);' : ''"></i>
                         </button>
                         <ul x-cloak x-show="dropDown === 1" x-transition class="pl-12 space-y-1">
                             <?php foreach ($item['children'] as $c): ?>

@@ -4,19 +4,18 @@ document.addEventListener("alpine:init", () => {
     autoRefresh: true,
     _autoRefreshTimer: null,
     salesChart: null,
-    morningChart: null,
-    nightChart: null,
+    hourlySalesChart: null,
     data: {
       todaySales: 0,
-      activeCashiers: 0,
-      pendingUser: 0,
+      todayTransactions: 0,
+      todayItemsSold: 0,
       productNeedRestock: 0,
       labels: [],
       totals: [],
-      morningHours: [],
-      morningTotals: [],
-      nightHours: [],
-      nightTotals: [],
+      hourlyLabels: [],
+      hourlyTotals: [],
+      topProducts: [],
+      recentTransactions: [],
     },
     async init() {
       try {
@@ -35,15 +34,15 @@ document.addEventListener("alpine:init", () => {
 
         this.data = {
           todaySales: json.todaySales,
-          activeCashiers: json.activeCashiers,
-          pendingUser: json.pendingUser,
+          todayTransactions: json.todayTransactions,
+          todayItemsSold: json.todayItemsSold,
           productNeedRestock: json.productNeedRestock,
           labels: json.labels,
           totals: json.totals,
-          morningHours: json.morningHours,
-          morningTotals: json.morningTotals,
-          nightHours: json.nightHours,
-          nightTotals: json.nightTotals,
+          hourlyLabels: json.hourlyLabels,
+          hourlyTotals: json.hourlyTotals,
+          topProducts: json.topProducts,
+          recentTransactions: json.recentTransactions,
         };
 
         this.renderCharts();
@@ -61,10 +60,7 @@ document.addEventListener("alpine:init", () => {
         if (this.salesChart) this.salesChart.destroy();
       } catch (e) {}
       try {
-        if (this.morningChart) this.morningChart.destroy();
-      } catch (e) {}
-      try {
-        if (this.nightChart) this.nightChart.destroy();
+        if (this.hourlySalesChart) this.hourlySalesChart.destroy();
       } catch (e) {}
 
       const salesCtx = document.getElementById("salesChart").getContext("2d");
@@ -99,46 +95,19 @@ document.addEventListener("alpine:init", () => {
         },
       });
 
-      const morningCtx = document
-        .getElementById("morningShiftChart")
-        .getContext("2d");
-      this.morningChart = new Chart(morningCtx, {
-        type: "line",
+      const hourlyCtx = document.getElementById("hourlySalesChart").getContext("2d");
+      this.hourlySalesChart = new Chart(hourlyCtx, {
+        type: "bar",
         data: {
-          labels: data.morningHours,
+          labels: data.hourlyLabels,
           datasets: [
             {
-              label: "Shift Pagi (Rp)",
-              data: data.morningTotals,
-              borderColor: "rgba(234,179,8,1)",
-              backgroundColor: "rgba(234,179,8,0.1)",
-              borderWidth: 2,
-              tension: 0.3,
-              pointRadius: 4,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-        },
-      });
-
-      const nightCtx = document
-        .getElementById("nightShiftChart")
-        .getContext("2d");
-      this.nightChart = new Chart(nightCtx, {
-        type: "line",
-        data: {
-          labels: data.nightHours,
-          datasets: [
-            {
-              label: "Shift Malam (Rp)",
-              data: data.nightTotals,
-              borderColor: "rgba(37,99,235,1)",
-              backgroundColor: "rgba(37,99,235,0.1)",
-              borderWidth: 2,
-              tension: 0.3,
-              pointRadius: 4,
+              label: "Penjualan Per Jam (Rp)",
+              data: data.hourlyTotals,
+              backgroundColor: "rgba(245, 158, 11, 0.5)",
+              borderColor: "rgba(245, 158, 11, 1)",
+              borderWidth: 1,
+              borderRadius: 4,
             },
           ],
         },
@@ -149,18 +118,12 @@ document.addEventListener("alpine:init", () => {
     },
 
     startAuto() {
-      this.stopAuto();
-      this._autoRefreshTimer = setInterval(
-        () => this.fetchDataAndRender(),
-        60000
-      );
+      this._autoRefreshTimer = setInterval(() => {
+        this.fetchDataAndRender();
+      }, 30000);
     },
-
-    stopAuto() {
-      if (this._autoRefreshTimer) {
-        clearInterval(this._autoRefreshTimer);
-        this._autoRefreshTimer = null;
-      }
+    destroy() {
+      if (this._autoRefreshTimer) clearInterval(this._autoRefreshTimer);
     },
   }));
 });
