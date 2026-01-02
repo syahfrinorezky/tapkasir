@@ -81,7 +81,7 @@ Manajemen Produk
                                         <tr>
                                             <td colspan="8" class="text-center py-4 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                     <span class="text-center">Tidak ada produk</span>
                                                 </div>
                                             </td>
@@ -128,15 +128,24 @@ Manajemen Produk
                                 </tbody>
                             </table>
                         </div>
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                            <div class="text-sm text-gray-600">
-                                Menampilkan
-                                <span class="font-semibold" x-text="filteredProducts.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
-                                hingga
-                                <span class="font-semibold" x-text="Math.min(dataProductPage * dataProductPageSize, filteredProducts.length)"></span>
-                                dari
-                                <span class="font-semibold" x-text="filteredProducts.length"></span>
-                                produk
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+                            <div class="text-xs sm:text-sm text-gray-600">
+                                <span class="hidden sm:inline">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="filteredProducts.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataProductPage * dataProductPageSize, filteredProducts.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="filteredProducts.length"></span>
+                                    produk
+                                </span>
+                                <span class="sm:hidden">
+                                    <span class="font-semibold" x-text="filteredProducts.length === 0 ? 0 : ((dataProductPage - 1) * dataProductPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(dataProductPage * dataProductPageSize, filteredProducts.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="filteredProducts.length"></span>
+                                </span>
                             </div>
 
                             <div class="flex items-center gap-2" x-show="totalProductPages > 1">
@@ -144,7 +153,7 @@ Manajemen Produk
                                     @click="changeDataProductPage(dataProductPage - 1)"
                                     :disabled="dataProductPage === 1"
                                     :class="dataProductPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
 
@@ -152,7 +161,7 @@ Manajemen Produk
                                     <button
                                         @click="changeDataProductPage(page)"
                                         :class="page === dataProductPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                        class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium transition"
                                         x-text="page">
                                     </button>
                                 </template>
@@ -161,7 +170,7 @@ Manajemen Produk
                                     @click="changeDataProductPage(dataProductPage + 1)"
                                     :disabled="dataProductPage === totalProductPages"
                                     :class="dataProductPage === totalProductPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -226,7 +235,7 @@ Manajemen Produk
                                             <tr>
                                                 <td colspan="3" class="py-6">
                                                     <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                         <span class="text-center">Tidak ada kategori yang tersedia</span>
                                                     </div>
                                                 </td>
@@ -267,23 +276,21 @@ Manajemen Produk
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
                                     <span class="font-semibold" x-text="categories.length === 0 ? 0 : ((dataCategoriesPage - 1) * dataCategoriesPageSize) + 1"></span>
-                                    hingga
+                                    -
                                     <span class="font-semibold" x-text="Math.min(dataCategoriesPage * dataCategoriesPageSize, categories.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="categories.length"></span>
-                                    kategori
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="totalCategoriesPages > 1">
+                                <div class="flex items-center gap-1" x-show="totalCategoriesPages > 1">
                                     <button
                                         @click="changeDataCategoriesPage(dataCategoriesPage - 1)"
                                         :disabled="dataCategoriesPage === 1"
                                         :class="dataCategoriesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
 
@@ -291,7 +298,7 @@ Manajemen Produk
                                         <button
                                             @click="changeDataCategoriesPage(page)"
                                             :class="page === dataCategoriesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -300,7 +307,7 @@ Manajemen Produk
                                         @click="changeDataCategoriesPage(dataCategoriesPage + 1)"
                                         :disabled="dataCategoriesPage === totalCategoriesPages"
                                         :class="dataCategoriesPage === totalCategoriesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
@@ -336,7 +343,7 @@ Manajemen Produk
                                             <tr>
                                                 <td colspan="4" class="py-6">
                                                     <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                         <span class="text-center">Belum ada lokasi penyimpanan</span>
                                                     </div>
                                                 </td>
@@ -376,23 +383,21 @@ Manajemen Produk
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
                                     <span class="font-semibold" x-text="locations.length === 0 ? 0 : ((locationsPage - 1) * locationsPageSize) + 1"></span>
-                                    hingga
+                                    -
                                     <span class="font-semibold" x-text="Math.min(locationsPage * locationsPageSize, locations.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="locations.length"></span>
-                                    lokasi
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="totalLocationsPages > 1">
+                                <div class="flex items-center gap-1" x-show="totalLocationsPages > 1">
                                     <button
                                         @click="changeLocationsPage(locationsPage - 1)"
                                         :disabled="locationsPage === 1"
                                         :class="locationsPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
 
@@ -400,7 +405,7 @@ Manajemen Produk
                                         <button
                                             @click="changeLocationsPage(page)"
                                             :class="page === locationsPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -409,7 +414,7 @@ Manajemen Produk
                                         @click="changeLocationsPage(locationsPage + 1)"
                                         :disabled="locationsPage === totalLocationsPages"
                                         :class="locationsPage === totalLocationsPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
@@ -441,7 +446,7 @@ Manajemen Produk
                                             <tr>
                                                 <td colspan="5" class="py-6">
                                                     <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                         <span class="text-center">Tidak ada permintaan</span>
                                                     </div>
                                                 </td>
@@ -492,23 +497,21 @@ Manajemen Produk
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
                                     <span class="font-semibold" x-text="restocks.length === 0 ? 0 : ((restocksPage - 1) * restocksPageSize) + 1"></span>
-                                    hingga
+                                    -
                                     <span class="font-semibold" x-text="Math.min(restocksPage * restocksPageSize, restocks.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="restocks.length"></span>
-                                    permintaan
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="totalRestockPages > 1">
+                                <div class="flex items-center gap-1" x-show="totalRestockPages > 1">
                                     <button
                                         @click="changeRestocksPage(restocksPage - 1)"
                                         :disabled="restocksPage === 1"
                                         :class="restocksPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
 
@@ -516,7 +519,7 @@ Manajemen Produk
                                         <button
                                             @click="changeRestocksPage(page)"
                                             :class="page === restocksPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -525,7 +528,7 @@ Manajemen Produk
                                         @click="changeRestocksPage(restocksPage + 1)"
                                         :disabled="restocksPage === totalRestockPages"
                                         :class="restocksPage === totalRestockPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>

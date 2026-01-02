@@ -83,7 +83,7 @@ Log Transaksi
                                         <tr>
                                             <td colspan="8" class="text-center py-6 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 h-auto mb-2 object-contain" alt="No Data">
                                                     <span>Tidak ada transaksi</span>
                                                 </div>
                                             </td>
@@ -114,15 +114,24 @@ Log Transaksi
                             </table>
                         </div>
 
-                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                            <div class="text-sm text-gray-600">
-                                Menampilkan
-                                <span class="font-semibold" x-text="filteredTransactions.length === 0 ? 0 : ((dataTransactionsPage - 1) * dataTransactionsPageSize) + 1"></span>
-                                hingga
-                                <span class="font-semibold" x-text="Math.min(dataTransactionsPage * dataTransactionsPageSize, filteredTransactions.length)"></span>
-                                dari
-                                <span class="font-semibold" x-text="filteredTransactions.length"></span>
-                                transaksi
+                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+                            <div class="text-xs sm:text-sm text-gray-600">
+                                <span class="hidden sm:inline">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="filteredTransactions.length === 0 ? 0 : ((dataTransactionsPage - 1) * dataTransactionsPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataTransactionsPage * dataTransactionsPageSize, filteredTransactions.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="filteredTransactions.length"></span>
+                                    transaksi
+                                </span>
+                                <span class="sm:hidden">
+                                    <span class="font-semibold" x-text="filteredTransactions.length === 0 ? 0 : ((dataTransactionsPage - 1) * dataTransactionsPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(dataTransactionsPage * dataTransactionsPageSize, filteredTransactions.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="filteredTransactions.length"></span>
+                                </span>
                             </div>
 
                             <div class="flex items-center gap-2" x-show="totalTransactionPages > 1">
@@ -130,7 +139,7 @@ Log Transaksi
                                     @click="changeDataTransactionPage(dataTransactionsPage - 1)"
                                     :disabled="dataTransactionsPage === 1"
                                     :class="dataTransactionsPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
 
@@ -138,7 +147,7 @@ Log Transaksi
                                     <button
                                         @click="changeDataTransactionPage(page)"
                                         :class="page === dataTransactionsPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                        class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium transition"
                                         x-text="page">
                                     </button>
                                 </template>
@@ -147,7 +156,7 @@ Log Transaksi
                                     @click="changeDataTransactionPage(dataTransactionsPage + 1)"
                                     :disabled="dataTransactionsPage === totalTransactionPages"
                                     :class="dataTransactionsPage === totalTransactionPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>

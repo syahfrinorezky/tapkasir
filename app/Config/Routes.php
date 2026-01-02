@@ -7,6 +7,7 @@ use App\Controllers\Admin\ShiftController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\TransactionController;
+use App\Controllers\Admin\ReportController;
 use App\Controllers\ProductBatchController;
 use App\Controllers\RestockRequestController;
 use App\Controllers\Cashier\TransactionController as CashierTransactionController;
@@ -92,6 +93,10 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('transactions', [TransactionController::class, 'index'], ['as' => 'admin.transaction']);
     $routes->get('transactions/data', [TransactionController::class, 'data'], ['as' => 'admin.transaction.data']);
     $routes->get('transactions/items/(:num)', [TransactionController::class, 'items']);
+
+    // Reports
+    $routes->get('laporan', [ReportController::class, 'index'], ['as' => 'admin.report']);
+    $routes->get('laporan/data', [ReportController::class, 'data'], ['as' => 'admin.report.data']);
 });
 
 // cashier
