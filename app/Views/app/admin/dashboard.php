@@ -47,26 +47,26 @@ Dashboard Admin
                         </div>
                         <div class="bg-white rounded-md shadow-md flex justify-between items-center p-4 lg:p-6">
                             <div class="flex flex-col space-y-1">
-                                <span class="text-sm text-gray-500">Kasir Aktif</span>
-                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.activeCashiers"></span>
+                                <span class="text-sm text-gray-500">Total Transaksi</span>
+                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.todayTransactions"></span>
                             </div>
                             <div class="hidden lg:flex items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
-                                <i class="fas fa-user-check text-2xl text-white"></i>
+                                <i class="fas fa-receipt text-2xl text-white"></i>
                             </div>
                             <div class="lg:hidden flex items-center relative">
-                                <i class="fas fa-user-check text-5xl text-primary/10 absolute right-0"></i>
+                                <i class="fas fa-receipt text-5xl text-primary/10 absolute right-0"></i>
                             </div>
                         </div>
                         <div class="bg-white rounded-md shadow-md flex justify-between p-4 lg:p-6">
                             <div class="flex flex-col space-y-1">
-                                <span class="text-sm text-gray-500">Akun Pending</span>
-                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.pendingUser"></span>
+                                <span class="text-sm text-gray-500">Item Terjual</span>
+                                <span class="text-lg md:text-xl font-bold text-primary" x-text="data.todayItemsSold"></span>
                             </div>
                             <div class="hidden lg:flex items-center justify-center aspect-square w-12 rounded-md bg-gradient-to-br from-primary to-accent-2 shadow-secondary shadow-md">
-                                <i class="fas fa-user-clock text-2xl text-white"></i>
+                                <i class="fas fa-cubes text-2xl text-white"></i>
                             </div>
                             <div class="lg:hidden flex items-center relative">
-                                <i class="fas fa-user-clock text-5xl text-primary/10 absolute right-0"></i>
+                                <i class="fas fa-cubes text-5xl text-primary/10 absolute right-0"></i>
                             </div>
                         </div>
                         <div class="bg-white rounded-md shadow-md flex justify-between p-4 lg:p-6">
@@ -89,17 +89,75 @@ Dashboard Admin
                         <i class="fas fa-chart-simple text-lg text-primary inline-flex mr-1"></i>
                         Grafik Data
                     </h1>
+                    
                     <div class="flex flex-col lg:flex-row gap-4">
-                        <div class="bg-white rounded-lg flex items-center justify-center shadow-md p-4 lg:p-6 lg:w-2/3">
+                        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-2/3">
+                            <h2 class="font-bold text-gray-700 mb-4">Tren Penjualan 7 Hari Terakhir</h2>
                             <canvas id="salesChart"></canvas>
                         </div>
 
-                        <div class="flex flex-col md:flex-row lg:flex-col gap-4 md:w-full lg:w-1/3">
-                            <div class="bg-white rounded-lg shadow-md w-full p-4 lg:p-6">
-                                <canvas id="morningShiftChart"></canvas>
+                        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/3 flex flex-col">
+                            <h2 class="font-bold text-gray-700 mb-4">Top 5 Produk Hari Ini</h2>
+                            <div class="flex-1 overflow-y-auto flex flex-col">
+                                <template x-if="data.topProducts.length === 0">
+                                    <div class="flex flex-col items-center justify-center flex-1 h-full py-4">
+                                        <video autoplay loop muted playsinline class="w-32 h-32 opacity-80">
+                                            <source src="<?= base_url('videos/nodata.mp4') ?>" type="video/mp4">
+                                        </video>
+                                        <p class="text-gray-500 text-center text-sm mt-2">Belum ada penjualan hari ini.</p>
+                                    </div>
+                                </template>
+                                <ul class="space-y-3" x-show="data.topProducts.length > 0">
+                                    <template x-for="(product, index) in data.topProducts" :key="index">
+                                        <li class="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0">
+                                            <span class="text-gray-600 font-medium text-sm" x-text="product.name"></span>
+                                            <span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold" x-text="product.total_sold + ' Terjual'"></span>
+                                        </li>
+                                    </template>
+                                </ul>
                             </div>
-                            <div class="bg-white rounded-lg shadow-md w-full p-4 lg:p-6">
-                                <canvas id="nightShiftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-4 mt-4">
+                        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/2">
+                            <h2 class="font-bold text-gray-700 mb-4">Statistik Per Jam (Hari Ini)</h2>
+                            <canvas id="hourlySalesChart"></canvas>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/2 flex flex-col">
+                            <h2 class="font-bold text-gray-700 mb-4">Transaksi Terakhir</h2>
+                            <div class="overflow-x-auto flex-1 flex flex-col">
+                                <table class="w-full text-sm text-left text-gray-500 flex-1">
+                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2">Waktu</th>
+                                            <th class="px-4 py-2">Kasir</th>
+                                            <th class="px-4 py-2 text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="h-full">
+                                        <template x-for="trx in data.recentTransactions" :key="trx.id">
+                                            <tr class="bg-white border-b hover:bg-gray-50">
+                                                <td class="px-4 py-2" x-text="new Date(trx.transaction_date).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})"></td>
+                                                <td class="px-4 py-2" x-text="trx.cashier_name"></td>
+                                                <td class="px-4 py-2 text-right font-medium text-gray-900" x-text="formatRupiah(trx.total)"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="data.recentTransactions.length === 0">
+                                            <tr class="h-full">
+                                                <td colspan="3" class="text-center py-4 align-middle h-full">
+                                                    <div class="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                                        <video autoplay loop muted playsinline class="w-32 h-32 opacity-80">
+                                                            <source src="<?= base_url('videos/nodata.mp4') ?>" type="video/mp4">
+                                                        </video>
+                                                        <p class="text-gray-500 mt-2">Belum ada transaksi.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

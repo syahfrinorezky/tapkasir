@@ -30,13 +30,18 @@ class DashboardController extends BaseController
             ->getRow()
             ->total ?? 0;
 
-        $pendingUser = $userModel
-            ->where('status', 'pending')
+        $todayTransactions = $transactionModel
+            ->where('DATE(transaction_date)', date('Y-m-d'))
             ->countAllResults();
 
-        $activeCashiers = $cashierWorkModel
-            ->where('work_date', date('Y-m-d'))
-            ->countAllResults();
+        $transactionItemModel = new \App\Models\TransactionItemModel();
+        $todayItemsSold = $transactionItemModel
+            ->selectSum('transaction_items.quantity')
+            ->join('transactions', 'transactions.id = transaction_items.transaction_id')
+            ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->get()
+            ->getRow()
+            ->quantity ?? 0;
 
         $productNeedRestock = $productModel
             ->select('products.id')
@@ -71,45 +76,51 @@ class DashboardController extends BaseController
             $totals[] = $found ? array_values($found)[0]['total'] : 0;
         }
 
-        $morningShiftData = $transactionModel
+        $hourlySalesData = $transactionModel
             ->select('HOUR(transaction_date) as hour, SUM(total) as total')
-            ->where('transaction_date >=', date('Y-m-d') . ' 06:00:00')
-            ->where('transaction_date <=', date('Y-m-d') . ' 17:59:59')
+            ->where('DATE(transaction_date)', date('Y-m-d'))
             ->groupBy('HOUR(transaction_date)')
             ->orderBy('HOUR(transaction_date)', 'ASC')
             ->findAll();
 
-        $nightShiftData = $transactionModel
-            ->select('HOUR(transaction_date) as hour, SUM(total) as total')
-            ->groupStart()
-            ->where('transaction_date >=', date('Y-m-d', strtotime('-1 day')) . ' 18:00:00')
-            ->where('transaction_date <=', date('Y-m-d', strtotime('-1 day')) . ' 23:59:59')
-            ->groupEnd()
-            ->orGroupStart()
-            ->where('transaction_date >=', date('Y-m-d') . ' 00:00:00')
-            ->where('transaction_date <=', date('Y-m-d') . ' 05:59:59')
-            ->groupEnd()
-            ->groupBy('HOUR(transaction_date)')
-            ->orderBy('HOUR(transaction_date)', 'ASC')
+        $hourlyLabels = [];
+        $hourlyTotals = [];
+
+        for ($i = 0; $i < 24; $i++) {
+            $hourlyLabels[] = sprintf('%02d:00', $i);
+            $found = array_filter($hourlySalesData, fn($r) => (int)$r['hour'] === $i);
+            $hourlyTotals[] = $found ? (float)array_values($found)[0]['total'] : 0;
+        }
+
+        $transactionItemModel = new \App\Models\TransactionItemModel();
+        $topProducts = $transactionItemModel
+            ->select('products.product_name as name, SUM(transaction_items.quantity) as total_sold')
+            ->join('products', 'products.id = transaction_items.product_id')
+            ->join('transactions', 'transactions.id = transaction_items.transaction_id')
+            ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->groupBy('transaction_items.product_id')
+            ->orderBy('total_sold', 'DESC')
+            ->limit(5)
             ->findAll();
 
-
-        $morningHours = array_map(fn($r) => sprintf('%02d:00', $r['hour']), $morningShiftData);
-        $morningTotals = array_map(fn($r) => (float)$r['total'], $morningShiftData);
-        $nightHours = array_map(fn($r) => sprintf('%02d:00', $r['hour']), $nightShiftData);
-        $nightTotals = array_map(fn($r) => (float)$r['total'], $nightShiftData);
+        $recentTransactions = $transactionModel
+            ->select('transactions.*, users.nama_lengkap as cashier_name')
+            ->join('users', 'users.id = transactions.user_id')
+            ->orderBy('transaction_date', 'DESC')
+            ->limit(5)
+            ->findAll();
 
         return $this->response->setJSON([
             'todaySales' => $todaySales,
-            'pendingUser' => $pendingUser,
-            'activeCashiers' => $activeCashiers,
+            'todayTransactions' => $todayTransactions,
+            'todayItemsSold' => $todayItemsSold,
             'productNeedRestock' => $productNeedRestock,
             'labels' => $labels,
             'totals' => $totals,
-            'morningHours' => $morningHours,
-            'morningTotals' => $morningTotals,
-            'nightHours' => $nightHours,
-            'nightTotals' => $nightTotals,
+            'hourlyLabels' => $hourlyLabels,
+            'hourlyTotals' => $hourlyTotals,
+            'topProducts' => $topProducts,
+            'recentTransactions' => $recentTransactions,
         ]);
     }
 }
