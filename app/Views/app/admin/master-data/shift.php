@@ -75,15 +75,24 @@ Manajemen Shift
                                 </tbody>
                             </table>
                         </div>
-                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                            <div class="text-sm text-gray-600">
-                                Menampilkan
-                                <span class="font-semibold" x-text="cashiers.length === 0 ? 0 : ((dataCashierPage - 1) * dataCashierPageSize) + 1"></span>
-                                hingga
-                                <span class="font-semibold" x-text="Math.min(dataCashierPage * dataCashierPageSize, cashiers.length)"></span>
-                                dari
-                                <span class="font-semibold" x-text="cashiers.length"></span>
-                                data
+                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+                            <div class="text-xs sm:text-sm text-gray-600">
+                                <span class="hidden sm:inline">
+                                    Menampilkan
+                                    <span class="font-semibold" x-text="cashiers.length === 0 ? 0 : ((dataCashierPage - 1) * dataCashierPageSize) + 1"></span>
+                                    hingga
+                                    <span class="font-semibold" x-text="Math.min(dataCashierPage * dataCashierPageSize, cashiers.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="cashiers.length"></span>
+                                    kasir
+                                </span>
+                                <span class="sm:hidden">
+                                    <span class="font-semibold" x-text="cashiers.length === 0 ? 0 : ((dataCashierPage - 1) * dataCashierPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(dataCashierPage * dataCashierPageSize, cashiers.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="cashiers.length"></span>
+                                </span>
                             </div>
 
                             <div class="flex items-center gap-2" x-show="totalCashierPages > 1">
@@ -91,7 +100,7 @@ Manajemen Shift
                                     @click="changeDataCashierPage(dataCashierPage - 1)"
                                     :disabled="dataCashierPage === 1"
                                     :class="dataCashierPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
 
@@ -99,7 +108,7 @@ Manajemen Shift
                                     <button
                                         @click="changeDataCashierPage(page)"
                                         :class="page === dataCashierPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                        class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium transition"
                                         x-text="page">
                                     </button>
                                 </template>
@@ -108,7 +117,7 @@ Manajemen Shift
                                     @click="changeDataCashierPage(dataCashierPage + 1)"
                                     :disabled="dataCashierPage === totalCashierPages"
                                     :class="dataCashierPage === totalCashierPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                    class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                    class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -190,23 +199,21 @@ Manajemen Shift
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
                                     <span class="font-semibold" x-text="shifts.length === 0 ? 0 : ((dataShiftsPage - 1) * dataShiftsPageSize) + 1"></span>
-                                    hingga
+                                    -
                                     <span class="font-semibold" x-text="Math.min(dataShiftsPage * dataShiftsPageSize, shifts.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="shifts.length"></span>
-                                    data
                                 </div>
 
-                                <div class="flex items-center gap-2" x-show="totalShiftsPages > 1">
+                                <div class="flex items-center gap-1" x-show="totalShiftsPages > 1">
                                     <button
                                         @click="changeDataShiftsPage(dataShiftsPage - 1)"
                                         :disabled="dataShiftsPage === 1"
                                         :class="dataShiftsPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
 
@@ -214,7 +221,7 @@ Manajemen Shift
                                         <button
                                             @click="changeDataShiftsPage(page)"
                                             :class="page === dataShiftsPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -223,7 +230,7 @@ Manajemen Shift
                                         @click="changeDataShiftsPage(dataShiftsPage + 1)"
                                         :disabled="dataShiftsPage === totalShiftsPages"
                                         :class="dataShiftsPage === totalShiftsPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>

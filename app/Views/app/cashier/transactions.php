@@ -157,15 +157,24 @@ Transaksi Kasir
                                 </table>
                             </div>
 
-                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                                <div class="text-sm text-gray-600">
-                                    Menampilkan
-                                    <span class="font-semibold" x-text="filteredCart.length === 0 ? 0 : ((cartPage - 1) * cartPageSize) + 1"></span>
-                                    hingga
-                                    <span class="font-semibold" x-text="Math.min(cartPage * cartPageSize, filteredCart.length)"></span>
-                                    dari
-                                    <span class="font-semibold" x-text="filteredCart.length"></span>
-                                    item
+                            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+                                <div class="text-xs sm:text-sm text-gray-600">
+                                    <span class="hidden sm:inline">
+                                        Menampilkan
+                                        <span class="font-semibold" x-text="filteredCart.length === 0 ? 0 : ((cartPage - 1) * cartPageSize) + 1"></span>
+                                        hingga
+                                        <span class="font-semibold" x-text="Math.min(cartPage * cartPageSize, filteredCart.length)"></span>
+                                        dari
+                                        <span class="font-semibold" x-text="filteredCart.length"></span>
+                                        item
+                                    </span>
+                                    <span class="sm:hidden">
+                                        <span class="font-semibold" x-text="filteredCart.length === 0 ? 0 : ((cartPage - 1) * cartPageSize) + 1"></span>
+                                        -
+                                        <span class="font-semibold" x-text="Math.min(cartPage * cartPageSize, filteredCart.length)"></span>
+                                        dari
+                                        <span class="font-semibold" x-text="filteredCart.length"></span>
+                                    </span>
                                 </div>
 
                                 <div class="flex items-center gap-2" x-show="totalCartPages > 1">
@@ -173,7 +182,7 @@ Transaksi Kasir
                                         @click="changeCartPage(cartPage - 1)"
                                         :disabled="cartPage === 1"
                                         :class="cartPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
 
@@ -181,7 +190,7 @@ Transaksi Kasir
                                         <button
                                             @click="changeCartPage(page)"
                                             :class="page === cartPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                                            class="px-3 py-1.5 rounded-md border border-gray-300 text-sm font-medium transition"
+                                            class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -190,7 +199,7 @@ Transaksi Kasir
                                         @click="changeCartPage(cartPage + 1)"
                                         :disabled="cartPage === totalCartPages"
                                         :class="cartPage === totalCartPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
-                                        class="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition">
+                                        class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
