@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: tapkasir
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    container_name: tapkasir_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tapkasir
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  node:
+    image: node:25
+    container_name: tapkasir_node
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: [ 'tail', '-f', '/dev/null' ]
+
+volumes:
+  db_data:
