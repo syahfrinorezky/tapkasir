@@ -170,12 +170,38 @@ Manajemen Produk
                 </div>
 
                 <div class="flex flex-col gap-4 w-full 2xl:w-1/3">
-                    <div class="flex flex-col space-y-2">
-                        <?= $this->include('components/notifications') ?>
+                    <?= $this->include('components/notifications') ?>
 
+                    <div class="relative flex bg-gray-100 p-1 rounded-lg">
+                        <div class="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/3)] bg-white rounded-md shadow transition-transform duration-300 ease-out"
+                             :class="{
+                                'translate-x-0': activeRightTab === 'categories',
+                                'translate-x-full': activeRightTab === 'locations',
+                                'translate-x-[200%]': activeRightTab === 'restocks'
+                             }">
+                        </div>
+
+                        <button @click="activeRightTab = 'categories'"
+                            :class="activeRightTab === 'categories' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'"
+                            class="relative z-10 flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-tags mr-2"></i>Kategori
+                        </button>
+                        <button @click="activeRightTab = 'locations'"
+                            :class="activeRightTab === 'locations' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'"
+                            class="relative z-10 flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-warehouse mr-2"></i>Lokasi
+                        </button>
+                        <button @click="activeRightTab = 'restocks'"
+                            :class="activeRightTab === 'restocks' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'"
+                            class="relative z-10 flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200">
+                            <i class="fas fa-truck-loading mr-2"></i>Restock
+                            <span x-show="pendingRestockCount > 0" x-text="pendingRestockCount" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full shadow-sm"></span>
+                        </button>
+                    </div>
+
+                    <div x-show="activeRightTab === 'categories'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="flex flex-col space-y-2">
                         <div class="flex justify-between items-center">
                             <h1 class="font-bold text-lg text-gray-700">
-                                <i class="fas fa-tags text-lg text-primary inline-flex mr-1"></i>
                                 Daftar Kategori
                             </h1>
 
@@ -186,7 +212,7 @@ Manajemen Produk
                         </div>
 
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                            <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>
@@ -282,11 +308,9 @@ Manajemen Produk
                         </div>
                     </div>
 
-                    <!-- Data Lokasi Penyimpanan -->
-                    <div class="flex flex-col space-y-2">
+                    <div x-show="activeRightTab === 'locations'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="flex flex-col space-y-2">
                          <div class="flex justify-between items-center">
                             <h1 class="font-bold text-lg text-gray-700">
-                                <i class="fas fa-warehouse text-lg text-primary inline-flex mr-1"></i>
                                 Lokasi Penyimpanan
                             </h1>
 
@@ -297,7 +321,7 @@ Manajemen Produk
                         </div>
 
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                            <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max text-sm">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>
@@ -393,17 +417,15 @@ Manajemen Produk
                         </div>
                     </div>
 
-                    <!-- Permintaan Restock -->
-                    <div class="flex flex-col space-y-2">
+                    <div x-show="activeRightTab === 'restocks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="flex flex-col space-y-2">
                         <div class="flex justify-between items-center">
                             <h1 class="font-bold text-lg text-gray-700">
-                                <i class="fas fa-warehouse text-lg text-primary inline-flex mr-1"></i>
                                 Permintaan Restock
                             </h1>
                         </div>
 
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                            <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>

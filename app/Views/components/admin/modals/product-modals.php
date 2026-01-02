@@ -564,16 +564,23 @@
             </div>
 
             <div class="mt-4 flex flex-col items-center">
-                <div class="bg-white p-4 rounded-md shadow-inner">
-                    <img :src="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct?.barcode || '')" alt="Barcode" class="w-56 h-auto">
+                <div class="bg-white p-4 rounded-md shadow-inner min-h-[100px] flex items-center justify-center">
+                    <template x-if="selectedProduct?.barcode">
+                        <img :src="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct.barcode)" alt="Barcode" class="w-56 h-auto">
+                    </template>
+                    <template x-if="!selectedProduct?.barcode">
+                        <span class="text-gray-400 italic">Barcode tidak tersedia</span>
+                    </template>
                 </div>
                 <p class="text-sm text-gray-600 mt-2">Kode: <span class="font-mono" x-text="selectedProduct?.barcode || '-'"></span></p>
             </div>
         </div>
 
         <div class="px-5 py-4 bg-gray-50 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a :href="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct?.barcode || '')" target="_blank" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 text-center">Buka Gambar</a>
-            <button @click="downloadBarcode()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">Unduh Barcode</button>
+            <template x-if="selectedProduct?.barcode">
+                <a :href="barcodeImageUrl || '/admin/products/barcode/image/' + encodeURIComponent(selectedProduct.barcode)" target="_blank" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 text-center">Buka Gambar</a>
+            </template>
+            <button @click="downloadBarcode()" :disabled="!selectedProduct?.barcode" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">Unduh Barcode</button>
             <button @click="openViewProductModal = false" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100">Tutup</button>
         </div>
     </div>

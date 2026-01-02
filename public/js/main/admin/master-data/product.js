@@ -3,6 +3,7 @@ function productManagement() {
     products: [],
     categories: [],
     locations: [],
+    activeRightTab: 'categories',
     isLoading: false,
     isSavingProduct: false,
     isDeletingProduct: false,
@@ -684,9 +685,15 @@ function productManagement() {
         `/admin/products/barcode/image/${encodeURIComponent(
           this.selectedProduct.barcode || ""
         )}`;
+      
+      let ext = ".png";
+      if (url.endsWith(".svg")) {
+          ext = ".svg";
+      }
+
       const a = document.createElement("a");
       a.href = url;
-      a.download = (this.selectedProduct.barcode || "barcode") + ".png";
+      a.download = (this.selectedProduct.barcode || "barcode") + ext;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -741,6 +748,9 @@ function productManagement() {
       } catch (e) {
         console.error(e);
       }
+    },
+    get pendingRestockCount() {
+      return (this.restocks || []).filter(r => (r.status || '').toLowerCase() === 'pending').length;
     },
     get paginatedRestocks() {
       const start = (this.restocksPage - 1) * this.restocksPageSize;
