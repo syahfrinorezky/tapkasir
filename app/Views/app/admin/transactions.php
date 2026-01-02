@@ -86,7 +86,7 @@ Log Transaksi
                                         <tr>
                                             <td :colspan="shiftId ? 7 : 8" class="text-center py-6 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 h-auto mb-2 object-contain" alt="No Data">
                                                     <span>Tidak ada transaksi</span>
                                                 </div>
                                             </td>
@@ -129,7 +129,7 @@ Log Transaksi
                             </div>
                             <template x-if="transactions.length === 0">
                                 <div class="w-full flex flex-col items-center justify-center text-gray-500 py-6">
-                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-36 h-24 mb-2" autoplay muted loop></video>
+                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 h-auto mb-2 object-contain" alt="No Data">
                                     <span>Tidak ada transaksi</span>
                                 </div>
                             </template>

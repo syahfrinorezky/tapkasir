@@ -51,7 +51,7 @@ Manajemen Shift
                                         <tr>
                                             <td colspan="5" class="text-center py-4 text-gray-500">
                                                 <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                     <span class="text-center">Tidak ada kasir</span>
                                                 </div>
                                             </td>
@@ -157,7 +157,7 @@ Manajemen Shift
                                             <tr>
                                                 <td colspan="4" class="py-6">
                                                     <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <video src="<?= base_url('videos/nodata.mp4') ?>" class="w-64 h-36 mb-2" autoplay muted loop></video>
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
                                                         <span class="text-center">Tidak ada shift yang tersedia</span>
                                                     </div>
                                                 </td>

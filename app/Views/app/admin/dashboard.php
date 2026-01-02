@@ -100,10 +100,8 @@ Dashboard Admin
                             <h2 class="font-bold text-gray-700 mb-4">Top 5 Produk Hari Ini</h2>
                             <div class="flex-1 overflow-y-auto flex flex-col">
                                 <template x-if="data.topProducts.length === 0">
-                                    <div class="flex flex-col items-center justify-center flex-1 h-full py-4">
-                                        <video autoplay loop muted playsinline class="w-32 h-32 opacity-80">
-                                            <source src="<?= base_url('videos/nodata.mp4') ?>" type="video/mp4">
-                                        </video>
+                                    <div class="flex flex-col items-center justify-center flex-1 h-full py-4 min-h-[200px]">
+                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 lg:w-48 h-auto opacity-80 object-contain" alt="No Data">
                                         <p class="text-gray-500 text-center text-sm mt-2">Belum ada penjualan hari ini.</p>
                                     </div>
                                 </template>
@@ -148,9 +146,7 @@ Dashboard Admin
                                             <tr class="h-full">
                                                 <td colspan="3" class="text-center py-4 align-middle h-full">
                                                     <div class="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                                        <video autoplay loop muted playsinline class="w-32 h-32 opacity-80">
-                                                            <source src="<?= base_url('videos/nodata.mp4') ?>" type="video/mp4">
-                                                        </video>
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 lg:w-48 h-auto opacity-80 object-contain" alt="No Data">
                                                         <p class="text-gray-500 mt-2">Belum ada transaksi.</p>
                                                     </div>
                                                 </td>

@@ -152,14 +152,19 @@ Laporan Bisnis
                                             </tr>
                                         </template>
                                         <tr x-show="data.tables.top_products.length === 0">
-                                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">Belum ada data penjualan.</td>
+                                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                                <div class="w-full flex flex-col items-center justify-center text-gray-500 min-h-[200px]">
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
+                                                    <span class="text-center">Belum ada data penjualan.</span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+                        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md flex flex-col">
                             <h3 class="font-bold text-gray-700 mb-4 text-sm md:text-base">Kontribusi Kategori</h3>
                             
                             <div x-show="data.charts.categories.length > 0">
@@ -176,8 +181,8 @@ Laporan Bisnis
                                 </div>
                             </div>
 
-                            <div x-show="data.charts.categories.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-400">
-                                <i class="fas fa-chart-pie text-4xl mb-3 opacity-30"></i>
+                            <div x-show="data.charts.categories.length === 0" class="w-full flex-1 min-h-[256px] flex flex-col items-center justify-center text-gray-400 text-center">
+                                <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-40 lg:w-48 h-auto mb-2 object-contain" alt="No Data">
                                 <p class="text-sm">Belum ada data kategori untuk ditampilkan.</p>
                             </div>
                         </div>
@@ -216,7 +221,12 @@ Laporan Bisnis
                                         </tr>
                                     </template>
                                     <tr x-show="data.tables.cashiers.length === 0">
-                                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">Belum ada data kinerja kasir.</td>
+                                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                            <div class="w-full flex flex-col items-center justify-center text-gray-500 min-h-[200px]">
+                                                <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
+                                                <span class="text-center">Belum ada data kinerja kasir.</span>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
