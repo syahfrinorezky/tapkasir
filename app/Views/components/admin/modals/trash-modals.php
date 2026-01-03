@@ -38,9 +38,9 @@
             <button @click="openRestoreModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="processRestore()" :disabled="isRestoring || isRestoringCategory || isRestoringLocation" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
-                <i class="fas fa-spinner fa-spin" x-show="isRestoring || isRestoringCategory || isRestoringLocation"></i>
-                <span x-text="(isRestoring || isRestoringCategory || isRestoringLocation) ? 'Memulihkan…' : 'Pulihkan'"></span>
+            <button @click="processRestore()" :disabled="isRestoring || isRestoringCategory || isRestoringLocation || isRestoringRole || isRestoringShift" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isRestoring || isRestoringCategory || isRestoringLocation || isRestoringRole || isRestoringShift"></i>
+                <span x-text="(isRestoring || isRestoringCategory || isRestoringLocation || isRestoringRole || isRestoringShift) ? 'Memulihkan…' : 'Pulihkan'"></span>
             </button>
         </div>
     </div>
@@ -87,9 +87,9 @@
             <button @click="openDeletePermanentModal = false" class="px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100">
                 Batal
             </button>
-            <button @click="processDeletePermanent()" :disabled="isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
-                <i class="fas fa-spinner fa-spin" x-show="isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation"></i>
-                <span x-text="(isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation) ? 'Menghapus…' : 'Hapus Permanen'"></span>
+            <button @click="processDeletePermanent()" :disabled="isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation || isDeletingPermanentRole || isDeletingPermanentShift" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="fas fa-spinner fa-spin" x-show="isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation || isDeletingPermanentRole || isDeletingPermanentShift"></i>
+                <span x-text="(isDeletingPermanent || isDeletingPermanentCategory || isDeletingPermanentLocation || isDeletingPermanentRole || isDeletingPermanentShift) ? 'Menghapus…' : 'Hapus Permanen'"></span>
             </button>
         </div>
     </div>
