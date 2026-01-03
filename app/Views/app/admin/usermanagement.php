@@ -30,11 +30,124 @@ Manajemen User
 
             <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20 flex flex-col 2xl:flex-row gap-5">
                 <div class="flex flex-col space-y-2 w-full lg:flex-1">
-                    <h1 class="font-bold text-lg text-gray-700">
-                        <i class="fas fa-users text-lg text-primary inline-flex mr-1"></i>
-                        Daftar Pengguna
-                    </h1>
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="flex justify-between items-center">
+                        <h1 class="font-bold text-lg text-gray-700" x-text="showTrashUsers ? 'Sampah Pengguna' : 'Daftar Pengguna'"></h1>
+                        <div class="flex items-center gap-2">
+                            <button @click="toggleTrashUsers()" type="button"
+                                :class="showTrashUsers ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
+                                class="transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer"
+                                title="Sampah / Restore">
+                                <i class="fas fa-trash-restore"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div x-show="showTrashUsers" x-cloak
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform translate-x-4"
+                        x-transition:enter-end="opacity-100 transform translate-x-0"
+                        class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" 
+                                    @change="toggleSelectAllTrashUsers($event)"
+                                    class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-600" x-text="selectedTrashUsers.length + ' dipilih'"></span>
+                            </div>
+                            <div class="flex gap-2" x-show="selectedTrashUsers.length > 0">
+                                <button @click="restoreSelectedUsers()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                    <i class="fas fa-undo mr-1"></i> Pulihkan
+                                </button>
+                                <button @click="deletePermanentSelectedUsers()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
+                            <table class="w-full min-w-max">
+                                <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="w-10 px-4 py-3 text-center"></th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold">Nama</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold">Dihapus Pada</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <template x-if="trashUsers.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="py-8 text-center text-gray-500">
+                                                <i class="fas fa-trash-alt text-4xl mb-2 text-gray-300"></i>
+                                                <p>Sampah kosong</p>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-for="user in paginatedTrashUsers" :key="user.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-center">
+                                                <input type="checkbox" 
+                                                    :value="user.id" 
+                                                    x-model="selectedTrashUsers"
+                                                    class="rounded border-gray-300 text-primary focus:ring-primary">
+                                            </td>
+                                            <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="user.nama_lengkap"></td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(user.deleted_at)"></td>
+                                            <td class="px-4 py-3 text-sm text-center">
+                                                <div class="flex justify-center gap-2">
+                                                    <button @click="confirmRestoreUser(user.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                        <i class="fas fa-undo"></i>
+                                                    </button>
+                                                    <button @click="confirmDeletePermanentUser(user.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                            <div class="text-xs text-gray-600">
+                                <span class="font-semibold" x-text="trashUsers.length === 0 ? 0 : ((trashUsersPage - 1) * trashUsersPageSize) + 1"></span>
+                                -
+                                <span class="font-semibold" x-text="Math.min(trashUsersPage * trashUsersPageSize, trashUsers.length)"></span>
+                                dari
+                                <span class="font-semibold" x-text="trashUsers.length"></span>
+                            </div>
+
+                            <div class="flex items-center gap-1" x-show="totalTrashUsersPages > 1">
+                                <button
+                                    @click="changeTrashUsersPage(trashUsersPage - 1)"
+                                    :disabled="trashUsersPage === 1"
+                                    :class="trashUsersPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                    class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+
+                                <template x-for="page in getTrashUsersPageNumbers()" :key="page">
+                                    <button
+                                        @click="changeTrashUsersPage(page)"
+                                        :class="page === trashUsersPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
+                                        x-text="page">
+                                    </button>
+                                </template>
+
+                                <button
+                                    @click="changeTrashUsersPage(trashUsersPage + 1)"
+                                    :disabled="trashUsersPage === totalTrashUsersPages"
+                                    :class="trashUsersPage === totalTrashUsersPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                    class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div x-show="!showTrashUsers" 
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform -translate-x-4"
+                        x-transition:enter-end="opacity-100 transform translate-x-0"
+                        class="bg-white rounded-lg shadow-md overflow-hidden">
                         <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
                             <table class="w-full min-w-max">
                                 <thead class="bg-primary text-white sticky top-0 z-10">
@@ -232,20 +345,130 @@ Manajemen User
                     </div>
 
                     <div class="flex flex-col space-y-2 order-1">
-                        <!-- Alert handled by toast_alpine component included above -->
-
                         <div class="flex justify-between items-center">
-                            <h1 class="font-bold text-lg text-gray-700">
-                                <i class="fas fa-user-cog text-lg text-primary inline-flex mr-1"></i>
-                                Daftar Role
-                            </h1>
+                            <h1 class="font-bold text-lg text-gray-700" x-text="showTrashRoles ? 'Sampah Role' : 'Daftar Role'"></h1>
 
-                            <button @click="openRole()" type="button" class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
-                                <i class="fas fa-plus text-primary"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button @click="toggleTrashRoles()" type="button"
+                                    :class="showTrashRoles ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
+                                    class="transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer"
+                                    title="Sampah / Restore">
+                                    <i class="fas fa-trash-restore"></i>
+                                </button>
+                                <button x-show="!showTrashRoles" @click="openRole()" type="button" class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                    <i class="fas fa-plus text-primary"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="showTrashRoles" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                        @change="toggleSelectAllTrashRoles($event)"
+                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-600" x-text="selectedTrashRoles.length + ' dipilih'"></span>
+                                </div>
+                                <div class="flex gap-2" x-show="selectedTrashRoles.length > 0">
+                                    <button @click="restoreSelectedRoles()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-undo mr-1"></i> Pulihkan
+                                    </button>
+                                    <button @click="deletePermanentSelectedRoles()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="w-10 px-4 py-3 text-center"></th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Nama Role</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Dihapus Pada</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="trashRoles.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-8 text-center text-gray-500">
+                                                    <i class="fas fa-trash-alt text-4xl mb-2 text-gray-300"></i>
+                                                    <p>Sampah kosong</p>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="role in paginatedTrashRoles" :key="role.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="checkbox" 
+                                                        :value="role.id" 
+                                                        x-model="selectedTrashRoles"
+                                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="role.role_name"></td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(role.deleted_at)"></td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <div class="flex justify-center gap-2">
+                                                        <button @click="confirmRestoreRole(role.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                        <button @click="confirmDeletePermanentRole(role.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
+                                    <span class="font-semibold" x-text="trashRoles.length === 0 ? 0 : ((trashRolesPage - 1) * trashRolesPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(trashRolesPage * trashRolesPageSize, trashRoles.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="trashRoles.length"></span>
+                                </div>
+
+                                <div class="flex items-center gap-1" x-show="totalTrashRolesPages > 1">
+                                    <button
+                                        @click="changeTrashRolesPage(trashRolesPage - 1)"
+                                        :disabled="trashRolesPage === 1"
+                                        :class="trashRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getTrashRolesPageNumbers()" :key="page">
+                                        <button
+                                            @click="changeTrashRolesPage(page)"
+                                            :class="page === trashRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeTrashRolesPage(trashRolesPage + 1)"
+                                        :disabled="trashRolesPage === totalTrashRolesPages"
+                                        :class="trashRolesPage === totalTrashRolesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="!showTrashRoles" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[40vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
@@ -341,6 +564,7 @@ Manajemen User
                     </div>
                 </div>
                 <?= $this->include('components/admin/modals/user-modals'); ?>
+                <?= $this->include('components/admin/modals/trash-modals'); ?>
             </div>
         </div>
 
