@@ -71,5 +71,40 @@ class RoleController extends BaseController
         return $this->response->setStatusCode(ResponseInterface::HTTP_OK)
             ->setJSON(['message' => 'Role berhasil dihapus.']);
     }
+
+    public function trashData()
+    {
+        $roleModel = new RoleModel();
+        $roles = $roleModel->onlyDeleted()->findAll();
+        return $this->response->setJSON(['roles' => $roles]);
+    }
+
+    public function restore($id = null)
+    {
+        $roleModel = new RoleModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $roleModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+        return $this->response->setJSON(['message' => 'Data berhasil dipulihkan']);
+    }
+
+    public function deletePermanent($id = null)
+    {
+        $roleModel = new RoleModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $roleModel->delete($ids, true);
+        return $this->response->setJSON(['message' => 'Data berhasil dihapus permanen']);
+    }
 }
 

@@ -107,4 +107,39 @@ class UserController extends BaseController
         
         return $this->response->setJSON(['message' => 'User berhasil dihapus']);
     }
+
+    public function trashData()
+    {
+        $userModel = new UserModel();
+        $users = $userModel->onlyDeleted()->findAll();
+        return $this->response->setJSON(['users' => $users]);
+    }
+
+    public function restore($id = null)
+    {
+        $userModel = new UserModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $userModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+        return $this->response->setJSON(['message' => 'Data berhasil dipulihkan']);
+    }
+
+    public function deletePermanent($id = null)
+    {
+        $userModel = new UserModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $userModel->delete($ids, true);
+        return $this->response->setJSON(['message' => 'Data berhasil dihapus permanen']);
+    }
 }

@@ -43,7 +43,12 @@ class ProductController extends BaseController
 
         foreach ($products as &$product) {
             if (!empty($product['photo'])) {
-                $product['photo'] = base_url('uploads/products/' . basename($product['photo']));
+                $path = ROOTPATH . 'public/uploads/products/' . basename($product['photo']);
+                if (file_exists($path)) {
+                    $product['photo'] = base_url('uploads/products/' . basename($product['photo']));
+                } else {
+                    $product['photo'] = null;
+                }
             }
             $product['stock'] = $productModel->getStock($product['id']);
         }
@@ -207,11 +212,6 @@ class ProductController extends BaseController
             return $this->response->setStatusCode(404)->setJSON([
                 'message' => 'Produk tidak ditemukan'
             ]);
-        }
-
-        if ($product['photo']) {
-            $photoPath = FCPATH . $product['photo'];
-            if (file_exists($photoPath)) unlink($photoPath);
         }
 
         if ($productModel->delete($id)) {
@@ -451,5 +451,182 @@ class ProductController extends BaseController
             return $this->response->setJSON(['message' => 'Lokasi berhasil dihapus']);
         }
         return $this->response->setStatusCode(500)->setJSON(['message' => 'Gagal menghapus lokasi']);
+    }
+
+    public function trashData()
+    {
+        $productModel = new ProductModel();
+
+        $products = $productModel
+            ->select('products.*, categories.category_name')
+            ->join('categories', 'categories.id = products.category_id')
+            ->onlyDeleted()
+            ->findAll();
+
+        foreach ($products as &$product) {
+            if (!empty($product['photo'])) {
+                $path = ROOTPATH . 'public/uploads/products/' . basename($product['photo']);
+                if (file_exists($path)) {
+                    $product['photo'] = base_url('uploads/products/' . basename($product['photo']));
+                } else {
+                    $product['photo'] = null;
+                }
+            }
+            $product['stock'] = $productModel->getStock($product['id']);
+        }
+
+        return $this->response->setJSON([
+            'products' => $products
+        ]);
+    }
+
+    public function restore($id = null)
+    {
+        $productModel = new ProductModel();
+        
+        if ($id) {
+            // Restore single
+            $productModel->builder()->where('id', $id)->update(['deleted_at' => null]);
+             return $this->response->setJSON(['message' => 'Produk berhasil dipulihkan']);
+        }
+        
+        // Restore multiple
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            $productModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+            return $this->response->setJSON(['message' => count($ids) . ' produk berhasil dipulihkan']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+    }
+
+    public function deletePermanent($id = null)
+    {
+        $productModel = new ProductModel();
+        
+        if ($id) {
+            // Get product info to delete photo
+            $product = $productModel->onlyDeleted()->find($id);
+            if ($product && !empty($product['photo'])) {
+                $photoPath = ROOTPATH . 'public/' . $product['photo'];
+                if (file_exists($photoPath)) {
+                    unlink($photoPath);
+                }
+            }
+
+            // Delete single
+            $productModel->builder()->where('id', $id)->delete();
+            return $this->response->setJSON(['message' => 'Produk berhasil dihapus permanen']);
+        }
+
+        // Delete multiple
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            // Get products info to delete photos
+            $products = $productModel->onlyDeleted()->whereIn('id', $ids)->findAll();
+            foreach ($products as $product) {
+                if (!empty($product['photo'])) {
+                    $photoPath = ROOTPATH . 'public/' . $product['photo'];
+                    if (file_exists($photoPath)) {
+                        unlink($photoPath);
+                    }
+                }
+            }
+
+            $productModel->builder()->whereIn('id', $ids)->delete();
+            return $this->response->setJSON(['message' => count($ids) . ' produk berhasil dihapus permanen']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+    }
+
+    // --- Category Trash Methods ---
+
+    public function trashCategoriesData()
+    {
+        $categoryModel = new CategoryModel();
+        $categories = $categoryModel->onlyDeleted()->findAll();
+        return $this->response->setJSON(['categories' => $categories]);
+    }
+
+    public function restoreCategory($id = null)
+    {
+        $categoryModel = new CategoryModel();
+        
+        if ($id) {
+            $categoryModel->builder()->where('id', $id)->update(['deleted_at' => null]);
+            return $this->response->setJSON(['message' => 'Kategori berhasil dipulihkan']);
+        }
+        
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            $categoryModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+            return $this->response->setJSON(['message' => count($ids) . ' kategori berhasil dipulihkan']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+    }
+
+    public function deletePermanentCategory($id = null)
+    {
+        $categoryModel = new CategoryModel();
+        
+        if ($id) {
+            $categoryModel->builder()->where('id', $id)->delete();
+            return $this->response->setJSON(['message' => 'Kategori berhasil dihapus permanen']);
+        }
+
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            $categoryModel->builder()->whereIn('id', $ids)->delete();
+            return $this->response->setJSON(['message' => count($ids) . ' kategori berhasil dihapus permanen']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+    }
+
+    // --- Location Trash Methods ---
+
+    public function trashLocationsData()
+    {
+        $locationModel = new StorageLocationModel();
+        $locations = $locationModel->onlyDeleted()->findAll();
+        return $this->response->setJSON(['locations' => $locations]);
+    }
+
+    public function restoreLocation($id = null)
+    {
+        $locationModel = new StorageLocationModel();
+        
+        if ($id) {
+            $locationModel->builder()->where('id', $id)->update(['deleted_at' => null]);
+            return $this->response->setJSON(['message' => 'Lokasi berhasil dipulihkan']);
+        }
+        
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            $locationModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+            return $this->response->setJSON(['message' => count($ids) . ' lokasi berhasil dipulihkan']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+    }
+
+    public function deletePermanentLocation($id = null)
+    {
+        $locationModel = new StorageLocationModel();
+        
+        if ($id) {
+            $locationModel->builder()->where('id', $id)->delete();
+            return $this->response->setJSON(['message' => 'Lokasi berhasil dihapus permanen']);
+        }
+
+        $ids = $this->request->getJSON()->ids ?? [];
+        if (!empty($ids)) {
+            $locationModel->builder()->whereIn('id', $ids)->delete();
+            return $this->response->setJSON(['message' => count($ids) . ' lokasi berhasil dihapus permanen']);
+        }
+
+        return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
     }
 }

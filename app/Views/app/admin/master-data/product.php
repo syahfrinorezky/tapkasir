@@ -27,52 +27,80 @@ Manajemen Produk
 
             <hr class="border-gray-200 mx-4 md:mx-6 lg:mx-8">
 
-            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 lg:pb-8 flex flex-col 2xl:flex-row gap-5">
+            <?= $this->include('components/notifications'); ?>
+
+            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20 flex flex-col 2xl:flex-row gap-5">
                 <div class="flex flex-col space-y-2 w-full lg:flex-1">
                     <div class="flex justify-between items-center">
                         <h1 class="font-bold text-lg text-gray-700">
                             <i class="fas fa-box text-lg text-primary inline-flex mr-1"></i>
-                            Daftar Produk
+                            <span x-text="showTrash ? 'Sampah Produk' : 'Daftar Produk'"></span>
                         </h1>
 
                         <div class="flex items-center gap-2">
-                            <button @click="openAddProduct()" type="button"
+                            <button @click="toggleTrash()" type="button"
+                                :class="showTrash ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
+                                class="transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer"
+                                title="Sampah / Restore">
+                                <i class="fas fa-trash-restore"></i>
+                            </button>
+                            <button x-show="!showTrash" @click="openAddProduct()" type="button"
                                 class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
                                 <i class="fas fa-plus text-primary"></i>
                             </button>
                         </div>
                     </div>
 
-                    <div class="px-1">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div class="flex w-full md:w-2/3">
-                                <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Cari produk atau barcode..." class="flex-1 px-3 py-2 rounded-l-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
-                                <button @click="dataProductPage = 1" type="button" class="px-4 py-2 bg-primary text-white rounded-r-md text-sm border border-primary/30 border-l-0 hover:bg-primary/90">Search</button>
-                            </div>
+                    <div x-show="!showTrash"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform -translate-x-4"
+                        x-transition:enter-end="opacity-100 transform translate-x-0">
+                        <div class="mt-4 mb-2">
+                            <div class="flex gap-3">
+                                <!-- Search Bar -->
+                                <div class="relative flex-1 group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-search text-gray-400 group-focus-within:text-primary transition-colors duration-200"></i>
+                                    </div>
+                                    <input type="text" 
+                                        x-model.debounce.300ms="searchQuery" 
+                                        placeholder="Cari nama produk, barcode..." 
+                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm transition-all duration-200 outline-none"
+                                    >
+                                </div>
 
-                            <div class="w-full md:w-1/3">
-                                <select x-model="activeCategoryFilter" @change="setCategoryFilter($event.target.value)" class="w-full px-3 py-2 rounded-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
-                                    <option value="all">All</option>
-                                    <template x-for="c in categories" :key="c.id">
-                                        <option :value="c.id" x-text="c.category_name"></option>
+                                <!-- Filter Button -->
+                                <button @click="openFilter()" 
+                                    class="flex items-center justify-center px-4 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary/50 text-gray-700 hover:text-primary transition-all duration-200 shadow-sm group"
+                                    :class="{'border-primary/50 text-primary bg-primary/5': activeCategoryFilter !== 'all' || activeStockFilter !== 'all' || activeSort !== 'newest'}"
+                                >
+                                    <i class="fas fa-sliders-h mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                                    <span class="font-medium text-sm hidden sm:inline">Filter & Urutkan</span>
+                                    <span class="font-medium text-sm sm:hidden">Filter</span>
+                                    
+                                    <!-- Badge Indicator -->
+                                    <template x-if="activeCategoryFilter !== 'all' || activeStockFilter !== 'all' || activeSort !== 'newest'">
+                                        <span class="ml-2 flex h-2 w-2 relative">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                        </span>
                                     </template>
-                                </select>
+                                </button>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mt-4">
                         <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
                             <table class="w-full min-w-max">
                                 <thead class="bg-primary text-white sticky top-0 z-10">
                                     <tr>
-                                        <th class="px-4 py-3 text-center text-sm font-semibold">No</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold hidden md:table-cell">No</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Foto</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Nama Produk</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Harga</th>
-                                        <th class="px-4 py-3 text-center text-sm font-semibold">Kategori</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold hidden md:table-cell">Kategori</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Stok</th>
-                                        <th class="px-4 py-3 text-center text-sm font-semibold">Barcode</th>
+                                        <th class="px-4 py-3 text-center text-sm font-semibold hidden md:table-cell">Barcode</th>
                                         <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
                                     </tr>
                                 </thead>
@@ -90,7 +118,7 @@ Manajemen Produk
 
                                     <template x-for="(product, index) in paginatedProducts" :key="product.id">
                                         <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-3 text-sm text-center" x-text="getProductRowNumber(index)"></td>
+                                            <td class="px-4 py-3 text-sm text-center hidden md:table-cell" x-text="getProductRowNumber(index)"></td>
                                             <td class="px-4 py-3 text-sm text-center">
                                                 <template x-if="product.photo">
                                                     <img :src="product.photo" :alt="product.product_name" @error="(e) => e.target.src = '<?= base_url('images/illustration/deletemodal-illustration.png') ?>'" class="w-10 h-10 object-cover rounded mx-auto">
@@ -103,11 +131,11 @@ Manajemen Produk
                                             </td>
                                             <td class="px-4 py-3 text-sm" x-text="product.product_name"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="formatCurrency(product.price)"></td>
-                                            <td class="px-4 py-3 text-sm text-center" x-text="product.category_name"></td>
+                                            <td class="px-4 py-3 text-sm text-center hidden md:table-cell" x-text="product.category_name"></td>
                                             <td class="px-4 py-3 text-sm text-center">
                                                 <span :class="stockClass(product.stock)" x-text="product.stock"></span>
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-center" x-text="product.barcode"></td>
+                                            <td class="px-4 py-3 text-sm text-center hidden md:table-cell" x-text="product.barcode"></td>
                                             <td class="px-4 py-3 text-sm space-x-2 flex items-center justify-center">
                                                 <button type="button" @click="openViewProduct(product)"
                                                     title="Detail"
@@ -178,6 +206,125 @@ Manajemen Produk
                     </div>
                 </div>
 
+                    <!-- Trash View -->
+                    <div x-show="showTrash" x-cloak
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform translate-x-4"
+                        x-transition:enter-end="opacity-100 transform translate-x-0">
+                        
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden mt-4">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                        @change="toggleSelectAllTrash($event)"
+                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-600" x-text="selectedTrash.length + ' dipilih'"></span>
+                                </div>
+                                <div class="flex gap-2" x-show="selectedTrash.length > 0">
+                                    <button @click="restoreSelected()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-undo mr-1"></i> Pulihkan
+                                    </button>
+                                    <button @click="deletePermanentSelected()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto max-h-[70vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="w-10 px-4 py-3 text-center"></th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Foto</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Nama Produk</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold hidden md:table-cell">Kategori</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold hidden md:table-cell">Dihapus Pada</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="trashProducts.length === 0">
+                                            <tr>
+                                                <td colspan="6" class="py-8 text-center text-gray-500">
+                                                    <i class="fas fa-trash-alt text-4xl mb-2 text-gray-300"></i>
+                                                    <p>Sampah kosong</p>
+                                                </td>
+                                            </tr>
+                                        </template>
+
+                                        <template x-for="product in paginatedTrashProducts" :key="product.id">
+                                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="checkbox" :value="product.id" x-model="selectedTrash" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <template x-if="product.photo">
+                                                        <img :src="product.photo" class="w-10 h-10 object-cover rounded-md mx-auto shadow-sm border border-gray-200">
+                                                    </template>
+                                                    <template x-if="!product.photo">
+                                                        <div class="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center mx-auto border border-gray-200">
+                                                            <i class="fas fa-image text-gray-400"></i>
+                                                        </div>
+                                                    </template>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-center font-medium text-gray-900" x-text="product.product_name"></td>
+                                                <td class="px-4 py-3 text-sm text-center hidden md:table-cell" x-text="product.category_name"></td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-500 hidden md:table-cell" x-text="formatDateTime(product.deleted_at)"></td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button @click="confirmRestore(product.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                        <button @click="confirmDeletePermanent(product.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
+                                    <span class="font-semibold" x-text="trashProducts.length === 0 ? 0 : ((trashProductPage - 1) * trashProductPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(trashProductPage * trashProductPageSize, trashProducts.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="trashProducts.length"></span>
+                                </div>
+
+                                <div class="flex items-center gap-1" x-show="totalTrashProductPages > 1">
+                                    <button
+                                        @click="changeTrashProductPage(trashProductPage - 1)"
+                                        :disabled="trashProductPage === 1"
+                                        :class="trashProductPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getTrashProductPageNumbers()" :key="page">
+                                        <button
+                                            @click="changeTrashProductPage(page)"
+                                            :class="page === trashProductPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeTrashProductPage(trashProductPage + 1)"
+                                        :disabled="trashProductPage === totalTrashProductPages"
+                                        :class="trashProductPage === totalTrashProductPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex flex-col gap-4 w-full 2xl:w-1/3">
                     <?= $this->include('components/notifications') ?>
 
@@ -210,17 +357,130 @@ Manajemen Produk
 
                     <div x-show="activeRightTab === 'categories'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="flex flex-col space-y-2">
                         <div class="flex justify-between items-center">
-                            <h1 class="font-bold text-lg text-gray-700">
-                                Daftar Kategori
-                            </h1>
+                            <h1 class="font-bold text-lg text-gray-700" x-text="showTrashCategories ? 'Sampah Kategori' : 'Daftar Kategori'"></h1>
 
-                            <button @click="openAddCategory()" type="button"
-                                class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
-                                <i class="fas fa-plus text-primary"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button @click="toggleTrashCategories()" type="button"
+                                    :class="showTrashCategories ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
+                                    class="transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer"
+                                    title="Sampah / Restore">
+                                    <i class="fas fa-trash-restore"></i>
+                                </button>
+                                <button x-show="!showTrashCategories" @click="openAddCategory()" type="button"
+                                    class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                    <i class="fas fa-plus text-primary"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="showTrashCategories" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                        @change="toggleSelectAllTrashCategories($event)"
+                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-600" x-text="selectedTrashCategories.length + ' dipilih'"></span>
+                                </div>
+                                <div class="flex gap-2" x-show="selectedTrashCategories.length > 0">
+                                    <button @click="restoreSelectedCategories()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-undo mr-1"></i> Pulihkan
+                                    </button>
+                                    <button @click="deletePermanentSelectedCategories()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="w-10 px-4 py-3 text-center"></th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Nama Kategori</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Dihapus Pada</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="trashCategories.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-8 text-center text-gray-500">
+                                                    <i class="fas fa-trash-alt text-4xl mb-2 text-gray-300"></i>
+                                                    <p>Sampah kosong</p>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="category in paginatedTrashCategories" :key="category.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="checkbox" 
+                                                        :value="category.id" 
+                                                        x-model="selectedTrashCategories"
+                                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="category.category_name"></td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(category.deleted_at)"></td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <div class="flex justify-center gap-2">
+                                                        <button @click="confirmRestoreCategory(category.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                        <button @click="confirmDeletePermanentCategory(category.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
+                                    <span class="font-semibold" x-text="trashCategories.length === 0 ? 0 : ((trashCategoriesPage - 1) * trashCategoriesPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(trashCategoriesPage * trashCategoriesPageSize, trashCategories.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="trashCategories.length"></span>
+                                </div>
+
+                                <div class="flex items-center gap-1" x-show="totalTrashCategoriesPages > 1">
+                                    <button
+                                        @click="changeTrashCategoriesPage(trashCategoriesPage - 1)"
+                                        :disabled="trashCategoriesPage === 1"
+                                        :class="trashCategoriesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getTrashCategoriesPageNumbers()" :key="page">
+                                        <button
+                                            @click="changeTrashCategoriesPage(page)"
+                                            :class="page === trashCategoriesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeTrashCategoriesPage(trashCategoriesPage + 1)"
+                                        :disabled="trashCategoriesPage === totalTrashCategoriesPages"
+                                        :class="trashCategoriesPage === totalTrashCategoriesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="!showTrashCategories" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
@@ -317,17 +577,134 @@ Manajemen Produk
 
                     <div x-show="activeRightTab === 'locations'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="flex flex-col space-y-2">
                          <div class="flex justify-between items-center">
-                            <h1 class="font-bold text-lg text-gray-700">
-                                Lokasi Penyimpanan
-                            </h1>
+                            <h1 class="font-bold text-lg text-gray-700" x-text="showTrashLocations ? 'Sampah Lokasi' : 'Lokasi Penyimpanan'"></h1>
 
-                            <button @click="openAddLocation()" type="button"
-                                class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
-                                <i class="fas fa-plus text-primary"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button @click="toggleTrashLocations()" type="button"
+                                    :class="showTrashLocations ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
+                                    class="transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer"
+                                    title="Sampah / Restore">
+                                    <i class="fas fa-trash-restore"></i>
+                                </button>
+                                <button x-show="!showTrashLocations" @click="openAddLocation()" type="button"
+                                    class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                    <i class="fas fa-plus text-primary"></i>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="showTrashLocations" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                        @change="toggleSelectAllTrashLocations($event)"
+                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-600" x-text="selectedTrashLocations.length + ' dipilih'"></span>
+                                </div>
+                                <div class="flex gap-2" x-show="selectedTrashLocations.length > 0">
+                                    <button @click="restoreSelectedLocations()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-undo mr-1"></i> Pulihkan
+                                    </button>
+                                    <button @click="deletePermanentSelectedLocations()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                                <table class="w-full min-w-max">
+                                    <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="w-10 px-4 py-3 text-center"></th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Rak</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Baris</th>
+                                            <th class="px-4 py-3 text-left text-sm font-semibold">Deskripsi</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Dihapus Pada</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <template x-if="trashLocations.length === 0">
+                                            <tr>
+                                                <td colspan="6" class="py-8 text-center text-gray-500">
+                                                    <i class="fas fa-trash-alt text-4xl mb-2 text-gray-300"></i>
+                                                    <p>Sampah kosong</p>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="location in paginatedTrashLocations" :key="location.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-3 text-center">
+                                                    <input type="checkbox" 
+                                                        :value="location.id" 
+                                                        x-model="selectedTrashLocations"
+                                                        class="rounded border-gray-300 text-primary focus:ring-primary">
+                                                </td>
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="location.rack"></td>
+                                                <td class="px-4 py-3 text-sm text-gray-600" x-text="location.row"></td>
+                                                <td class="px-4 py-3 text-sm text-gray-600" x-text="location.description"></td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(location.deleted_at)"></td>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <div class="flex justify-center gap-2">
+                                                        <button @click="confirmRestoreLocation(location.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                        <button @click="confirmDeletePermanentLocation(location.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                            <i class="fas fa-trash-alt mr-1"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                                <div class="text-xs text-gray-600">
+                                    <span class="font-semibold" x-text="trashLocations.length === 0 ? 0 : ((trashLocationsPage - 1) * trashLocationsPageSize) + 1"></span>
+                                    -
+                                    <span class="font-semibold" x-text="Math.min(trashLocationsPage * trashLocationsPageSize, trashLocations.length)"></span>
+                                    dari
+                                    <span class="font-semibold" x-text="trashLocations.length"></span>
+                                </div>
+
+                                <div class="flex items-center gap-1" x-show="totalTrashLocationsPages > 1">
+                                    <button
+                                        @click="changeTrashLocationsPage(trashLocationsPage - 1)"
+                                        :disabled="trashLocationsPage === 1"
+                                        :class="trashLocationsPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+
+                                    <template x-for="page in getTrashLocationsPageNumbers()" :key="page">
+                                        <button
+                                            @click="changeTrashLocationsPage(page)"
+                                            :class="page === trashLocationsPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                                            class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+
+                                    <button
+                                        @click="changeTrashLocationsPage(trashLocationsPage + 1)"
+                                        :disabled="trashLocationsPage === totalTrashLocationsPages"
+                                        :class="trashLocationsPage === totalTrashLocationsPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
+                                        class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="!showTrashLocations" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max text-sm">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
@@ -539,7 +916,131 @@ Manajemen Produk
             </div>
 
 
+            <div x-show="openFilterModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="openFilterModal" 
+                        x-transition:enter="ease-out duration-300" 
+                        x-transition:enter-start="opacity-0" 
+                        x-transition:enter-end="opacity-100" 
+                        x-transition:leave="ease-in duration-200" 
+                        x-transition:leave-start="opacity-100" 
+                        x-transition:leave-end="opacity-0" 
+                        class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+                        @click="openFilterModal = false" aria-hidden="true">
+                    </div>
+
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                    <div x-show="openFilterModal" 
+                        x-transition:enter="ease-out duration-300" 
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                        x-transition:leave="ease-in duration-200" 
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                        class="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                        
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">
+                                    Filter Produk
+                                </h3>
+                                <button @click="openFilterModal = false" class="text-gray-400 hover:text-gray-500 transition-colors">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">Kategori</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" 
+                                            @click="tempFilters.category = 'all'"
+                                            class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                            :class="tempFilters.category === 'all' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'">
+                                            Semua
+                                        </button>
+                                        
+                                        <template x-for="c in visibleCategories" :key="c.id">
+                                            <button type="button" 
+                                                @click="tempFilters.category = c.id"
+                                                class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                                :class="String(tempFilters.category) === String(c.id) ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'"
+                                                x-text="c.category_name">
+                                            </button>
+                                        </template>
+
+                                        <button x-show="categories.length > 8" 
+                                            @click="showAllCategories = !showAllCategories"
+                                            type="button"
+                                            class="px-4 py-2 rounded-full text-sm font-medium border border-dashed border-gray-300 text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-1">
+                                            <span x-text="showAllCategories ? 'Sembunyikan' : 'Lihat Lainnya'"></span>
+                                            <i class="fas" :class="showAllCategories ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">Status Stok</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="option in [
+                                            {id: 'all', label: 'Semua'},
+                                            {id: 'available', label: 'Tersedia'},
+                                            {id: 'low', label: 'Menipis (<15)'},
+                                            {id: 'empty', label: 'Habis'}
+                                        ]">
+                                            <button type="button" 
+                                                @click="tempFilters.stock = option.id"
+                                                class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                                :class="tempFilters.stock === option.id ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'"
+                                                x-text="option.label">
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <template x-for="sortOption in [
+                                            {id: 'newest', label: 'Terbaru Ditambahkan', icon: 'fa-clock'},
+                                            {id: 'price_high', label: 'Harga Tertinggi', icon: 'fa-sort-amount-up'},
+                                            {id: 'price_low', label: 'Harga Terendah', icon: 'fa-sort-amount-down'},
+                                            {id: 'stock_high', label: 'Stok Terbanyak', icon: 'fa-layer-group'},
+                                            {id: 'stock_low', label: 'Stok Sedikit', icon: 'fa-exclamation-triangle'}
+                                        ]">
+                                            <div @click="tempFilters.sort = sortOption.id" 
+                                                class="cursor-pointer flex items-center justify-between p-3 rounded-xl border transition-all duration-200 group"
+                                                :class="tempFilters.sort === sortOption.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                                        :class="tempFilters.sort === sortOption.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary'">
+                                                        <i class="fas" :class="sortOption.icon"></i>
+                                                    </div>
+                                                    <span class="text-sm font-medium" :class="tempFilters.sort === sortOption.id ? 'text-primary' : 'text-gray-700'" x-text="sortOption.label"></span>
+                                                </div>
+                                                <div x-show="tempFilters.sort === sortOption.id" class="text-primary">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" @click="applyFilters()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm">
+                                Terapkan Filter
+                            </button>
+                            <button type="button" @click="resetFilters()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <?= $this->include('components/admin/modals/product-modals'); ?>
+            <?= $this->include('components/admin/modals/trash-modals'); ?>
         </div>
     </div>
 </main>
