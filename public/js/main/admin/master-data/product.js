@@ -30,6 +30,11 @@ function productManagement() {
     isRestoringLocation: false,
     isDeletingPermanentLocation: false,
 
+    isRestoringRole: false,
+    isDeletingPermanentRole: false,
+    isRestoringShift: false,
+    isDeletingPermanentShift: false,
+
     getTrashLabel() {
         if (this.trashType === 'category') return 'Kategori';
         if (this.trashType === 'location') return 'Lokasi';
