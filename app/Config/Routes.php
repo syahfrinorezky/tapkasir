@@ -65,6 +65,14 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->delete('products/delete/(:num)', [ProductController::class, 'delete/$1'], ['as' => 'admin.product.delete']);
     $routes->post('products/uploadPhoto/(:num)', [ProductController::class, 'uploadPhoto/$1'], ['as' => 'admin.product.uploadPhoto']);
 
+    // Product Trash
+    $routes->get('products/trash/data', [ProductController::class, 'trashData']);
+    $routes->post('products/restore/(:num)', [ProductController::class, 'restore/$1']);
+    $routes->post('products/restore', [ProductController::class, 'restore']); // For multiple
+    $routes->delete('products/deletePermanent/(:num)', [ProductController::class, 'deletePermanent/$1']);
+    $routes->delete('products/deletePermanent', [ProductController::class, 'deletePermanent']); // For multiple
+
+
     // Restock admin
     $routes->get('restocks/data', [RestockRequestController::class, 'adminList']);
     $routes->post('restocks/approve/(:num)', [RestockRequestController::class, 'adminApprove/$1']);
@@ -75,10 +83,24 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('products/editCategory/(:num)', [ProductController::class, 'editCategory/$1'], ['as' => 'admin.product.editCategory']);
     $routes->delete('products/deleteCategory/(:num)', [ProductController::class, 'deleteCategory/$1'], ['as' => 'admin.product.deleteCategory']);
 
+    // Category Trash
+    $routes->get('products/categories/trash/data', [ProductController::class, 'trashCategoriesData']);
+    $routes->post('products/categories/restore/(:num)', [ProductController::class, 'restoreCategory/$1']);
+    $routes->post('products/categories/restore', [ProductController::class, 'restoreCategory']);
+    $routes->delete('products/categories/deletePermanent/(:num)', [ProductController::class, 'deletePermanentCategory/$1']);
+    $routes->delete('products/categories/deletePermanent', [ProductController::class, 'deletePermanentCategory']);
+
     // Storage Location management
     $routes->post('products/addLocation', [ProductController::class, 'addLocation'], ['as' => 'admin.product.addLocation']);
     $routes->post('products/editLocation/(:num)', [ProductController::class, 'editLocation/$1'], ['as' => 'admin.product.editLocation']);
     $routes->delete('products/deleteLocation/(:num)', [ProductController::class, 'deleteLocation/$1'], ['as' => 'admin.product.deleteLocation']);
+
+    // Location Trash
+    $routes->get('products/locations/trash/data', [ProductController::class, 'trashLocationsData']);
+    $routes->post('products/locations/restore/(:num)', [ProductController::class, 'restoreLocation/$1']);
+    $routes->post('products/locations/restore', [ProductController::class, 'restoreLocation']);
+    $routes->delete('products/locations/deletePermanent/(:num)', [ProductController::class, 'deletePermanentLocation/$1']);
+    $routes->delete('products/locations/deletePermanent', [ProductController::class, 'deletePermanentLocation']);
 
 
     // Shift management
