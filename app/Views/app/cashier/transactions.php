@@ -52,7 +52,7 @@ Transaksi Kasir
 
             <hr class="border-gray-200 mx-4 md:mx-6 lg:mx-8">
 
-            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 lg:pb-8">
+            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="p-4 flex flex-col md:flex-row gap-4">
                         <div class="flex-1">

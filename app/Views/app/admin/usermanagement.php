@@ -28,7 +28,7 @@ Manajemen User
 
             <hr class="border-gray-200 mx-4 md:mx-6 lg:mx-8">
 
-            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 lg:pb-8 flex flex-col 2xl:flex-row gap-5">
+            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20 flex flex-col 2xl:flex-row gap-5">
                 <div class="flex flex-col space-y-2 w-full lg:flex-1">
                     <h1 class="font-bold text-lg text-gray-700">
                         <i class="fas fa-users text-lg text-primary inline-flex mr-1"></i>

@@ -27,7 +27,7 @@ Log Transaksi
 
             <hr class="border-gray-200 mx-4 md:mx-6 lg:mx-8">
 
-            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 lg:pb-8">
+            <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20">
                 <div class="flex flex-row md:flex-row md:items-center justify-between mb-4 flex-wrap">
                     <div class="flex flex-row md:flex-row md:items-center gap-3 w-full">
                         <div class="w-1/2 md:w-56">
