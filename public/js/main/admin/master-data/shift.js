@@ -33,6 +33,36 @@ function shiftManagement() {
     dataShiftsPage: 1,
     dataShiftsPageSize: 5,
 
+    showTrashCashiers: false,
+    trashCashiers: [],
+    selectedTrashCashiers: [],
+    trashCashiersPage: 1,
+    trashCashiersPageSize: 10,
+
+    showTrashShifts: false,
+    trashShifts: [],
+    selectedTrashShifts: [],
+    trashShiftsPage: 1,
+    trashShiftsPageSize: 10,
+
+    openRestoreModal: false,
+    openDeletePermanentModal: false,
+    trashType: 'cashier',
+    restoreMode: 'single',
+    deletePermanentMode: 'single',
+    selectedTrashItem: null,
+    isRestoring: false,
+    isDeletingPermanent: false,
+    isRestoringShift: false,
+    isDeletingPermanentShift: false,
+
+    isRestoringCategory: false,
+    isDeletingPermanentCategory: false,
+    isRestoringLocation: false,
+    isDeletingPermanentLocation: false,
+    isRestoringRole: false,
+    isDeletingPermanentRole: false,
+
     init() {
       this.fetchData();
     },
@@ -57,6 +87,23 @@ function shiftManagement() {
       return Math.ceil(this.shifts.length / this.dataShiftsPageSize);
     },
 
+    get paginatedTrashCashiers() {
+      const start = (this.trashCashiersPage - 1) * this.trashCashiersPageSize;
+      const end = start + this.trashCashiersPageSize;
+      return this.trashCashiers.slice(start, end);
+    },
+    get totalTrashCashiersPages() {
+      return Math.ceil(this.trashCashiers.length / this.trashCashiersPageSize) || 1;
+    },
+    get paginatedTrashShifts() {
+      const start = (this.trashShiftsPage - 1) * this.trashShiftsPageSize;
+      const end = start + this.trashShiftsPageSize;
+      return this.trashShifts.slice(start, end);
+    },
+    get totalTrashShiftsPages() {
+      return Math.ceil(this.trashShifts.length / this.trashShiftsPageSize) || 1;
+    },
+
     changeDataCashierPage(page) {
       if (page >= 1 && page <= this.totalCashierPages) {
         this.dataCashierPage = page;
@@ -67,6 +114,15 @@ function shiftManagement() {
       if (page >= 1 && page <= this.totalShiftsPages) {
         this.dataShiftsPage = page;
       }
+    },
+
+    changeTrashCashiersPage(page) {
+      if (page >= 1 && page <= this.totalTrashCashiersPages)
+        this.trashCashiersPage = page;
+    },
+    changeTrashShiftsPage(page) {
+      if (page >= 1 && page <= this.totalTrashShiftsPages)
+        this.trashShiftsPage = page;
     },
 
     getDataCashiersNumber() {
@@ -83,6 +139,13 @@ function shiftManagement() {
         pages.push(i);
       }
       return pages;
+    },
+
+    getTrashCashiersPageNumbers() {
+      return Array.from({ length: this.totalTrashCashiersPages }, (_, i) => i + 1);
+    },
+    getTrashShiftsPageNumbers() {
+      return Array.from({ length: this.totalTrashShiftsPages }, (_, i) => i + 1);
     },
 
     getCashierRowNumber(index) {
@@ -313,6 +376,262 @@ function shiftManagement() {
         this.error = "Terjadi kesalahan saat menghapus shift.";
         setTimeout(() => (this.error = ""), 3000);
       }
+    },
+
+    formatDateTime(dt) {
+      if (!dt) return "-";
+      try {
+        const d = new Date(String(dt).replace(" ", "T"));
+        return d.toLocaleString("id-ID");
+      } catch {
+        return dt;
+      }
+    },
+
+    toggleTrashCashiers() {
+        this.showTrashCashiers = !this.showTrashCashiers;
+        if (this.showTrashCashiers) this.fetchTrashCashiers();
+    },
+    async fetchTrashCashiers() {
+        try {
+            const response = await fetch('/admin/shifts/cashiers/trash/data');
+            const data = await response.json();
+            this.trashCashiers = data.cashiers || [];
+        } catch (error) {
+            console.error('Error fetching trash data:', error);
+        }
+    },
+    toggleTrashShifts() {
+        this.showTrashShifts = !this.showTrashShifts;
+        if (this.showTrashShifts) this.fetchTrashShifts();
+    },
+    async fetchTrashShifts() {
+        try {
+            const response = await fetch('/admin/shifts/trash/data');
+            const data = await response.json();
+            this.trashShifts = data.shifts || [];
+        } catch (error) {
+            console.error('Error fetching shift trash data:', error);
+        }
+    },
+
+    toggleSelectAllTrashCashiers(e) {
+        if (e.target.checked) {
+            this.selectedTrashCashiers = this.trashCashiers.map(c => c.id);
+        } else {
+            this.selectedTrashCashiers = [];
+        }
+    },
+    restoreSelectedCashiers() {
+        this.trashType = 'cashier';
+        this.restoreMode = 'multiple';
+        this.openRestoreModal = true;
+    },
+    deletePermanentSelectedCashiers() {
+        this.trashType = 'cashier';
+        this.deletePermanentMode = 'multiple';
+        this.openDeletePermanentModal = true;
+    },
+
+    toggleSelectAllTrashShifts(e) {
+        if (e.target.checked) {
+            this.selectedTrashShifts = this.trashShifts.map(s => s.id);
+        } else {
+            this.selectedTrashShifts = [];
+        }
+    },
+    restoreSelectedShifts() {
+        this.trashType = 'shift';
+        this.restoreMode = 'multiple';
+        this.openRestoreModal = true;
+    },
+    deletePermanentSelectedShifts() {
+        this.trashType = 'shift';
+        this.deletePermanentMode = 'multiple';
+        this.openDeletePermanentModal = true;
+    },
+
+    getTrashLabel() {
+        return this.trashType === 'cashier' ? 'Kasir' : 'Shift';
+    },
+    getTrashItemName() {
+        if (this.restoreMode === 'multiple' || this.deletePermanentMode === 'multiple') {
+            return `${this.getTrashSelectedCount()} item dipilih`;
+        }
+        if (this.trashType === 'cashier') return this.selectedTrashItem?.nama_lengkap;
+        return this.selectedTrashItem?.name;
+    },
+    getTrashSelectedCount() {
+        return this.trashType === 'cashier' ? this.selectedTrashCashiers.length : this.selectedTrashShifts.length;
+    },
+
+    confirmRestoreCashier(id) {
+        this.trashType = 'cashier';
+        this.selectedTrashItem = this.trashCashiers.find(c => c.id === id);
+        this.restoreMode = 'single';
+        this.openRestoreModal = true;
+    },
+    confirmDeletePermanentCashier(id) {
+        this.trashType = 'cashier';
+        this.selectedTrashItem = this.trashCashiers.find(c => c.id === id);
+        this.deletePermanentMode = 'single';
+        this.openDeletePermanentModal = true;
+    },
+    confirmRestoreShift(id) {
+        this.trashType = 'shift';
+        this.selectedTrashItem = this.trashShifts.find(s => s.id === id);
+        this.restoreMode = 'single';
+        this.openRestoreModal = true;
+    },
+    confirmDeletePermanentShift(id) {
+        this.trashType = 'shift';
+        this.selectedTrashItem = this.trashShifts.find(s => s.id === id);
+        this.deletePermanentMode = 'single';
+        this.openDeletePermanentModal = true;
+    },
+
+    async processRestore() {
+        if (this.trashType === 'shift') return this.processRestoreShift();
+
+        this.isRestoring = true;
+        try {
+            let url = '/admin/shifts/cashiers/restore';
+            let body = {};
+            
+            if (this.restoreMode === 'single') {
+                url += `/${this.selectedTrashItem.id}`;
+            } else {
+                body = { ids: this.selectedTrashCashiers };
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+            });
+            
+            if (response.ok) {
+                await this.fetchTrashCashiers();
+                await this.fetchData();
+                this.selectedTrashCashiers = [];
+                this.openRestoreModal = false;
+                this.message = "Kasir berhasil dipulihkan";
+                setTimeout(() => (this.message = ""), 3000);
+            }
+        } catch (error) {
+            console.error('Error restoring data:', error);
+        } finally {
+            this.isRestoring = false;
+        }
+    },
+    async processDeletePermanent() {
+        if (this.trashType === 'shift') return this.processDeletePermanentShift();
+
+        this.isDeletingPermanent = true;
+        try {
+            let url = '/admin/shifts/cashiers/deletePermanent';
+            let body = {};
+            
+            if (this.deletePermanentMode === 'single') {
+                url += `/${this.selectedTrashItem.id}`;
+            } else {
+                body = { ids: this.selectedTrashCashiers };
+            }
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+            });
+            
+            if (response.ok) {
+                await this.fetchTrashCashiers();
+                this.selectedTrashCashiers = [];
+                this.openDeletePermanentModal = false;
+                this.message = "Kasir berhasil dihapus permanen";
+                setTimeout(() => (this.message = ""), 3000);
+            }
+        } catch (error) {
+            console.error('Error deleting data:', error);
+        } finally {
+            this.isDeletingPermanent = false;
+        }
+    },
+
+    async processRestoreShift() {
+        this.isRestoringShift = true;
+        try {
+            let url = '/admin/shifts/restore';
+            let body = {};
+            
+            if (this.restoreMode === 'single') {
+                url += `/${this.selectedTrashItem.id}`;
+            } else {
+                body = { ids: this.selectedTrashShifts };
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+            });
+            
+            if (response.ok) {
+                await this.fetchTrashShifts();
+                await this.fetchData();
+                this.selectedTrashShifts = [];
+                this.openRestoreModal = false;
+                this.message = "Shift berhasil dipulihkan";
+                setTimeout(() => (this.message = ""), 3000);
+            }
+        } catch (error) {
+            console.error('Error restoring shift:', error);
+        } finally {
+            this.isRestoringShift = false;
+        }
+    },
+    async processDeletePermanentShift() {
+        this.isDeletingPermanentShift = true;
+        try {
+            let url = '/admin/shifts/deletePermanent';
+            let body = {};
+            
+            if (this.deletePermanentMode === 'single') {
+                url += `/${this.selectedTrashItem.id}`;
+            } else {
+                body = { ids: this.selectedTrashShifts };
+            }
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+            });
+            
+            if (response.ok) {
+                await this.fetchTrashShifts();
+                this.selectedTrashShifts = [];
+                this.openDeletePermanentModal = false;
+                this.message = "Shift berhasil dihapus permanen";
+                setTimeout(() => (this.message = ""), 3000);
+            }
+        } catch (error) {
+            console.error('Error deleting shift:', error);
+        } finally {
+            this.isDeletingPermanentShift = false;
+        }
     },
   };
 }
