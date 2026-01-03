@@ -373,7 +373,11 @@ Manajemen Produk
                             </div>
                         </div>
 
-                        <div x-show="showTrashCategories" class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="showTrashCategories" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
                                 <div class="flex items-center gap-2">
                                     <input type="checkbox" 
@@ -472,7 +476,11 @@ Manajemen Produk
                             </div>
                         </div>
 
-                        <div x-show="!showTrashCategories" class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="!showTrashCategories" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
@@ -585,7 +593,11 @@ Manajemen Produk
                             </div>
                         </div>
 
-                        <div x-show="showTrashLocations" class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="showTrashLocations" x-cloak
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
                                 <div class="flex items-center gap-2">
                                     <input type="checkbox" 
@@ -688,7 +700,11 @@ Manajemen Produk
                             </div>
                         </div>
 
-                        <div x-show="!showTrashLocations" class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div x-show="!showTrashLocations" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 transform -translate-x-4"
+                            x-transition:enter-end="opacity-100 transform translate-x-0"
+                            class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="overflow-x-auto max-h-[60vh] overflow-y-auto">
                                 <table class="w-full min-w-max text-sm">
                                     <thead class="bg-primary text-white sticky top-0 z-10">
