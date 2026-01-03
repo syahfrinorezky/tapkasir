@@ -176,5 +176,93 @@ class ShiftController extends BaseController
 
         return $this->response->setJSON(['message' => 'Shift berhasil diperbarui.']);
     }
+
+    public function deleteShift($id)
+    {
+        $shiftModel = new ShiftModel();
+        $shift = $shiftModel->find($id);
+
+        if (!$shift) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'Shift tidak ditemukan.']);
+        }
+
+        $shiftModel->delete($id);
+
+        return $this->response->setJSON(['message' => 'Shift berhasil dihapus.']);
+    }
+
+    public function trashData()
+    {
+        $shiftModel = new ShiftModel();
+        $shifts = $shiftModel->onlyDeleted()->findAll();
+        return $this->response->setJSON(['shifts' => $shifts]);
+    }
+
+    public function restore($id = null)
+    {
+        $shiftModel = new ShiftModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $shiftModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+        return $this->response->setJSON(['message' => 'Data berhasil dipulihkan']);
+    }
+
+    public function deletePermanent($id = null)
+    {
+        $shiftModel = new ShiftModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $shiftModel->delete($ids, true);
+        return $this->response->setJSON(['message' => 'Data berhasil dihapus permanen']);
+    }
+
+    public function trashCashiersData()
+    {
+        $cashierWorkModel = new CashierWorkModel();
+        $cashiers = $cashierWorkModel
+            ->select('cashier_works.*, users.nama_lengkap')
+            ->join('users', 'users.id = cashier_works.user_id')
+            ->onlyDeleted()
+            ->findAll();
+        return $this->response->setJSON(['cashiers' => $cashiers]);
+    }
+
+    public function restoreCashier($id = null)
+    {
+        $cashierWorkModel = new CashierWorkModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $cashierWorkModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
+        return $this->response->setJSON(['message' => 'Data berhasil dipulihkan']);
+    }
+
+    public function deletePermanentCashier($id = null)
+    {
+        $cashierWorkModel = new CashierWorkModel();
+        $json = $this->request->getJSON();
+        $ids = $id ? [$id] : ($json->ids ?? []);
+
+        if (empty($ids)) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $cashierWorkModel->delete($ids, true);
+        return $this->response->setJSON(['message' => 'Data berhasil dihapus permanen']);
+    }
 }
 
