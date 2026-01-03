@@ -47,11 +47,25 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('users/updateInfo/(:num)', [UserController::class, 'updateInfo/$1'], ['as' => 'admin.user.updateInfo']);
     $routes->delete('users/delete/(:num)', [UserController::class, 'delete/$1'], ['as' => 'admin.user.delete']);
 
+    // User Trash
+    $routes->get('users/trash/data', [UserController::class, 'trashData']);
+    $routes->post('users/restore/(:num)', [UserController::class, 'restore/$1']);
+    $routes->post('users/restore', [UserController::class, 'restore']);
+    $routes->delete('users/deletePermanent/(:num)', [UserController::class, 'deletePermanent/$1']);
+    $routes->delete('users/deletePermanent', [UserController::class, 'deletePermanent']);
+
     // Role management
     $routes->get('roles', [RoleController::class, 'index'], ['as' => 'admin.role']);
     $routes->post('roles/add', [RoleController::class, 'addRole'], ['as' => 'admin.role.add']);
     $routes->post('roles/edit/(:num)', [RoleController::class, 'editRole/$1'], ['as' => 'admin.role.edit']);
     $routes->delete('roles/delete/(:num)', [RoleController::class, 'deleteRole/$1'], ['as' => 'admin.role.delete']);
+
+    // Role Trash
+    $routes->get('roles/trash/data', [RoleController::class, 'trashData']);
+    $routes->post('roles/restore/(:num)', [RoleController::class, 'restore/$1']);
+    $routes->post('roles/restore', [RoleController::class, 'restore']);
+    $routes->delete('roles/deletePermanent/(:num)', [RoleController::class, 'deletePermanent/$1']);
+    $routes->delete('roles/deletePermanent', [RoleController::class, 'deletePermanent']);
 
     // master-data
     // Product management
@@ -109,6 +123,21 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->post('shifts/add', [ShiftController::class, 'addShift']);
     $routes->post('shifts/edit/(:num)', [ShiftController::class, 'editShift/$1']);
     $routes->post('shifts/updateCashierShift/(:num)', [ShiftController::class, 'updateCashierShift/$1']);
+    $routes->delete('shifts/deleteShift/(:num)', [ShiftController::class, 'deleteShift/$1']);
+
+    // Shift Trash
+    $routes->get('shifts/trash/data', [ShiftController::class, 'trashData']);
+    $routes->post('shifts/restore/(:num)', [ShiftController::class, 'restore/$1']);
+    $routes->post('shifts/restore', [ShiftController::class, 'restore']);
+    $routes->delete('shifts/deletePermanent/(:num)', [ShiftController::class, 'deletePermanent/$1']);
+    $routes->delete('shifts/deletePermanent', [ShiftController::class, 'deletePermanent']);
+
+    // Cashier Trash (Shift Context)
+    $routes->get('shifts/cashiers/trash/data', [ShiftController::class, 'trashCashiersData']);
+    $routes->post('shifts/cashiers/restore/(:num)', [ShiftController::class, 'restoreCashier/$1']);
+    $routes->post('shifts/cashiers/restore', [ShiftController::class, 'restoreCashier']);
+    $routes->delete('shifts/cashiers/deletePermanent/(:num)', [ShiftController::class, 'deletePermanentCashier/$1']);
+    $routes->delete('shifts/cashiers/deletePermanent', [ShiftController::class, 'deletePermanentCashier']);
 
 
     // Transactions
