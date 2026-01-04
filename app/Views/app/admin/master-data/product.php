@@ -1003,8 +1003,8 @@ Manajemen Produk
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <template x-for="sortOption in [
                                             {id: 'newest', label: 'Terbaru Ditambahkan', icon: 'fa-clock'},
-                                            {id: 'price_high', label: 'Harga Tertinggi', icon: 'fa-sort-amount-up'},
-                                            {id: 'price_low', label: 'Harga Terendah', icon: 'fa-sort-amount-down'},
+                                            {id: 'price_high', label: 'Harga Tertinggi', icon: 'fa-arrow-up'},
+                                            {id: 'price_low', label: 'Harga Terendah', icon: 'fa-arrow-down'},
                                             {id: 'stock_high', label: 'Stok Terbanyak', icon: 'fa-layer-group'},
                                             {id: 'stock_low', label: 'Stok Sedikit', icon: 'fa-exclamation-triangle'}
                                         ]">

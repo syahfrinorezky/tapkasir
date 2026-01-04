@@ -215,17 +215,24 @@ Transaksi Kasir
 
                                 <div class="mb-3">
                                     <label class="text-sm text-gray-700 block mb-1">Metode Pembayaran</label>
-                                    <div class="flex rounded-md shadow-sm" role="group">
+                                    <div class="relative flex bg-gray-100 p-1 rounded-lg">
+                                        <div class="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/2)] bg-white rounded-md shadow transition-transform duration-300 ease-out"
+                                             :class="{
+                                                'translate-x-0': paymentMethod === 'cash',
+                                                'translate-x-full': paymentMethod === 'qris'
+                                             }">
+                                        </div>
+
                                         <button type="button"
                                             @click="paymentMethod = 'cash'"
-                                            :class="paymentMethod === 'cash' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
-                                            class="flex-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary">
+                                            :class="paymentMethod === 'cash' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'"
+                                            class="relative z-10 flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 text-center">
                                             <i class="fas fa-money-bill-wave mr-2"></i> Tunai
                                         </button>
                                         <button type="button"
                                             @click="paymentMethod = 'qris'"
-                                            :class="paymentMethod === 'qris' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
-                                            class="flex-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg focus:z-10 focus:ring-2 focus:ring-primary focus:text-primary">
+                                            :class="paymentMethod === 'qris' ? 'text-primary' : 'text-gray-500 hover:text-gray-700'"
+                                            class="relative z-10 flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200 text-center">
                                             <i class="fas fa-qrcode mr-2"></i> QRIS
                                         </button>
                                     </div>

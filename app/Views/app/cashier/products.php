@@ -31,18 +31,33 @@ Produk & Restock
                 <div class="flex flex-col space-y-2 w-full lg:flex-1">
                     <div class="px-1">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div class="flex w-full md:w-2/3">
-                                <input type="text" x-model.debounce.300ms="searchQuery" placeholder="Cari produk atau barcode..." class="flex-1 px-3 py-2 rounded-l-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
-                                <button @click="dataProductPage = 1" type="button" class="px-4 py-2 bg-primary text-white rounded-r-md text-sm border border-primary/30 border-l-0 hover:bg-primary/90">Search</button>
-                            </div>
+                            <div class="flex w-full gap-3">
+                                <div class="relative flex-1 group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-search text-gray-400 group-focus-within:text-primary transition-colors duration-200"></i>
+                                    </div>
+                                    <input type="text" 
+                                        x-model.debounce.300ms="searchQuery" 
+                                        placeholder="Cari produk atau barcode..." 
+                                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm transition-all duration-200 outline-none"
+                                    >
+                                </div>
 
-                            <div class="w-full md:w-1/3">
-                                <select x-model="activeCategoryFilter" @change="setCategoryFilter($event.target.value)" class="w-full px-3 py-2 rounded-md border border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary text-sm">
-                                    <option value="all">All</option>
-                                    <template x-for="c in categories" :key="c.id">
-                                        <option :value="c.id" x-text="c.category_name"></option>
+                                <button @click="openFilter()" 
+                                    class="flex items-center justify-center px-4 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-primary/50 text-gray-700 hover:text-primary transition-all duration-200 shadow-sm group"
+                                    :class="{'border-primary/50 text-primary bg-primary/5': activeCategoryFilter !== 'all' || activeStockFilter !== 'all' || activeSort !== 'newest'}"
+                                >
+                                    <i class="fas fa-sliders-h mr-2 group-hover:scale-110 transition-transform duration-200"></i>
+                                    <span class="font-medium text-sm hidden sm:inline">Filter & Urutkan</span>
+                                    <span class="font-medium text-sm sm:hidden">Filter</span>
+                                    
+                                    <template x-if="activeCategoryFilter !== 'all' || activeStockFilter !== 'all' || activeSort !== 'newest'">
+                                        <span class="ml-2 flex h-2 w-2 relative">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                        </span>
                                     </template>
-                                </select>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -464,6 +479,134 @@ Produk & Restock
                             </div>
                         </div>
                     </div>
+
+            <!-- Filter Modal -->
+            <div x-show="openFilterModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="openFilterModal" 
+                        x-transition:enter="ease-out duration-300" 
+                        x-transition:enter-start="opacity-0" 
+                        x-transition:enter-end="opacity-100" 
+                        x-transition:leave="ease-in duration-200" 
+                        x-transition:leave-start="opacity-100" 
+                        x-transition:leave-end="opacity-0" 
+                        class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+                        @click="openFilterModal = false" aria-hidden="true">
+                    </div>
+
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                    <div x-show="openFilterModal" 
+                        x-transition:enter="ease-out duration-300" 
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                        x-transition:leave="ease-in duration-200" 
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                        class="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                        
+                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">
+                                    Filter Produk
+                                </h3>
+                                <button @click="openFilterModal = false" class="text-gray-400 hover:text-gray-500 transition-colors">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">Kategori</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" 
+                                            @click="tempFilters.category = 'all'"
+                                            class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                            :class="tempFilters.category === 'all' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'">
+                                            Semua
+                                        </button>
+                                        
+                                        <template x-for="c in visibleCategories" :key="c.id">
+                                            <button type="button" 
+                                                @click="tempFilters.category = c.id"
+                                                class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                                :class="String(tempFilters.category) === String(c.id) ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'"
+                                                x-text="c.category_name">
+                                            </button>
+                                        </template>
+
+                                        <button x-show="categories.length > 8" 
+                                            @click="showAllCategories = !showAllCategories"
+                                            type="button"
+                                            class="px-4 py-2 rounded-full text-sm font-medium border border-dashed border-gray-300 text-gray-500 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all duration-200 flex items-center gap-1">
+                                            <span x-text="showAllCategories ? 'Sembunyikan' : 'Lihat Lainnya'"></span>
+                                            <i class="fas" :class="showAllCategories ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">Status Stok</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="option in [
+                                            {id: 'all', label: 'Semua'},
+                                            {id: 'available', label: 'Tersedia'},
+                                            {id: 'low', label: 'Menipis (Restock)'},
+                                            {id: 'empty', label: 'Habis'}
+                                        ]">
+                                            <button type="button" 
+                                                @click="tempFilters.stock = option.id"
+                                                class="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+                                                :class="tempFilters.stock === option.id ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/50 hover:text-primary hover:bg-gray-50'"
+                                                x-text="option.label">
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">Urutkan</label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <template x-for="sortOption in [
+                                            {id: 'newest', label: 'Terbaru Ditambahkan', icon: 'fa-clock'},
+                                            {id: 'price_low', label: 'Harga Terendah', icon: 'fa-arrow-down'},
+                                            {id: 'price_high', label: 'Harga Tertinggi', icon: 'fa-arrow-up'},
+                                            {id: 'stock_low', label: 'Stok Sedikit', icon: 'fa-exclamation-triangle'}
+                                        ]">
+                                            <div @click="tempFilters.sort = sortOption.id" 
+                                                class="cursor-pointer flex items-center justify-between p-3 rounded-xl border transition-all duration-200 group"
+                                                :class="tempFilters.sort === sortOption.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                                                        :class="tempFilters.sort === sortOption.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary'">
+                                                        <i class="fas" :class="sortOption.icon"></i>
+                                                    </div>
+                                                    <span class="text-sm font-medium" :class="tempFilters.sort === sortOption.id ? 'text-primary' : 'text-gray-700'" x-text="sortOption.label"></span>
+                                                </div>
+                                                <div x-show="tempFilters.sort === sortOption.id" class="text-primary">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                            <button type="button" 
+                                @click="applyFilters()"
+                                class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:w-auto sm:text-sm transition-all duration-200">
+                                Terapkan Filter
+                            </button>
+                            <button type="button" 
+                                @click="resetFilters()"
+                                class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:w-auto sm:text-sm transition-all duration-200">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 </div>
 </main>
 <?= $this->endSection() ?>
