@@ -206,6 +206,15 @@ class RestockRequestController extends BaseController
         if (!in_array($ext, $allowed, true)) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Tipe file tidak didukung']);
         }
+        
+        $mime = $file->getMimeType();
+        $allowedMimes = [
+            'image/jpeg', 'image/png', 'application/pdf', 'image/heic', 'image/webp'
+        ];
+        
+        if (!in_array($mime, $allowedMimes)) {
+             return $this->response->setStatusCode(400)->setJSON(['message' => 'Format file tidak valid (MIME type mismatch)']);
+        }
 
         $publicTempDir = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'restock_temp';
         if (!is_dir($publicTempDir)) @mkdir($publicTempDir, 0775, true);
@@ -222,9 +231,9 @@ class RestockRequestController extends BaseController
     private function moveReceiptToPublic(string $tempPath): ?string
     {
         $root = rtrim(FCPATH, '/\\');
-        $base = rtrim(ROOTPATH, '/\\');
-
-        $fullTemp = $base . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $tempPath);
+        
+        $fullTemp = $root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $tempPath);
+        
         if (!is_file($fullTemp)) return null;
 
         $targetDir = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'restocks';
