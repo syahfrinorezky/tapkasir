@@ -325,7 +325,7 @@ Produk & Restock
 
                                     <div class="grid grid-cols-2 gap-3">
                                         <div class="col-span-2">
-                                            <label class="text-sm text-gray-600">Harga Beli</label>
+                                            <label class="text-sm text-gray-600">Harga Beli (Per Item)</label>
                                             <input type="number" x-model="restockPurchasePrice"
                                                 class="mt-1 w-full px-3 py-2 rounded-md border focus:ring-primary focus:border-primary text-sm">
                                         </div>
