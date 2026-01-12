@@ -119,7 +119,7 @@ class ProductController extends BaseController
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
             $mime = $photo->getMimeType();
             if (!in_array($mime, ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'])) {
-                 return $this->response->setStatusCode(400)->setJSON([
+                return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'Format gambar tidak valid (hanya jpg, jpeg, png, webp)'
                 ]);
             }
@@ -172,7 +172,7 @@ class ProductController extends BaseController
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
             $mime = $photo->getMimeType();
             if (!in_array($mime, ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'])) {
-                 return $this->response->setStatusCode(400)->setJSON([
+                return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'Format gambar tidak valid (hanya jpg, jpeg, png, webp)'
                 ]);
             }
@@ -182,7 +182,8 @@ class ProductController extends BaseController
             $data['photo'] = 'uploads/products/' . $newName;
             if ($currentProduct && $currentProduct['photo']) {
                 $oldPhotoPath = FCPATH . $currentProduct['photo'];
-                if (file_exists($oldPhotoPath)) unlink($oldPhotoPath);
+                if (file_exists($oldPhotoPath))
+                    unlink($oldPhotoPath);
             }
         }
 
@@ -338,7 +339,7 @@ class ProductController extends BaseController
             }
 
             $safeName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $barcode);
-            
+
             if (!extension_loaded('gd') && !extension_loaded('imagick')) {
                 $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
                 $content = $generator->getBarcode($barcode, $generator::TYPE_CODE_128, 2, 60);
@@ -370,7 +371,7 @@ class ProductController extends BaseController
     public function addLocation()
     {
         $locationModel = new StorageLocationModel();
-        
+
         $rules = [
             'rack' => 'required',
             'row' => 'required',
@@ -386,7 +387,7 @@ class ProductController extends BaseController
 
         $rack = $this->request->getPost('rack');
         $row = $this->request->getPost('row');
-        
+
         $exists = $locationModel->where('rack', $rack)->where('row', $row)->where('deleted_at', null)->first();
         if ($exists) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Lokasi Rack dan Row ini sudah ada.']);
@@ -416,15 +417,15 @@ class ProductController extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-             return $this->response->setStatusCode(400)->setJSON([
+            return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'Validasi gagal',
                 'validation' => $this->validator->getErrors()
             ]);
         }
-        
+
         $rack = $this->request->getPost('rack');
         $row = $this->request->getPost('row');
-        
+
         $exists = $locationModel->where('rack', $rack)->where('row', $row)->where('id !=', $id)->where('deleted_at', null)->first();
         if ($exists) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Lokasi Rack dan Row ini sudah ada.']);
@@ -446,7 +447,20 @@ class ProductController extends BaseController
     public function deleteLocation($id)
     {
         $locationModel = new StorageLocationModel();
-
+        
+        // Cek apakah lokasi masih digunakan oleh produk (batch)
+        $batchModel = new \App\Models\ProductBatchModel();
+        $usageCount = $batchModel->where('location_id', $id)->where('current_stock >', 0)->where('deleted_at', null)->countAllResults();
+        
+        if ($usageCount > 0) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Tidak dapat menghapus lokasi karena sedang digunakan oleh ' . $usageCount . ' batch produk aktif.'
+            ]);
+        }
+        
+        // Juga cek apakah ada batch (meskipun stok 0 tapi belum dihapus historynya) jika ingin strict, 
+        // tapi user bilang "masih dipakai oleh produk", biasanya itu stok > 0. 
+        
         if ($locationModel->delete($id)) {
             return $this->response->setJSON(['message' => 'Lokasi berhasil dihapus']);
         }
@@ -483,13 +497,13 @@ class ProductController extends BaseController
     public function restore($id = null)
     {
         $productModel = new ProductModel();
-        
+
         if ($id) {
             // Restore single
             $productModel->builder()->where('id', $id)->update(['deleted_at' => null]);
-             return $this->response->setJSON(['message' => 'Produk berhasil dipulihkan']);
+            return $this->response->setJSON(['message' => 'Produk berhasil dipulihkan']);
         }
-        
+
         // Restore multiple
         $ids = $this->request->getJSON()->ids ?? [];
         if (!empty($ids)) {
@@ -503,7 +517,7 @@ class ProductController extends BaseController
     public function deletePermanent($id = null)
     {
         $productModel = new ProductModel();
-        
+
         if ($id) {
             // Get product info to delete photo
             $product = $productModel->onlyDeleted()->find($id);
@@ -552,12 +566,12 @@ class ProductController extends BaseController
     public function restoreCategory($id = null)
     {
         $categoryModel = new CategoryModel();
-        
+
         if ($id) {
             $categoryModel->builder()->where('id', $id)->update(['deleted_at' => null]);
             return $this->response->setJSON(['message' => 'Kategori berhasil dipulihkan']);
         }
-        
+
         $ids = $this->request->getJSON()->ids ?? [];
         if (!empty($ids)) {
             $categoryModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
@@ -570,7 +584,7 @@ class ProductController extends BaseController
     public function deletePermanentCategory($id = null)
     {
         $categoryModel = new CategoryModel();
-        
+
         if ($id) {
             $categoryModel->builder()->where('id', $id)->delete();
             return $this->response->setJSON(['message' => 'Kategori berhasil dihapus permanen']);
@@ -597,12 +611,12 @@ class ProductController extends BaseController
     public function restoreLocation($id = null)
     {
         $locationModel = new StorageLocationModel();
-        
+
         if ($id) {
             $locationModel->builder()->where('id', $id)->update(['deleted_at' => null]);
             return $this->response->setJSON(['message' => 'Lokasi berhasil dipulihkan']);
         }
-        
+
         $ids = $this->request->getJSON()->ids ?? [];
         if (!empty($ids)) {
             $locationModel->builder()->whereIn('id', $ids)->update(['deleted_at' => null]);
@@ -615,7 +629,7 @@ class ProductController extends BaseController
     public function deletePermanentLocation($id = null)
     {
         $locationModel = new StorageLocationModel();
-        
+
         if ($id) {
             $locationModel->builder()->where('id', $id)->delete();
             return $this->response->setJSON(['message' => 'Lokasi berhasil dihapus permanen']);
