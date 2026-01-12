@@ -927,3 +927,39 @@
         </div>
     </form>
 </div>
+
+<!-- Restock Proof Modal -->
+<div x-cloak x-show="openProofModal" @click.self="openProofModal = false"
+    class="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-50 backdrop-blur-xs z-50"></div>
+
+<div x-cloak x-show="openProofModal" 
+    class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="bg-primary flex items-center justify-between px-5 py-4 shrink-0">
+            <h3 class="text-lg font-semibold text-white">Bukti Restock</h3>
+            <button @click="openProofModal = false" class="p-2 rounded hover:bg-white/10">
+                <i class="fas fa-times text-white"></i>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto">
+             <template x-if="selectedRestock?.receipt_image">
+                 <div class="mb-4">
+                     <p class="font-semibold mb-2">Foto Bukti:</p>
+                     <img :src="selectedRestock.receipt_image" class="w-full rounded border border-gray-200" alt="Bukti Restock">
+                 </div>
+             </template>
+             <template x-if="selectedRestock?.user_note">
+                 <div>
+                     <p class="font-semibold mb-2">Catatan:</p>
+                     <p class="p-3 bg-gray-50 rounded border border-gray-200 text-gray-700 whitespace-pre-wrap" x-text="selectedRestock.user_note"></p>
+                 </div>
+             </template>
+             <template x-if="!selectedRestock?.receipt_image && !selectedRestock?.user_note">
+                 <p class="text-center text-gray-500 italic">Tidak ada bukti atau catatan.</p>
+             </template>
+        </div>
+        <div class="px-5 py-4 bg-gray-50 flex justify-end shrink-0">
+            <button @click="openProofModal = false" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Tutup</button>
+        </div>
+    </div>
+</div>
