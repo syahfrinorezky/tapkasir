@@ -20,7 +20,6 @@ function cashierTransactions(baseUrl = "") {
     shiftCountdownSec: 0,
     _shiftPollTimer: null,
     _shiftCountdownTimer: null,
-    pendingTransaction: null,
 
     init() {
       setTimeout(() => {
@@ -317,12 +316,6 @@ function cashierTransactions(baseUrl = "") {
     },
 
     async submitTransaction() {
-      if (this.pendingTransaction) {
-        this.error = "Harap selesaikan atau batalkan transaksi pending terlebih dahulu.";
-        setTimeout(() => (this.error = ""), 3000);
-        return;
-      }
-
       if (this.cart.length === 0) {
         this.error = "Keranjang kosong";
         setTimeout(() => (this.error = ""), 3000);
@@ -363,13 +356,64 @@ function cashierTransactions(baseUrl = "") {
 
         if (this.paymentMethod === "qris" && json.snap_token) {
           this.isLoading = false;
-          
-          this.pendingTransaction = {
-            id: json.transaction_id,
-            snap_token: json.snap_token
-          };
+          if (typeof window.snap === "undefined") {
+            throw new Error("Midtrans Snap JS not loaded");
+          }
+          window.snap.pay(json.snap_token, {
+            onSuccess: async (result) => {
+              try {
+                await fetch("/cashier/transactions/finish", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                  },
+                  body: JSON.stringify({
+                    transaction_id: json.transaction_id,
+                    midtrans_id: result.transaction_id,
+                    payment_type: result.payment_type,
+                  }),
+                });
+              } catch (e) {
+                console.error("Failed to update transaction status", e);
+              }
 
-          this.openMidtransSnap(json.snap_token, json.transaction_id);
+              this.message = "Pembayaran Berhasil!";
+              this.cart = [];
+              this.payment = 0;
+              setTimeout(() => (this.message = ""), 3000);
+              if (json.transaction_id) {
+                this.showReceipt(json.transaction_id);
+              }
+            },
+            onPending: (result) => {
+              this.message = "Menunggu pembayaran...";
+            },
+            onError: (result) => {
+              this.error = "Pembayaran Gagal!";
+            },
+            onClose: () => {
+              const txId = json.transaction_id;
+              if (txId) {
+                fetch("/cashier/transactions/cancel", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                  },
+                  body: JSON.stringify({
+                    transaction_id: txId,
+                  }),
+                })
+                  .then((r) => r.json())
+                  .then((d) => {
+                    this.message = "Transaksi dibatalkan";
+                    setTimeout(() => (this.message = ""), 3000);
+                  })
+                  .catch((e) => console.error("Cancel failed", e));
+              }
+            },
+          });
         } else {
           this.isLoading = false;
           this.message = "Transaksi berhasil";
@@ -657,88 +701,6 @@ function cashierTransactions(baseUrl = "") {
 
     getCartPageNumbers() {
       return Array.from({ length: this.totalCartPages }, (_, i) => i + 1);
-    },
-
-    openMidtransSnap(token, transactionId) {
-      if (typeof window.snap === "undefined") {
-        this.error = "Midtrans Snap JS not loaded";
-        return;
-      }
-
-      window.snap.pay(token, {
-        onSuccess: async (result) => {
-          this.pendingTransaction = null;
-          try {
-            await fetch("/cashier/transactions/finish", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-              },
-              body: JSON.stringify({
-                transaction_id: transactionId,
-                midtrans_id: result.transaction_id,
-                payment_type: result.payment_type,
-              }),
-            });
-          } catch (e) {
-            console.error("Failed to update transaction status", e);
-          }
-
-          this.message = "Pembayaran Berhasil!";
-          this.cart = [];
-          this.payment = 0;
-          setTimeout(() => (this.message = ""), 3000);
-          if (transactionId) {
-            this.showReceipt(transactionId);
-          }
-        },
-        onPending: (result) => {
-          this.message = "Menunggu pembayaran...";
-        },
-        onError: (result) => {
-          this.error = "Pembayaran Gagal!";
-        },
-        onClose: () => {
-          
-        },
-      });
-    },
-
-    cancelPendingTransaction() {
-      if (!this.pendingTransaction) return;
-      
-      this.isLoading = true;
-      const txId = this.pendingTransaction.id;
-      
-      fetch("/cashier/transactions/cancel", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: JSON.stringify({
-          transaction_id: txId,
-        }),
-      })
-      .then((r) => r.json())
-      .then((d) => {
-        this.isLoading = false;
-        this.pendingTransaction = null;
-        this.message = "Transaksi dibatalkan";
-        setTimeout(() => (this.message = ""), 3000);
-      })
-      .catch((e) => {
-        this.isLoading = false;
-        console.error("Cancel failed", e);
-        this.error = "Gagal membatalkan transaksi";
-        setTimeout(() => (this.error = ""), 3000);
-      });
-    },
-
-    continuePendingTransaction() {
-      if (!this.pendingTransaction) return;
-      this.openMidtransSnap(this.pendingTransaction.snap_token, this.pendingTransaction.id);
     },
   };
 }
