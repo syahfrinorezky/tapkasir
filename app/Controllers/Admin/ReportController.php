@@ -20,8 +20,9 @@ class ReportController extends BaseController
         $transactionModel = new TransactionModel();
         $transactionItemModel = new TransactionItemModel();
 
-        $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
-        $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
+        $now = \CodeIgniter\I18n\Time::now('Asia/Makassar');
+        $startDate = $this->request->getGet('start_date') ?? $now->format('Y-m-01');
+        $endDate = $this->request->getGet('end_date') ?? $now->toDateString();
 
         $summary = $transactionModel
             ->selectSum('total', 'total_sales')

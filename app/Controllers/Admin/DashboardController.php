@@ -23,16 +23,21 @@ class DashboardController extends BaseController
         $transactionModel = new TransactionModel();
         $cashierWorkModel = new CashierWorkModel();
 
+        $now = \CodeIgniter\I18n\Time::now('Asia/Makassar');
+        $today = $now->toDateString();
+        $startDate = $this->request->getGet('start_date') ?? $now->format('Y-m-01');
+        $endDate = $this->request->getGet('end_date') ?? $today;
+
         $todaySales = $transactionModel
             ->selectSum('total')
-            ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('DATE(transaction_date)', $endDate)
             ->where('payment_status', 'paid')
             ->get()
             ->getRow()
             ->total ?? 0;
 
         $todayTransactions = $transactionModel
-            ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('DATE(transaction_date)', $today)
             ->where('payment_status', 'paid')
             ->countAllResults();
 
@@ -40,7 +45,7 @@ class DashboardController extends BaseController
         $todayItemsSold = $transactionItemModel
             ->selectSum('transaction_items.quantity')
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
-            ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->where('DATE(transactions.transaction_date)', $today)
             ->where('transactions.payment_status', 'paid')
             ->get()
             ->getRow()
@@ -56,16 +61,16 @@ class DashboardController extends BaseController
 
         $salesData = $transactionModel
             ->select('DATE(transaction_date) as date, SUM(total) as total')
-            ->where('transaction_date >=', date('Y-m-d', strtotime('-6 days')))
+            ->where('transaction_date >=', $now->subDays(6)->toDateString())
             ->where('payment_status', 'paid')
             ->groupBy('DATE(transaction_date)')
             ->orderBy('DATE(transaction_date)', 'ASC')
             ->findAll();
 
         $period = new \DatePeriod(
-            new \DateTime('-6 days'),
+            (new \DateTime('-6 days', new \DateTimeZone('Asia/Makassar'))),
             new \DateInterval('P1D'),
-            new \DateTime('+1 day')
+            (new \DateTime('now', new \DateTimeZone('Asia/Makassar')))->modify('+1 day')
         );
 
         $labels = [];
@@ -82,7 +87,7 @@ class DashboardController extends BaseController
 
         $hourlySalesData = $transactionModel
             ->select('HOUR(transaction_date) as hour, SUM(total) as total')
-            ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('DATE(transaction_date)', $today)
             ->where('payment_status', 'paid')
             ->groupBy('HOUR(transaction_date)')
             ->orderBy('HOUR(transaction_date)', 'ASC')
@@ -93,8 +98,8 @@ class DashboardController extends BaseController
 
         for ($i = 0; $i < 24; $i++) {
             $hourlyLabels[] = sprintf('%02d:00', $i);
-            $found = array_filter($hourlySalesData, fn($r) => (int)$r['hour'] === $i);
-            $hourlyTotals[] = $found ? (float)array_values($found)[0]['total'] : 0;
+            $found = array_filter($hourlySalesData, fn($r) => (int) $r['hour'] === $i);
+            $hourlyTotals[] = $found ? (float) array_values($found)[0]['total'] : 0;
         }
 
         $transactionItemModel = new \App\Models\TransactionItemModel();
@@ -103,7 +108,7 @@ class DashboardController extends BaseController
             ->join('products', 'products.id = transaction_items.product_id')
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
-            ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->where('DATE(transactions.transaction_date)', $today)
             ->where('transactions.payment_status', 'paid')
             ->groupBy('transaction_items.product_id')
             ->orderBy('total_sold', 'DESC')

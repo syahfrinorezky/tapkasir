@@ -321,6 +321,7 @@ class TransactionController extends BaseController
         $updateData = [
             'payment_status' => 'paid',
             'midtrans_id' => $midtransId,
+            'transaction_date' => Time::now('Asia/Makassar')->toDateTimeString(),
         ];
 
         $transactionModel->update($transactionId, $updateData);
