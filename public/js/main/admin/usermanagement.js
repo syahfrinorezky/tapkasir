@@ -1,4 +1,4 @@
-function userManagement() {
+function userManagement(currentUserId = null) {
   return {
     approved: [],
     pending: [],
@@ -8,6 +8,7 @@ function userManagement() {
     isLoading: false,
     approvingUserId: null,
     rejectingUserId: null,
+    currentUserId: currentUserId,
     isUpdatingInfo: false,
     isDeletingUser: false,
     isAddingRole: false,
@@ -340,6 +341,13 @@ function userManagement() {
         });
         const data = await res.json();
         if (type === "approved") {
+          if (this.currentUserId) {
+            data.sort((a, b) => {
+              if (a.id == this.currentUserId) return -1;
+              if (b.id == this.currentUserId) return 1;
+              return 0;
+            });
+          }
           this.approved = data;
           this.dataUserPage = 1;
         }

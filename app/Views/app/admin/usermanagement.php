@@ -13,7 +13,8 @@ Manajemen User
     <div class="flex">
         <?= $this->include('components/sidebar'); ?>
 
-        <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen" x-data="userManagement()"
+        <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
+            x-data="userManagement('<?= session()->get('user_id') ?>')"
             x-init="fetchUsers('approved'); fetchUsers('pending'); fetchRoles()">
 
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
@@ -195,8 +196,9 @@ Manajemen User
                                                     <i class="fas fa-pen"></i>
                                                 </button>
                                                 <button type="button" @click="openDelete(user)"
-                                                    x-show="user.id != <?= session()->get('user_id') ?>"
-                                                    class="flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                    :disabled="user.id == <?= session()->get('user_id') ?>"
+                                                    :class="user.id == <?= session()->get('user_id') ?> ? 'bg-red-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600 cursor-pointer'"
+                                                    class="flex items-center justify-center p-2 text-white rounded-md transition-colors duration-300 ease-in-out">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
