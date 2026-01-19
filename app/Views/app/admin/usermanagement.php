@@ -505,7 +505,7 @@ Manajemen User
                                     <thead class="bg-primary text-white sticky top-0 z-10">
                                         <tr>
                                             <th class="px-4 py-3 text-left text-sm font-semibold">Nama Role</th>
-                                            <th class="px-4 py-3 text-center text-sm font-semibold">Tanggal Dibuat</th>
+                                            <th class="px-4 py-3 text-center text-sm font-semibold">Total Pengguna</th>
                                             <th class="px-4 py-3 text-center text-sm font-semibold">Aksi</th>
                                         </tr>
                                     </thead>
@@ -529,10 +529,11 @@ Manajemen User
                                                 <td class="px-4 py-3 text-sm capitalize">
                                                     <span x-text="role.role_name"></span>
                                                 </td>
-                                                <td
-                                                    class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
-                                                    <span class="text-gray-500 text-xs"
-                                                        x-text="new Date(role.created_at).toLocaleDateString()"></span>
+                                                <td class="px-4 py-3 text-sm text-center">
+                                                    <span
+                                                        class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-blue-700 bg-blue-100 rounded-full"
+                                                        x-text="role.user_count || 0">
+                                                    </span>
                                                 </td>
                                                 <td class="px-4 py-3 text-sm">
                                                     <div class="w-full flex flex-row items-center justify-center gap-2">
