@@ -244,6 +244,11 @@ function productManagement() {
           this.openRestoreModal = false;
           this.message = "Produk berhasil dipulihkan";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan produk.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error restoring data:', error);
@@ -281,6 +286,11 @@ function productManagement() {
           this.openDeletePermanentModal = false;
           this.message = "Produk berhasil dihapus permanen";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus produk permanen.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error deleting data:', error);
@@ -361,6 +371,11 @@ function productManagement() {
           this.openRestoreModal = false;
           this.message = "Kategori berhasil dipulihkan";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan kategori.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error restoring category:', error);
@@ -395,6 +410,11 @@ function productManagement() {
           this.openDeletePermanentModal = false;
           this.message = "Kategori berhasil dihapus permanen";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus kategori permanen.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -475,6 +495,11 @@ function productManagement() {
           this.openRestoreModal = false;
           this.message = "Lokasi berhasil dipulihkan";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan lokasi.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error restoring location:', error);
@@ -509,6 +534,11 @@ function productManagement() {
           this.openDeletePermanentModal = false;
           this.message = "Lokasi berhasil dihapus permanen";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus lokasi permanen.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error deleting location:', error);
@@ -896,6 +926,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openAddProductModal = false;
           this.error = data.message || "Gagal menambahkan produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -942,6 +973,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openEditProductModal = false;
           this.error = data.message || "Gagal memperbarui produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -970,6 +1002,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteProductModal = false;
           this.error = data.message || "Gagal menghapus produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1004,6 +1037,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openAddCategoryModal = false;
           this.error = data.message || "Gagal menambahkan kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1041,6 +1075,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openEditCategoryModal = false;
           this.error = data.message || "Gagal memperbarui kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1069,6 +1104,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteCategoryModal = false;
           this.error = data.message || "Gagal menghapus kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1121,6 +1157,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openAddLocationModal = false;
           this.error = data.message || "Gagal menambah lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1157,6 +1194,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openEditLocationModal = false;
           this.error = data.message || "Gagal memperbarui lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1185,6 +1223,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteLocationModal = false;
           this.error = data.message || "Gagal menghapus lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }

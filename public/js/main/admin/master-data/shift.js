@@ -520,6 +520,11 @@ function shiftManagement() {
           this.openRestoreModal = false;
           this.message = "Kasir berhasil dipulihkan";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan kasir.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error restoring data:', error);
@@ -556,6 +561,11 @@ function shiftManagement() {
           this.openDeletePermanentModal = false;
           this.message = "Kasir berhasil dihapus permanen";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus kasir permanen.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error deleting data:', error);
@@ -592,6 +602,11 @@ function shiftManagement() {
           this.openRestoreModal = false;
           this.message = "Shift berhasil dipulihkan";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan shift.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error restoring shift:', error);
@@ -626,6 +641,11 @@ function shiftManagement() {
           this.openDeletePermanentModal = false;
           this.message = "Shift berhasil dihapus permanen";
           setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus shift permanen.";
+          setTimeout(() => (this.error = ""), 3000);
         }
       } catch (error) {
         console.error('Error deleting shift:', error);

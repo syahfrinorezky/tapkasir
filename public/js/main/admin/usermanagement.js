@@ -271,7 +271,7 @@ function userManagement() {
         });
 
         const data = await res.json();
-        
+
         this.isAddingRole = false;
 
         if (res.ok) {
@@ -311,7 +311,7 @@ function userManagement() {
         });
 
         const data = await res.json();
-        
+
         this.isEditingRole = false;
 
         if (res.ok) {
@@ -367,7 +367,7 @@ function userManagement() {
           }),
         });
         const data = await res.json();
-        
+
         if (this.approvingUserId === id) this.approvingUserId = null;
         if (this.rejectingUserId === id) this.rejectingUserId = null;
 
@@ -406,7 +406,7 @@ function userManagement() {
           }
         );
         const data = await res.json();
-        
+
         this.isUpdatingInfo = false;
 
         if (res.ok) {
@@ -433,7 +433,7 @@ function userManagement() {
           method: "DELETE",
         });
         const data = await res.json();
-        
+
         this.isDeletingUser = false;
 
         if (res.ok) {
@@ -464,7 +464,7 @@ function userManagement() {
           },
         });
         const data = await res.json();
-        
+
         this.isDeletingRole = false;
 
         if (res.ok) {
@@ -496,250 +496,270 @@ function userManagement() {
     },
 
     toggleTrashUsers() {
-        this.showTrashUsers = !this.showTrashUsers;
-        if (this.showTrashUsers) this.fetchTrashUsers();
+      this.showTrashUsers = !this.showTrashUsers;
+      if (this.showTrashUsers) this.fetchTrashUsers();
     },
     async fetchTrashUsers() {
-        try {
-            const response = await fetch('/admin/users/trash/data');
-            const data = await response.json();
-            this.trashUsers = data.users || [];
-        } catch (error) {
-            console.error('Error fetching trash data:', error);
-        }
+      try {
+        const response = await fetch('/admin/users/trash/data');
+        const data = await response.json();
+        this.trashUsers = data.users || [];
+      } catch (error) {
+        console.error('Error fetching trash data:', error);
+      }
     },
     toggleTrashRoles() {
-        this.showTrashRoles = !this.showTrashRoles;
-        if (this.showTrashRoles) this.fetchTrashRoles();
+      this.showTrashRoles = !this.showTrashRoles;
+      if (this.showTrashRoles) this.fetchTrashRoles();
     },
     async fetchTrashRoles() {
-        try {
-            const response = await fetch('/admin/roles/trash/data');
-            const data = await response.json();
-            this.trashRoles = data.roles || [];
-        } catch (error) {
-            console.error('Error fetching role trash data:', error);
-        }
+      try {
+        const response = await fetch('/admin/roles/trash/data');
+        const data = await response.json();
+        this.trashRoles = data.roles || [];
+      } catch (error) {
+        console.error('Error fetching role trash data:', error);
+      }
     },
 
     toggleSelectAllTrashUsers(e) {
-        if (e.target.checked) {
-            this.selectedTrashUsers = this.trashUsers.map(u => u.id);
-        } else {
-            this.selectedTrashUsers = [];
-        }
+      if (e.target.checked) {
+        this.selectedTrashUsers = this.trashUsers.map(u => u.id);
+      } else {
+        this.selectedTrashUsers = [];
+      }
     },
     restoreSelectedUsers() {
-        this.trashType = 'user';
-        this.restoreMode = 'multiple';
-        this.openRestoreModal = true;
+      this.trashType = 'user';
+      this.restoreMode = 'multiple';
+      this.openRestoreModal = true;
     },
     deletePermanentSelectedUsers() {
-        this.trashType = 'user';
-        this.deletePermanentMode = 'multiple';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'user';
+      this.deletePermanentMode = 'multiple';
+      this.openDeletePermanentModal = true;
     },
 
     toggleSelectAllTrashRoles(e) {
-        if (e.target.checked) {
-            this.selectedTrashRoles = this.trashRoles.map(r => r.id);
-        } else {
-            this.selectedTrashRoles = [];
-        }
+      if (e.target.checked) {
+        this.selectedTrashRoles = this.trashRoles.map(r => r.id);
+      } else {
+        this.selectedTrashRoles = [];
+      }
     },
     restoreSelectedRoles() {
-        this.trashType = 'role';
-        this.restoreMode = 'multiple';
-        this.openRestoreModal = true;
+      this.trashType = 'role';
+      this.restoreMode = 'multiple';
+      this.openRestoreModal = true;
     },
     deletePermanentSelectedRoles() {
-        this.trashType = 'role';
-        this.deletePermanentMode = 'multiple';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'role';
+      this.deletePermanentMode = 'multiple';
+      this.openDeletePermanentModal = true;
     },
 
     getTrashLabel() {
-        return this.trashType === 'user' ? 'Pengguna' : 'Role';
+      return this.trashType === 'user' ? 'Pengguna' : 'Role';
     },
     getTrashItemName() {
-        if (this.restoreMode === 'multiple' || this.deletePermanentMode === 'multiple') {
-            return `${this.getTrashSelectedCount()} item dipilih`;
-        }
-        if (this.trashType === 'user') return this.selectedTrashItem?.nama_lengkap;
-        return this.selectedTrashItem?.role_name;
+      if (this.restoreMode === 'multiple' || this.deletePermanentMode === 'multiple') {
+        return `${this.getTrashSelectedCount()} item dipilih`;
+      }
+      if (this.trashType === 'user') return this.selectedTrashItem?.nama_lengkap;
+      return this.selectedTrashItem?.role_name;
     },
     getTrashSelectedCount() {
-        return this.trashType === 'user' ? this.selectedTrashUsers.length : this.selectedTrashRoles.length;
+      return this.trashType === 'user' ? this.selectedTrashUsers.length : this.selectedTrashRoles.length;
     },
 
     confirmRestoreUser(id) {
-        this.trashType = 'user';
-        this.selectedTrashItem = this.trashUsers.find(u => u.id === id);
-        this.restoreMode = 'single';
-        this.openRestoreModal = true;
+      this.trashType = 'user';
+      this.selectedTrashItem = this.trashUsers.find(u => u.id === id);
+      this.restoreMode = 'single';
+      this.openRestoreModal = true;
     },
     confirmDeletePermanentUser(id) {
-        this.trashType = 'user';
-        this.selectedTrashItem = this.trashUsers.find(u => u.id === id);
-        this.deletePermanentMode = 'single';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'user';
+      this.selectedTrashItem = this.trashUsers.find(u => u.id === id);
+      this.deletePermanentMode = 'single';
+      this.openDeletePermanentModal = true;
     },
     confirmRestoreRole(id) {
-        this.trashType = 'role';
-        this.selectedTrashItem = this.trashRoles.find(r => r.id === id);
-        this.restoreMode = 'single';
-        this.openRestoreModal = true;
+      this.trashType = 'role';
+      this.selectedTrashItem = this.trashRoles.find(r => r.id === id);
+      this.restoreMode = 'single';
+      this.openRestoreModal = true;
     },
     confirmDeletePermanentRole(id) {
-        this.trashType = 'role';
-        this.selectedTrashItem = this.trashRoles.find(r => r.id === id);
-        this.deletePermanentMode = 'single';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'role';
+      this.selectedTrashItem = this.trashRoles.find(r => r.id === id);
+      this.deletePermanentMode = 'single';
+      this.openDeletePermanentModal = true;
     },
 
     async processRestore() {
-        if (this.trashType === 'role') return this.processRestoreRole();
+      if (this.trashType === 'role') return this.processRestoreRole();
 
-        this.isRestoring = true;
-        try {
-            let url = '/admin/users/restore';
-            let body = {};
-            
-            if (this.restoreMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashUsers };
-            }
+      this.isRestoring = true;
+      try {
+        let url = '/admin/users/restore';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashUsers();
-                await this.fetchUsers('approved');
-                await this.fetchUsers('pending');
-                this.selectedTrashUsers = [];
-                this.openRestoreModal = false;
-                this.message = "Pengguna berhasil dipulihkan";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error restoring data:', error);
-        } finally {
-            this.isRestoring = false;
+        if (this.restoreMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashUsers };
         }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashUsers();
+          await this.fetchUsers('approved');
+          await this.fetchUsers('pending');
+          this.selectedTrashUsers = [];
+          this.openRestoreModal = false;
+          this.message = "Pengguna berhasil dipulihkan";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan pengguna.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error restoring data:', error);
+      } finally {
+        this.isRestoring = false;
+      }
     },
     async processDeletePermanent() {
-        if (this.trashType === 'role') return this.processDeletePermanentRole();
+      if (this.trashType === 'role') return this.processDeletePermanentRole();
 
-        this.isDeletingPermanent = true;
-        try {
-            let url = '/admin/users/deletePermanent';
-            let body = {};
-            
-            if (this.deletePermanentMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashUsers };
-            }
+      this.isDeletingPermanent = true;
+      try {
+        let url = '/admin/users/deletePermanent';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashUsers();
-                this.selectedTrashUsers = [];
-                this.openDeletePermanentModal = false;
-                this.message = "Pengguna berhasil dihapus permanen";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error deleting data:', error);
-        } finally {
-            this.isDeletingPermanent = false;
+        if (this.deletePermanentMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashUsers };
         }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashUsers();
+          this.selectedTrashUsers = [];
+          this.openDeletePermanentModal = false;
+          this.message = "Pengguna berhasil dihapus permanen";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus pengguna permanen.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting data:', error);
+      } finally {
+        this.isDeletingPermanent = false;
+      }
     },
 
     async processRestoreRole() {
-        this.isRestoringRole = true;
-        try {
-            let url = '/admin/roles/restore';
-            let body = {};
-            
-            if (this.restoreMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashRoles };
-            }
+      this.isRestoringRole = true;
+      try {
+        let url = '/admin/roles/restore';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashRoles();
-                await this.fetchRoles();
-                this.selectedTrashRoles = [];
-                this.openRestoreModal = false;
-                this.message = "Role berhasil dipulihkan";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error restoring role:', error);
-        } finally {
-            this.isRestoringRole = false;
+        if (this.restoreMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashRoles };
         }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashRoles();
+          await this.fetchRoles();
+          this.selectedTrashRoles = [];
+          this.openRestoreModal = false;
+          this.message = "Role berhasil dipulihkan";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan role.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error restoring role:', error);
+      } finally {
+        this.isRestoringRole = false;
+      }
     },
     async processDeletePermanentRole() {
-        this.isDeletingPermanentRole = true;
-        try {
-            let url = '/admin/roles/deletePermanent';
-            let body = {};
-            
-            if (this.deletePermanentMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashRoles };
-            }
+      this.isDeletingPermanentRole = true;
+      try {
+        let url = '/admin/roles/deletePermanent';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashRoles();
-                this.selectedTrashRoles = [];
-                this.openDeletePermanentModal = false;
-                this.message = "Role berhasil dihapus permanen";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error deleting role:', error);
-        } finally {
-            this.isDeletingPermanentRole = false;
+        if (this.deletePermanentMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashRoles };
         }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashRoles();
+          this.selectedTrashRoles = [];
+          this.openDeletePermanentModal = false;
+          this.message = "Role berhasil dihapus permanen";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus role permanen.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting role:', error);
+      } finally {
+        this.isDeletingPermanentRole = false;
+      }
     },
   };
 }
