@@ -159,6 +159,7 @@ $routes->group('cashier', ['filter' => 'role:kasir'], function ($routes) {
     $routes->get('transactions/receipt/(:num)', [CashierTransactionController::class, 'receipt']);
     $routes->post('transactions/create', [CashierTransactionController::class, 'create']);
     $routes->post('transactions/finish', [CashierTransactionController::class, 'finishPayment']);
+    $routes->post('transactions/cancel', [CashierTransactionController::class, 'cancel']);
     // Shift status
     $routes->get('shift/status', [CashierTransactionController::class, 'shiftStatus']);
 

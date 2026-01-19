@@ -392,7 +392,24 @@ function cashierTransactions(baseUrl = "") {
             onError: (result) => {
               this.error = "Pembayaran Gagal!";
             },
-            onClose: () => {},
+            onClose: async () => {
+              try {
+                await fetch("/cashier/transactions/cancel", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                  },
+                  body: JSON.stringify({
+                    transaction_id: json.transaction_id,
+                  }),
+                });
+                this.message = "Transaksi dibatalkan";
+                setTimeout(() => (this.message = ""), 3000);
+              } catch (e) {
+                console.error("Failed to cancel transaction", e);
+              }
+            },
           });
         } else {
           this.isLoading = false;

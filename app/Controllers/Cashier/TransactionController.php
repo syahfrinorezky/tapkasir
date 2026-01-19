@@ -329,6 +329,58 @@ class TransactionController extends BaseController
         return $this->response->setJSON(['message' => 'Payment finished']);
     }
 
+    public function cancel()
+    {
+        $data = $this->request->getJSON(true);
+        $transactionId = $data['transaction_id'] ?? null;
+
+        if (!$transactionId) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaction ID required']);
+        }
+
+        $userId = session('user_id');
+        $transactionModel = new TransactionModel();
+        $itemModel = new TransactionItemModel();
+        $batchModel = new ProductBatchModel();
+
+        $tx = $transactionModel->where('id', $transactionId)->where('user_id', $userId)->first();
+        if (!$tx) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'Transaksi tidak ditemukan']);
+        }
+
+        if ($tx['status'] === 'completed') {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaksi sudah selesai, tidak bisa dibatalkan']);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $items = $itemModel->where('transaction_id', $transactionId)->findAll();
+            foreach ($items as $item) {
+                if (!empty($item['batch_id'])) {
+                    $batchModel->where('id', $item['batch_id'])
+                        ->increment('current_stock', (int)$item['quantity']);
+                }
+            }
+
+            // Soft delete transaction & items
+            $transactionModel->delete($transactionId);
+            $itemModel->where('transaction_id', $transactionId)->delete();
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal membatalkan transaksi');
+            }
+
+            return $this->response->setJSON(['message' => 'Transaksi dibatalkan']);
+        } catch (\Throwable $th) {
+            $db->transRollback();
+            return $this->response->setStatusCode(500)->setJSON(['message' => $th->getMessage()]);
+        }
+    }
+
     public function receipt($id)
     {
         $transactionModel = new TransactionModel();
