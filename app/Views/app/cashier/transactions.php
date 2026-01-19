@@ -28,6 +28,34 @@ Transaksi Kasir
             <div class="px-4 md:px-6 lg:px-8">
                 <?= $this->include('components/notifications') ?>
 
+                <div x-show="pendingTransaction" x-transition class="fixed top-20 right-5 left-5 md:left-auto md:w-[400px] z-50">
+                    <div class="bg-blue-50 border border-blue-200 text-blue-900 px-4 py-4 rounded-md shadow-lg">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-info-circle mt-1"></i>
+                                <div>
+                                    <div class="font-bold">Transaksi Tertunda (QRIS)</div>
+                                    <div class="text-sm">Menunggu pembayaran untuk transaksi sebelumnya.</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 justify-end">
+                                <button
+                                    @click="cancelPendingTransaction()"
+                                    :disabled="isLoading"
+                                    class="px-3 py-1.5 text-xs font-medium text-red-600 bg-white border border-red-200 rounded hover:bg-red-50 disabled:opacity-50">
+                                    Batalkan
+                                </button>
+                                <button
+                                    @click="continuePendingTransaction()"
+                                    :disabled="isLoading"
+                                    class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
+                                    Lanjutkan Bayar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <template x-if="showShiftWarning">
                     <div class="fixed top-20 right-5 left-5 md:left-auto md:w-[360px] bg-yellow-50 border border-yellow-200 text-yellow-900 px-4 py-3 rounded-md shadow z-50">
                         <div class="flex items-start gap-2">
@@ -257,7 +285,7 @@ Transaksi Kasir
 
                                 <button
                                     @click="submitTransaction()"
-                                    :disabled="isLoading || cart.length === 0 || (paymentMethod === 'cash' && payment < total)"
+                                    :disabled="isLoading || cart.length === 0 || (paymentMethod === 'cash' && payment < total) || pendingTransaction"
                                     class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
                                     <template x-if="isLoading">
                                         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -265,7 +293,7 @@ Transaksi Kasir
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
                                     </template>
-                                    <span x-text="isLoading ? 'Memproses...' : (paymentMethod === 'qris' ? 'Generate QRIS' : 'Bayar')"></span>
+                                    <span x-text="isLoading ? 'Memproses...' : (pendingTransaction ? 'Selesaikan Pending' : (paymentMethod === 'qris' ? 'Generate QRIS' : 'Bayar'))"></span>
                                 </button>
 
                                 <template x-if="paymentMethod === 'cash' && payment > 0 && payment < total">
