@@ -373,9 +373,9 @@ function cashierTransactions(baseUrl = "") {
               setTimeout(() => (this.error = ""), 3000);
             },
             onClose: () => {
-              // CHANGED: Tidak auto-cancel, hanya beri notifikasi
-              this.message = "Pembayaran dapat dilanjutkan nanti. Refresh halaman untuk melanjutkan.";
-              setTimeout(() => (this.message = ""), 5000);
+              this.message = "Pembayaran dapat dilanjutkan nanti.";
+              setTimeout(() => (this.message = ""), 3000);
+              this.checkPendingTransaction();
             },
           });
         } else {
@@ -446,9 +446,10 @@ function cashierTransactions(baseUrl = "") {
           setTimeout(() => (this.error = ''), 3000);
         },
         onClose: () => {
-          // Jangan auto-cancel, biarkan pending
+          // Jangan auto-cancel, biarkan pending dan munculkan kembali banner
           this.message = 'Anda dapat melanjutkan pembayaran nanti';
           setTimeout(() => (this.message = ''), 3000);
+          this.checkPendingTransaction();
         },
       });
 

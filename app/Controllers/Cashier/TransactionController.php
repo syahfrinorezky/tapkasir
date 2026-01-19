@@ -390,8 +390,11 @@ class TransactionController extends BaseController
                 }
             }
 
-            // Soft delete transaction & items
-            $transactionModel->delete($transactionId);
+            $transactionModel->update($transactionId, [
+                'payment_status' => 'cancelled',
+                'deleted_at' => date('Y-m-d H:i:s')
+            ]);
+
             $itemModel->where('transaction_id', $transactionId)->delete();
 
             $db->transComplete();
