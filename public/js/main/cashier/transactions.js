@@ -392,7 +392,27 @@ function cashierTransactions(baseUrl = "") {
             onError: (result) => {
               this.error = "Pembayaran Gagal!";
             },
-            onClose: () => {},
+            onClose: () => {
+              const txId = json.transaction_id;
+              if (txId) {
+                fetch("/cashier/transactions/cancel", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                  },
+                  body: JSON.stringify({
+                    transaction_id: txId,
+                  }),
+                })
+                  .then((r) => r.json())
+                  .then((d) => {
+                    this.message = "Transaksi dibatalkan";
+                    setTimeout(() => (this.message = ""), 3000);
+                  })
+                  .catch((e) => console.error("Cancel failed", e));
+              }
+            },
           });
         } else {
           this.isLoading = false;

@@ -121,7 +121,6 @@ class TransactionController extends BaseController
 
         $paymentMethod = $data['payment_method'] ?? 'cash';
         $paymentStatus = ($paymentMethod === 'cash') ? 'paid' : 'pending';
-        $status = ($paymentMethod === 'cash') ? 'completed' : 'pending';
 
         do {
             $attempt++;
@@ -205,7 +204,6 @@ class TransactionController extends BaseController
                     'total' => $total,
                     'payment' => $data['payment'] ?? 0,
                     'change' => max(0, ($data['payment'] ?? 0) - $total),
-                    'status' => $status,
                     'payment_method' => $paymentMethod,
                     'payment_status' => $paymentStatus,
                     'created_at' => $now->toDateTimeString()
@@ -319,7 +317,6 @@ class TransactionController extends BaseController
         }
 
         $updateData = [
-            'status' => 'completed',
             'payment_status' => 'paid',
             'midtrans_id' => $midtransId,
         ];
@@ -327,6 +324,58 @@ class TransactionController extends BaseController
         $transactionModel->update($transactionId, $updateData);
 
         return $this->response->setJSON(['message' => 'Payment finished']);
+    }
+
+    public function cancel()
+    {
+        $data = $this->request->getJSON(true);
+        $transactionId = $data['transaction_id'] ?? null;
+
+        if (!$transactionId) {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaction ID required']);
+        }
+
+        $userId = session('user_id');
+        $transactionModel = new TransactionModel();
+        $itemModel = new TransactionItemModel();
+        $batchModel = new ProductBatchModel();
+
+        $tx = $transactionModel->where('id', $transactionId)->where('user_id', $userId)->first();
+        if (!$tx) {
+            return $this->response->setJSON(['message' => 'Transaksi sudah dibatalkan atau tidak ditemukan']);
+        }
+
+        if ($tx['payment_status'] === 'paid') {
+            return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaksi sudah selesai, tidak bisa dibatalkan']);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $items = $itemModel->where('transaction_id', $transactionId)->findAll();
+            foreach ($items as $item) {
+                if (!empty($item['batch_id'])) {
+                    $batchModel->where('id', $item['batch_id'])
+                        ->increment('current_stock', (int)$item['quantity']);
+                }
+            }
+
+            // Soft delete transaction & items
+            $transactionModel->delete($transactionId);
+            $itemModel->where('transaction_id', $transactionId)->delete();
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal membatalkan transaksi');
+            }
+
+            return $this->response->setJSON(['message' => 'Transaksi dibatalkan']);
+        } catch (\Throwable $th) {
+            $db->transRollback();
+            return $this->response->setStatusCode(500)->setJSON(['message' => $th->getMessage()]);
+        }
     }
 
     public function receipt($id)
@@ -452,6 +501,7 @@ class TransactionController extends BaseController
             ->join('cashier_works', 'cashier_works.id = transactions.cashier_work_id', 'left')
             ->join('shifts', 'shifts.id = cashier_works.shift_id', 'left')
             ->where('transactions.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->where('transactions.user_id', $userId);
 
         if (!empty($date)) {
@@ -489,7 +539,7 @@ class TransactionController extends BaseController
         }
 
         $items = $itemModel
-            ->select('transaction_items.*, products.product_name, products.price as selling_price, product_batches.purchase_price as purchase_price')
+            ->select('transaction_items.*, products.product_name, product_batches.purchase_price as purchase_price')
             ->join('products', 'products.id = transaction_items.product_id', 'left')
             ->join('product_batches', 'product_batches.id = transaction_items.batch_id', 'left')
             ->where('transaction_items.transaction_id', $transactionId)
@@ -497,10 +547,13 @@ class TransactionController extends BaseController
             ->findAll();
 
         foreach ($items as &$it) {
-            $sp = (float) ($it['selling_price'] ?? 0);
-            $pp = (float) ($it['purchase_price'] ?? 0);
             $qty = (int) ($it['quantity'] ?? 0);
-            $it['profit'] = ($sp - $pp) * $qty;
+            $subtotal = (float) ($it['subtotal'] ?? 0);
+            $sp = $qty > 0 ? $subtotal / $qty : 0;
+            $pp = (float) ($it['purchase_price'] ?? 0);
+
+            $it['selling_price'] = $sp;
+            $it['profit'] = $subtotal - ($pp * $qty);
             $it['margin'] = $sp - $pp;
         }
 
