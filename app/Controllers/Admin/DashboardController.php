@@ -26,12 +26,14 @@ class DashboardController extends BaseController
         $todaySales = $transactionModel
             ->selectSum('total')
             ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('payment_status', 'paid')
             ->get()
             ->getRow()
             ->total ?? 0;
 
         $todayTransactions = $transactionModel
             ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('payment_status', 'paid')
             ->countAllResults();
 
         $transactionItemModel = new \App\Models\TransactionItemModel();
@@ -39,6 +41,7 @@ class DashboardController extends BaseController
             ->selectSum('transaction_items.quantity')
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
             ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->where('transactions.payment_status', 'paid')
             ->get()
             ->getRow()
             ->quantity ?? 0;
@@ -54,6 +57,7 @@ class DashboardController extends BaseController
         $salesData = $transactionModel
             ->select('DATE(transaction_date) as date, SUM(total) as total')
             ->where('transaction_date >=', date('Y-m-d', strtotime('-6 days')))
+            ->where('payment_status', 'paid')
             ->groupBy('DATE(transaction_date)')
             ->orderBy('DATE(transaction_date)', 'ASC')
             ->findAll();
@@ -79,6 +83,7 @@ class DashboardController extends BaseController
         $hourlySalesData = $transactionModel
             ->select('HOUR(transaction_date) as hour, SUM(total) as total')
             ->where('DATE(transaction_date)', date('Y-m-d'))
+            ->where('payment_status', 'paid')
             ->groupBy('HOUR(transaction_date)')
             ->orderBy('HOUR(transaction_date)', 'ASC')
             ->findAll();
@@ -99,6 +104,7 @@ class DashboardController extends BaseController
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
             ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
+            ->where('transactions.payment_status', 'paid')
             ->groupBy('transaction_items.product_id')
             ->orderBy('total_sold', 'DESC')
             ->limit(6)
@@ -113,6 +119,7 @@ class DashboardController extends BaseController
         $recentTransactions = $transactionModel
             ->select('transactions.*, users.nama_lengkap as cashier_name')
             ->join('users', 'users.id = transactions.user_id')
+            ->where('payment_status', 'paid')
             ->orderBy('transaction_date', 'DESC')
             ->limit(5)
             ->findAll();

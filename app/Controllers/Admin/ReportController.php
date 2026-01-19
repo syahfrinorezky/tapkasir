@@ -23,18 +23,16 @@ class ReportController extends BaseController
         $startDate = $this->request->getGet('start_date') ?? date('Y-m-01');
         $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
 
-        // 1. Summary Data (Revenue, Transactions)
         $summary = $transactionModel
             ->selectSum('total', 'total_sales')
             ->selectCount('id', 'total_transactions')
             ->where('DATE(transaction_date) >=', $startDate)
             ->where('DATE(transaction_date) <=', $endDate)
             ->where('deleted_at', null)
+            ->where('payment_status', 'paid')
             ->get()
             ->getRowArray();
 
-        // 2. Profit Calculation (Requires joining items and batches)
-        // Profit = Sum(item.subtotal - (item.quantity * batch.purchase_price))
         $profitData = $transactionItemModel
             ->selectSum('transaction_items.subtotal', 'total_revenue')
             ->select('SUM(transaction_items.quantity * COALESCE(product_batches.purchase_price, 0)) as total_cogs')
@@ -45,6 +43,7 @@ class ReportController extends BaseController
             ->where('DATE(transactions.transaction_date) <=', $endDate)
             ->where('transactions.deleted_at', null)
             ->where('transaction_items.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->get()
             ->getRowArray();
 
@@ -64,6 +63,7 @@ class ReportController extends BaseController
             ->where('DATE(transactions.transaction_date) <=', $endDate)
             ->where('transactions.deleted_at', null)
             ->where('transaction_items.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->groupBy('DATE(transactions.transaction_date)')
             ->orderBy('date', 'ASC')
             ->findAll();
@@ -85,6 +85,7 @@ class ReportController extends BaseController
             ->where('DATE(transaction_date) >=', $startDate)
             ->where('DATE(transaction_date) <=', $endDate)
             ->where('deleted_at', null)
+            ->where('payment_status', 'paid')
             ->groupBy('HOUR(transaction_date)')
             ->orderBy('hour', 'ASC')
             ->findAll();
@@ -99,6 +100,7 @@ class ReportController extends BaseController
             ->where('DATE(transactions.transaction_date) <=', $endDate)
             ->where('transactions.deleted_at', null)
             ->where('transaction_items.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->groupBy('categories.id') // Group by ID to handle same names
             ->orderBy('total_sales', 'DESC')
             ->findAll();
@@ -117,6 +119,7 @@ class ReportController extends BaseController
             ->where('DATE(transactions.transaction_date) <=', $endDate)
             ->where('transactions.deleted_at', null)
             ->where('transaction_items.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->groupBy('products.id')
             ->orderBy('revenue', 'DESC')
             ->limit(10)
@@ -142,6 +145,7 @@ class ReportController extends BaseController
             ->where('DATE(transaction_date) >=', $startDate)
             ->where('DATE(transaction_date) <=', $endDate)
             ->where('transactions.deleted_at', null)
+            ->where('transactions.payment_status', 'paid')
             ->groupBy('users.id')
             ->orderBy('total_sales', 'DESC')
             ->findAll();
