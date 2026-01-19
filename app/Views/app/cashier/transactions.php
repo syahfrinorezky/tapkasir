@@ -52,36 +52,33 @@ Transaksi Kasir
                     </div>
                 </template>
 
-                <!-- Integrated Pending Transaction Banner -->
+                <!-- Minimalist Pending Transaction Bar -->
                 <template x-if="pendingTransaction">
-                    <div x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 -translate-y-4"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        class="mb-6 bg-gradient-to-r from-primary/10 to-primary/5 border-l-4 border-primary p-4 rounded-r-lg shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
+                    <div x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        class="mb-4 bg-white border border-primary/20 rounded-xl px-4 py-2.5 shadow-sm flex flex-col md:flex-row items-center gap-3">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
                             <div
-                                class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center text-primary">
-                                <i class="fas fa-clock-rotate-left text-xl"></i>
+                                class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+                                <i class="fas fa-rotate-right text-xs animate-spin-slow"></i>
                             </div>
-                            <div>
-                                <h3 class="text-sm font-bold text-gray-900">Pembayaran QRIS Tertunda</h3>
-                                <p class="text-xs text-gray-600">
-                                    Transaksi <span class="font-mono font-bold"
-                                        x-text="pendingTransaction.no_transaction"></span>
-                                    sebesar <span class="font-bold text-primary"
-                                        x-text="formatCurrency(pendingTransaction.total)"></span> belum diselesaikan.
-                                </p>
+                            <div class="truncate text-sm">
+                                <span class="text-gray-500">QRIS Pending:</span>
+                                <span class="font-bold text-gray-900" x-text="pendingTransaction.no_transaction"></span>
+                                <span class="mx-1 text-gray-300">|</span>
+                                <span class="font-bold text-primary"
+                                    x-text="formatCurrency(pendingTransaction.total)"></span>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 w-full md:w-auto">
+                        <div class="flex items-center gap-2">
                             <button @click="cancelPendingTransaction()"
-                                class="flex-1 md:flex-none px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2">
-                                <i class="fas fa-trash-can"></i> Batalkan
+                                class="h-8 px-3 text-[11px] font-bold text-gray-400 hover:text-red-500 rounded-lg transition-all flex items-center gap-1.5 uppercase tracking-wider">
+                                <i class="fas fa-times-circle"></i> Batalkan
                             </button>
                             <button @click="resumePendingPayment()"
-                                class="flex-1 md:flex-none px-6 py-2 text-xs font-bold bg-primary text-white rounded-lg hover:bg-primary/90 shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-qrcode"></i> Lanjutkan Pembayaran
+                                class="h-8 px-4 text-[11px] font-bold bg-primary text-white rounded-lg hover:bg-primary/90 transition-all flex items-center gap-1.5 uppercase tracking-wider">
+                                <i class="fas fa-qrcode"></i> Lanjutkan
                             </button>
                         </div>
                     </div>
