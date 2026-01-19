@@ -98,7 +98,7 @@ Dashboard Admin
 
                         <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/3 flex flex-col">
                             <div class="flex items-center justify-between mb-4">
-                                <h2 class="font-bold text-gray-700">Top 3 Produk Hari Ini</h2>
+                                <h2 class="font-bold text-gray-700">Top 4 Produk Hari Ini</h2>
                                 <a href="<?= base_url('admin/products') ?>" class="text-xs text-primary hover:underline">Lihat Semua</a>
                             </div>
                             <div class="flex-1 overflow-y-auto flex flex-col pr-1">
@@ -109,16 +109,16 @@ Dashboard Admin
                                     </div>
                                 </template>
                                 <div class="grid grid-cols-1 gap-3" x-show="data.topProducts.length > 0">
-                                    <template x-for="(product, index) in data.topProducts.slice(0, 3)" :key="index">
-                                        <div class="flex bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 gap-3">
+                                    <template x-for="(product, index) in data.topProducts.slice(0, 4)" :key="index">
+                                        <div class="flex bg-white border border-gray-100 rounded-lg p-2.5 hover:shadow-md transition-shadow duration-200 gap-3">
                                             <!-- Product Image -->
-                                            <div class="w-20 h-20 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-100">
+                                            <div class="w-16 h-16 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-100">
                                                 <template x-if="product.photo">
                                                     <img :src="product.photo" class="w-full h-full object-cover">
                                                 </template>
                                                 <template x-if="!product.photo">
                                                     <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                                        <i class="fas fa-image text-xl"></i>
+                                                        <i class="fas fa-image text-lg"></i>
                                                     </div>
                                                 </template>
                                             </div>
@@ -126,15 +126,15 @@ Dashboard Admin
                                             <!-- Product Info -->
                                             <div class="flex-1 flex flex-col justify-between min-w-0">
                                                 <div>
-                                                    <div class="text-xs text-gray-500 mb-0.5" x-text="product.category_name || 'Uncategorized'"></div>
-                                                    <h3 class="text-sm font-semibold text-gray-800 leading-tight truncate" :title="product.name" x-text="product.name"></h3>
+                                                    <div class="text-[10px] uppercase tracking-wider text-gray-500 font-medium" x-text="product.category_name || 'Uncategorized'"></div>
+                                                    <h3 class="text-xs font-bold text-gray-800 leading-tight truncate mt-0.5" :title="product.name" x-text="product.name"></h3>
                                                 </div>
                                                 
-                                                <div class="flex items-end justify-between mt-2">
-                                                    <span class="text-sm font-bold text-primary" x-text="formatRupiah(product.price)"></span>
+                                                <div class="flex items-end justify-between">
+                                                    <span class="text-xs font-bold text-primary" x-text="formatRupiah(product.price)"></span>
                                                     
-                                                    <div class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs font-semibold border border-green-100">
-                                                        <i class="fas fa-chart-line text-[10px]"></i>
+                                                    <div class="flex items-center gap-1 bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-green-100">
+                                                        <i class="fas fa-chart-line text-[9px]"></i>
                                                         <span x-text="product.total_sold"></span>
                                                         <span>Sold</span>
                                                     </div>
