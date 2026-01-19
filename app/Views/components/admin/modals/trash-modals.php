@@ -13,7 +13,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white" x-text="'Pulihkan ' + getTrashLabel()"></h3>
-            <button @click="openRestoreModal = false" class="p-2 rounded hover:bg-primary/80">
+            <button @click="openRestoreModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>
@@ -61,7 +61,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white" x-text="'Hapus Permanen ' + getTrashLabel()"></h3>
-            <button @click="openDeletePermanentModal = false" class="p-2 rounded hover:bg-primary/80">
+            <button @click="openDeletePermanentModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>

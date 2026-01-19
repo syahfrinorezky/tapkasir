@@ -14,7 +14,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white">Hapus Pengguna</h3>
-            <button @click="openDeleteModal = false" class="p-2 rounded hover:bg-gray-100">
+            <button @click="openDeleteModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>
@@ -226,7 +226,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white">Hapus Role</h3>
-            <button @click="openRoleDeleteModal = false" class="p-2 rounded hover:bg-gray-100">
+            <button @click="openRoleDeleteModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>

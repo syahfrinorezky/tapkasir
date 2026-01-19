@@ -14,7 +14,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white">Hapus Produk</h3>
-            <button @click="openDeleteProductModal = false" class="p-2 rounded hover:bg-gray-100">
+            <button @click="openDeleteProductModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>
@@ -58,7 +58,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white">Hapus Kategori</h3>
-            <button @click="openDeleteCategoryModal = false" class="p-2 rounded hover:bg-gray-100">
+            <button @click="openDeleteCategoryModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>
@@ -609,7 +609,7 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
         <div class="bg-primary flex items-center justify-between px-5 py-4">
             <h3 class="text-lg font-semibold text-white">Hapus Lokasi</h3>
-            <button @click="openDeleteLocationModal = false" class="p-2 rounded hover:bg-gray-100">
+            <button @click="openDeleteLocationModal = false" class="p-2 rounded hover:bg-white/10">
                 <i class="fas fa-times text-white"></i>
             </button>
         </div>
