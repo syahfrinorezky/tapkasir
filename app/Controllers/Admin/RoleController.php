@@ -14,13 +14,11 @@ class RoleController extends BaseController
 
         if ($this->request->isAJAX()) {
             $query = $roleModel
-                ->select('id, role_name, created_at')
-                ->where('deleted_at', null)
+                ->select('roles.id, roles.role_name, roles.created_at, COUNT(users.id) as user_count')
+                ->join('users', 'users.role_id = roles.id AND users.deleted_at IS NULL', 'left')
+                ->where('roles.deleted_at', null)
+                ->groupBy('roles.id')
                 ->findAll();
-
-            foreach ($query as $role) {
-                $role['created_at'] = date('Y-m-d', strtotime($role['created_at']));
-            }
 
             return $this->response->setJSON($query);
         }
