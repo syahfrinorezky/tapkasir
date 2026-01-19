@@ -108,21 +108,21 @@ Dashboard Admin
                                         <p class="text-gray-500 text-center text-sm mt-2">Belum ada penjualan hari ini.</p>
                                     </div>
                                 </template>
-                                <div class="grid grid-cols-2 gap-2.5" x-show="data.topProducts.length > 0">
+                                <div class="grid grid-cols-2 gap-2" x-show="data.topProducts.length > 0">
                                     <template x-for="(product, index) in data.topProducts.slice(0, 4)" :key="index">
                                         <div class="bg-white border border-gray-100 rounded-lg p-2 hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
                                             <!-- Product Image -->
-                                            <div class="h-24 w-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-2 relative group">
+                                            <div class="h-20 w-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-1.5 relative group">
                                                 <template x-if="product.photo">
                                                     <img :src="product.photo" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                                 </template>
                                                 <template x-if="!product.photo">
                                                     <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                                        <i class="fas fa-image text-xl"></i>
+                                                        <i class="fas fa-image text-lg"></i>
                                                     </div>
                                                 </template>
                                                 <!-- Rank Number -->
-                                                <div class="absolute top-1 left-1 bg-black/50 backdrop-blur-[1px] text-white text-[9px] font-bold px-1 py-0.5 rounded flex items-center justify-center min-w-[16px]">
+                                                <div class="absolute top-1 left-1 bg-black/50 backdrop-blur-[1px] text-white text-[8px] font-bold px-1 py-0.5 rounded flex items-center justify-center min-w-[14px]">
                                                     <span x-text="'#' + (index + 1)"></span>
                                                 </div>
                                             </div>
@@ -131,11 +131,11 @@ Dashboard Admin
                                             <div class="flex flex-col flex-1 justify-between min-w-0">
                                                 <div class="mb-1">
                                                     <div class="text-[9px] uppercase tracking-wider text-gray-500 font-medium truncate" x-text="product.category_name || 'Uncategorized'"></div>
-                                                    <h3 class="text-xs font-bold text-gray-800 leading-tight truncate mt-0.5" :title="product.name" x-text="product.name"></h3>
+                                                    <h3 class="text-[11px] font-bold text-gray-800 leading-tight truncate mt-0.5" :title="product.name" x-text="product.name"></h3>
                                                 </div>
                                                 
                                                 <div class="flex items-end justify-between">
-                                                    <span class="text-xs font-bold text-primary" x-text="formatRupiah(product.price)"></span>
+                                                    <span class="text-[11px] font-bold text-primary" x-text="formatRupiah(product.price)"></span>
                                                     <div class="text-[9px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full" x-text="product.total_sold + ' Sold'"></div>
                                                 </div>
                                             </div>
