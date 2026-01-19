@@ -186,6 +186,18 @@ class ShiftController extends BaseController
             return $this->response->setStatusCode(404)->setJSON(['message' => 'Shift tidak ditemukan.']);
         }
 
+        $cashierWorkModel = new CashierWorkModel();
+        $usageCount = $cashierWorkModel
+            ->where('shift_id', $id)
+            ->where('status', 'active')
+            ->countAllResults();
+
+        if ($usageCount > 0) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Tidak dapat menghapus shift ini karena sedang aktif digunakan oleh ' . $usageCount . ' kasir.'
+            ]);
+        }
+
         $shiftModel->delete($id);
 
         return $this->response->setJSON(['message' => 'Shift berhasil dihapus.']);
@@ -220,6 +232,19 @@ class ShiftController extends BaseController
 
         if (empty($ids)) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        // Check for usage in cashier_works (history)
+        $cashierWorkModel = new CashierWorkModel();
+        $usageCount = $cashierWorkModel
+            ->whereIn('shift_id', $ids)
+            ->withDeleted()
+            ->countAllResults();
+
+        if ($usageCount > 0) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Tidak dapat menghapus permanen ' . ($id ? 'data' : count($ids) . ' data') . ' ini karena memiliki riwayat penggunaan (kasir).'
+            ]);
         }
 
         $shiftModel->delete($ids, true);
