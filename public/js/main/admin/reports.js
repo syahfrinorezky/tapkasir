@@ -7,8 +7,11 @@ document.addEventListener("alpine:init", () => {
         return {
             loaded: false,
             activeTab: 'summary',
-            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-            endDate: new Date().toISOString().split('T')[0],
+            startDate: (() => {
+                const now = new Date();
+                return new Date(now.getFullYear(), now.getMonth(), 1).toLocaleDateString('en-CA', { timeZone: 'Asia/Makassar' });
+            })(),
+            endDate: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Makassar' }),
 
             data: {
                 summary: {
@@ -31,12 +34,12 @@ document.addEventListener("alpine:init", () => {
             async init() {
                 await this.fetchData();
                 this.loaded = true;
-                
+
                 this.updateTabIndicator();
 
                 this.$watch('activeTab', (value) => {
                     this.updateTabIndicator();
-                    
+
                     if (value === 'summary') {
                         setTimeout(() => {
                             this.renderDailyChart();
@@ -48,7 +51,7 @@ document.addEventListener("alpine:init", () => {
                         }, 100);
                     }
                 });
-                
+
                 window.addEventListener('resize', () => this.updateTabIndicator());
             },
 
@@ -56,7 +59,7 @@ document.addEventListener("alpine:init", () => {
                 this.$nextTick(() => {
                     const activeBtn = this.$refs['tab_' + this.activeTab];
                     const indicator = this.$refs.tabIndicator;
-                    
+
                     if (activeBtn && indicator) {
                         indicator.style.width = activeBtn.offsetWidth + 'px';
                         indicator.style.left = activeBtn.offsetLeft + 'px';

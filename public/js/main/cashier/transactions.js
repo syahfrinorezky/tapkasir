@@ -20,12 +20,14 @@ function cashierTransactions(baseUrl = "") {
     shiftCountdownSec: 0,
     _shiftPollTimer: null,
     _shiftCountdownTimer: null,
+    pendingTransaction: null,
 
     init() {
       setTimeout(() => {
         if (this.$refs.barcodeInput) this.$refs.barcodeInput.focus();
       }, 300);
       this.startShiftWatcher();
+      this.checkPendingTransaction();
     },
 
     async scanBarcode() {
@@ -97,7 +99,7 @@ function cashierTransactions(baseUrl = "") {
         if (this._sugCtrl) {
           try {
             this._sugCtrl.abort();
-          } catch (e) {}
+          } catch (e) { }
         }
         this._sugCtrl = new AbortController();
 
@@ -213,7 +215,7 @@ function cashierTransactions(baseUrl = "") {
         this.cart.push({ ...product, quantity: 1 });
         try {
           this.cartPage = this.totalCartPages;
-        } catch (e) {}
+        } catch (e) { }
       }
     },
 
@@ -282,7 +284,7 @@ function cashierTransactions(baseUrl = "") {
       setTimeout(() => {
         try {
           this.focusBarcode();
-        } catch (e) {}
+        } catch (e) { }
       }, 50);
     },
 
@@ -291,11 +293,11 @@ function cashierTransactions(baseUrl = "") {
       try {
         if (this.cartPage > this.totalCartPages)
           this.cartPage = this.totalCartPages;
-      } catch (e) {}
+      } catch (e) { }
       setTimeout(() => {
         try {
           this.focusBarcode();
-        } catch (e) {}
+        } catch (e) { }
       }, 50);
     },
 
@@ -356,62 +358,37 @@ function cashierTransactions(baseUrl = "") {
 
         if (this.paymentMethod === "qris" && json.snap_token) {
           this.isLoading = false;
+          const pendingData = {
+            has_pending: true,
+            transaction_id: json.transaction_id,
+            no_transaction: json.no_transaction,
+            total: json.total,
+            snap_token: json.snap_token
+          };
+
+          this.cart = [];
+          this.payment = 0;
+
           if (typeof window.snap === "undefined") {
             throw new Error("Midtrans Snap JS not loaded");
           }
           window.snap.pay(json.snap_token, {
             onSuccess: async (result) => {
-              try {
-                await fetch("/cashier/transactions/finish", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                  },
-                  body: JSON.stringify({
-                    transaction_id: json.transaction_id,
-                    midtrans_id: result.transaction_id,
-                    payment_type: result.payment_type,
-                  }),
-                });
-              } catch (e) {
-                console.error("Failed to update transaction status", e);
-              }
-
-              this.message = "Pembayaran Berhasil!";
-              this.cart = [];
-              this.payment = 0;
-              setTimeout(() => (this.message = ""), 3000);
-              if (json.transaction_id) {
-                this.showReceipt(json.transaction_id);
-              }
+              await this.handlePaymentSuccess(json.transaction_id, result);
             },
             onPending: (result) => {
               this.message = "Menunggu pembayaran...";
+              this.pendingTransaction = pendingData;
             },
             onError: (result) => {
               this.error = "Pembayaran Gagal!";
+              setTimeout(() => (this.error = ""), 3000);
+              this.pendingTransaction = pendingData;
             },
             onClose: () => {
-              const txId = json.transaction_id;
-              if (txId) {
-                fetch("/cashier/transactions/cancel", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                  },
-                  body: JSON.stringify({
-                    transaction_id: txId,
-                  }),
-                })
-                  .then((r) => r.json())
-                  .then((d) => {
-                    this.message = "Transaksi dibatalkan";
-                    setTimeout(() => (this.message = ""), 3000);
-                  })
-                  .catch((e) => console.error("Cancel failed", e));
-              }
+              this.message = "Pembayaran dapat dilanjutkan nanti.";
+              setTimeout(() => (this.message = ""), 3000);
+              this.pendingTransaction = pendingData;
             },
           });
         } else {
@@ -435,6 +412,120 @@ function cashierTransactions(baseUrl = "") {
       }
     },
 
+    async checkPendingTransaction() {
+      try {
+        const res = await fetch('/cashier/transactions/check-pending', {
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.has_pending) {
+            this.pendingTransaction = data;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to check pending transaction', e);
+      }
+    },
+
+    async resumePendingPayment() {
+      if (!this.pendingTransaction || !this.pendingTransaction.snap_token) {
+        return;
+      }
+
+      const pending = this.pendingTransaction;
+
+      if (typeof window.snap === 'undefined') {
+        this.error = 'Midtrans Snap JS not loaded';
+        setTimeout(() => (this.error = ''), 3000);
+        return;
+      }
+
+      window.snap.pay(pending.snap_token, {
+        onSuccess: async (result) => {
+          await this.handlePaymentSuccess(pending.transaction_id, result);
+        },
+        onPending: (result) => {
+          this.message = 'Menunggu pembayaran...';
+          setTimeout(() => (this.message = ''), 3000);
+        },
+        onError: (result) => {
+          this.error = 'Pembayaran Gagal!';
+          setTimeout(() => (this.error = ''), 3000);
+        },
+        onClose: () => {
+          // Jangan auto-cancel, biarkan pending dan munculkan kembali banner
+          this.message = 'Anda dapat melanjutkan pembayaran nanti';
+          setTimeout(() => (this.message = ''), 3000);
+          this.checkPendingTransaction();
+        },
+      });
+
+      this.pendingTransaction = null;
+    },
+
+    async cancelPendingTransaction() {
+      if (!this.pendingTransaction) {
+        return;
+      }
+
+      try {
+        const res = await fetch('/cashier/transactions/cancel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({
+            transaction_id: this.pendingTransaction.transaction_id,
+          }),
+        });
+
+        const data = await res.json();
+        this.pendingTransaction = null;
+        this.message = data.message || 'Transaksi dibatalkan';
+        setTimeout(() => (this.message = ''), 3000);
+      } catch (e) {
+        console.error('Cancel failed', e);
+        this.error = 'Gagal membatalkan transaksi';
+        setTimeout(() => (this.error = ''), 3000);
+      }
+    },
+
+    async handlePaymentSuccess(transactionId, result) {
+      try {
+        await fetch('/cashier/transactions/finish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({
+            transaction_id: transactionId,
+            midtrans_id: result.transaction_id,
+            payment_type: result.payment_type,
+          }),
+        });
+      } catch (e) {
+        console.error('Failed to update transaction status', e);
+      }
+
+      this.message = 'Pembayaran Berhasil!';
+      this.cart = [];
+      this.payment = 0;
+      this.pendingTransaction = null;
+      setTimeout(() => (this.message = ''), 3000);
+
+      if (transactionId) {
+        this.showReceipt(transactionId);
+      }
+    },
+
     async showReceipt(transactionId) {
       const receiptUrl = `/cashier/transactions/receipt/${transactionId}`;
 
@@ -450,10 +541,10 @@ function cashierTransactions(baseUrl = "") {
           const snippet = html ? " - " + html.toString().slice(0, 200) : "";
           throw new Error(
             "Gagal memuat struk: " +
-              fetchRes.status +
-              " " +
-              fetchRes.statusText +
-              snippet
+            fetchRes.status +
+            " " +
+            fetchRes.statusText +
+            snippet
           );
         }
 
@@ -508,7 +599,7 @@ function cashierTransactions(baseUrl = "") {
         setTimeout(() => {
           try {
             document.body.removeChild(iframe);
-          } catch (e) {}
+          } catch (e) { }
         }, 2000);
 
         setTimeout(() => {
@@ -520,7 +611,7 @@ function cashierTransactions(baseUrl = "") {
               const inp = document.querySelector('input[x-ref="barcodeInput"]');
               if (inp) inp.focus();
             }
-          } catch (e) {}
+          } catch (e) { }
         }, 300);
       } catch (error) {
         console.error("Failed to show receipt:", error);
@@ -528,7 +619,7 @@ function cashierTransactions(baseUrl = "") {
         try {
           if (this.$refs && this.$refs.barcodeInput)
             this.$refs.barcodeInput.focus();
-        } catch (e) {}
+        } catch (e) { }
       }
     },
 
@@ -548,13 +639,13 @@ function cashierTransactions(baseUrl = "") {
 
         const inp = document.querySelector('input[x-ref="barcodeInput"]');
         if (inp) inp.focus();
-      } catch (e) {}
+      } catch (e) { }
     },
 
     startShiftWatcher() {
       try {
         if (this._shiftPollTimer) clearInterval(this._shiftPollTimer);
-      } catch (e) {}
+      } catch (e) { }
       this.pollShiftStatus();
       this._shiftPollTimer = setInterval(() => this.pollShiftStatus(), 30000);
     },
@@ -605,7 +696,7 @@ function cashierTransactions(baseUrl = "") {
       this.showShiftWarning = true;
       try {
         if (this._shiftCountdownTimer) clearInterval(this._shiftCountdownTimer);
-      } catch (e) {}
+      } catch (e) { }
       this._shiftCountdownTimer = setInterval(() => {
         this.shiftCountdownSec = Math.max(0, this.shiftCountdownSec - 1);
         if (this.shiftCountdownSec <= 0) {
@@ -619,7 +710,7 @@ function cashierTransactions(baseUrl = "") {
     stopShiftCountdown() {
       try {
         if (this._shiftCountdownTimer) clearInterval(this._shiftCountdownTimer);
-      } catch (e) {}
+      } catch (e) { }
       this._shiftCountdownTimer = null;
     },
 
@@ -678,7 +769,7 @@ function cashierTransactions(baseUrl = "") {
         );
         if (idx === -1) return;
         this.cart[idx].quantity = digits === "" ? "" : Number(digits);
-      } catch (e) {}
+      } catch (e) { }
     },
 
     get filteredCart() {

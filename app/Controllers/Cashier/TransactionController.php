@@ -166,7 +166,7 @@ class TransactionController extends BaseController
                     if (empty($it['product_id'])) {
                         throw new \RuntimeException('Product ID tidak valid pada item transaksi.');
                     }
-                    
+
                     $p = $productModel->find($it['product_id']);
                     if (!$p) {
                         throw new \RuntimeException('Produk tidak ditemukan: ' . $it['product_id']);
@@ -190,7 +190,7 @@ class TransactionController extends BaseController
 
                     $midtransItems[] = [
                         'id' => $it['product_id'],
-                        'price' => (int)$sellingPrice,
+                        'price' => (int) $sellingPrice,
                         'quantity' => $qty,
                         'name' => substr($p['product_name'], 0, 50)
                     ];
@@ -291,6 +291,8 @@ class TransactionController extends BaseController
             return $this->response->setJSON([
                 'message' => 'Transaksi berhasil',
                 'transaction_id' => $transactionId,
+                'no_transaction' => $noTransaction,
+                'total' => $total,
                 'snap_token' => $snapToken,
                 'payment_method' => $paymentMethod
             ]);
@@ -319,11 +321,41 @@ class TransactionController extends BaseController
         $updateData = [
             'payment_status' => 'paid',
             'midtrans_id' => $midtransId,
+            'transaction_date' => Time::now('Asia/Makassar')->toDateTimeString(),
         ];
 
         $transactionModel->update($transactionId, $updateData);
 
         return $this->response->setJSON(['message' => 'Payment finished']);
+    }
+
+    public function checkPending()
+    {
+        $userId = session('user_id');
+        if (!$userId) {
+            return $this->response->setStatusCode(401)->setJSON(['message' => 'Unauthorized']);
+        }
+
+        $transactionModel = new TransactionModel();
+        $pending = $transactionModel
+            ->where('user_id', $userId)
+            ->where('payment_method', 'qris')
+            ->where('payment_status', 'pending')
+            ->where('deleted_at', null)
+            ->orderBy('created_at', 'DESC')
+            ->first();
+
+        if ($pending) {
+            return $this->response->setJSON([
+                'has_pending' => true,
+                'transaction_id' => $pending['id'],
+                'snap_token' => $pending['snap_token'],
+                'total' => $pending['total'],
+                'no_transaction' => $pending['no_transaction'],
+            ]);
+        }
+
+        return $this->response->setJSON(['has_pending' => false]);
     }
 
     public function cancel()
@@ -357,12 +389,15 @@ class TransactionController extends BaseController
             foreach ($items as $item) {
                 if (!empty($item['batch_id'])) {
                     $batchModel->where('id', $item['batch_id'])
-                        ->increment('current_stock', (int)$item['quantity']);
+                        ->increment('current_stock', (int) $item['quantity']);
                 }
             }
 
-            // Soft delete transaction & items
-            $transactionModel->delete($transactionId);
+            $transactionModel->update($transactionId, [
+                'payment_status' => 'cancelled',
+                'deleted_at' => date('Y-m-d H:i:s')
+            ]);
+
             $itemModel->where('transaction_id', $transactionId)->delete();
 
             $db->transComplete();
