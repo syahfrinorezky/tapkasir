@@ -68,7 +68,7 @@ class ProductController extends BaseController
 
         $lastProduct = $productModel
             ->where('category_id', $categoryId)
-            ->where('deleted_at', null)
+            ->withDeleted()
             ->orderBy('id', 'DESC')
             ->first();
 
