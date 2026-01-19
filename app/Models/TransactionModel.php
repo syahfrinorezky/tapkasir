@@ -20,7 +20,6 @@ class TransactionModel extends Model
         'total',
         'payment',
         'change',
-        'status',
         'payment_method',
         'payment_status',
         'snap_token',

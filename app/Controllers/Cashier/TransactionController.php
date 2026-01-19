@@ -121,7 +121,6 @@ class TransactionController extends BaseController
 
         $paymentMethod = $data['payment_method'] ?? 'cash';
         $paymentStatus = ($paymentMethod === 'cash') ? 'paid' : 'pending';
-        $status = ($paymentMethod === 'cash') ? 'completed' : 'pending';
 
         do {
             $attempt++;
@@ -205,7 +204,6 @@ class TransactionController extends BaseController
                     'total' => $total,
                     'payment' => $data['payment'] ?? 0,
                     'change' => max(0, ($data['payment'] ?? 0) - $total),
-                    'status' => $status,
                     'payment_method' => $paymentMethod,
                     'payment_status' => $paymentStatus,
                     'created_at' => $now->toDateTimeString()
@@ -319,7 +317,6 @@ class TransactionController extends BaseController
         }
 
         $updateData = [
-            'status' => 'completed',
             'payment_status' => 'paid',
             'midtrans_id' => $midtransId,
         ];
@@ -348,7 +345,7 @@ class TransactionController extends BaseController
             return $this->response->setJSON(['message' => 'Transaksi sudah dibatalkan atau tidak ditemukan']);
         }
 
-        if ($tx['status'] === 'completed') {
+        if ($tx['payment_status'] === 'paid') {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Transaksi sudah selesai, tidak bisa dibatalkan']);
         }
 
@@ -504,7 +501,7 @@ class TransactionController extends BaseController
             ->join('cashier_works', 'cashier_works.id = transactions.cashier_work_id', 'left')
             ->join('shifts', 'shifts.id = cashier_works.shift_id', 'left')
             ->where('transactions.deleted_at', null)
-            ->where('transactions.status', 'completed')
+            ->where('transactions.payment_status', 'paid')
             ->where('transactions.user_id', $userId);
 
         if (!empty($date)) {

@@ -29,7 +29,7 @@ class TransactionController extends BaseController
             ->join('cashier_works', 'cashier_works.id = transactions.cashier_work_id', 'left')
             ->join('shifts', 'shifts.id = cashier_works.shift_id', 'left')
             ->where('transactions.deleted_at', null)
-            ->where('transactions.status', 'completed');
+            ->where('transactions.payment_status', 'paid');
 
         if (!empty($date)) {
             $builder->where('DATE(transactions.transaction_date)', $date);
