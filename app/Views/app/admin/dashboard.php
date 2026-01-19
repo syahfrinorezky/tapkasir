@@ -112,7 +112,11 @@ Dashboard Admin
                                     <template x-for="(product, index) in data.topProducts.slice(0, 4)" :key="index">
                                         <div class="bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
                                             <!-- Product Image -->
+<<<<<<< HEAD
                                             <div class="aspect-square w-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-2 relative group">
+=======
+                                            <div class="aspect-square w-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-1.5 relative group">
+>>>>>>> 08b44e20f02bc579c39d6449a92c963b97b6acbf
                                                 <template x-if="product.photo">
                                                     <img :src="product.photo" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                                 </template>
