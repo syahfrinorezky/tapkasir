@@ -345,7 +345,7 @@ class TransactionController extends BaseController
 
         $tx = $transactionModel->where('id', $transactionId)->where('user_id', $userId)->first();
         if (!$tx) {
-            return $this->response->setStatusCode(404)->setJSON(['message' => 'Transaksi tidak ditemukan']);
+            return $this->response->setJSON(['message' => 'Transaksi sudah dibatalkan atau tidak ditemukan']);
         }
 
         if ($tx['status'] === 'completed') {

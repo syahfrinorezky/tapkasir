@@ -392,22 +392,25 @@ function cashierTransactions(baseUrl = "") {
             onError: (result) => {
               this.error = "Pembayaran Gagal!";
             },
-            onClose: async () => {
-              try {
-                await fetch("/cashier/transactions/cancel", {
+            onClose: () => {
+              const txId = json.transaction_id;
+              if (txId) {
+                fetch("/cashier/transactions/cancel", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                     "X-Requested-With": "XMLHttpRequest",
                   },
                   body: JSON.stringify({
-                    transaction_id: json.transaction_id,
+                    transaction_id: txId,
                   }),
-                });
-                this.message = "Transaksi dibatalkan";
-                setTimeout(() => (this.message = ""), 3000);
-              } catch (e) {
-                console.error("Failed to cancel transaction", e);
+                })
+                  .then((r) => r.json())
+                  .then((d) => {
+                    this.message = "Transaksi dibatalkan";
+                    setTimeout(() => (this.message = ""), 3000);
+                  })
+                  .catch((e) => console.error("Cancel failed", e));
               }
             },
           });
