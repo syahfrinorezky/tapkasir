@@ -47,6 +47,7 @@ class DashboardController extends BaseController
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
             ->where('DATE(transactions.transaction_date)', $today)
             ->where('transactions.payment_status', 'paid')
+            ->where('transactions.deleted_at', null)
             ->get()
             ->getRow()
             ->quantity ?? 0;
@@ -110,6 +111,7 @@ class DashboardController extends BaseController
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
             ->where('DATE(transactions.transaction_date)', $today)
             ->where('transactions.payment_status', 'paid')
+            ->where('transactions.deleted_at', null)
             ->groupBy('transaction_items.product_id')
             ->orderBy('total_sold', 'DESC')
             ->limit(6)
