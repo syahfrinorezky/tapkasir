@@ -98,7 +98,7 @@ Dashboard Admin
 
                         <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/3 flex flex-col">
                             <div class="flex items-center justify-between mb-4">
-                                <h2 class="font-bold text-gray-700">Top 5 Produk Hari Ini</h2>
+                                <h2 class="font-bold text-gray-700">Top 3 Produk Hari Ini</h2>
                                 <a href="<?= base_url('admin/products') ?>" class="text-xs text-primary hover:underline">Lihat Semua</a>
                             </div>
                             <div class="flex-1 overflow-y-auto flex flex-col pr-1">
@@ -109,7 +109,7 @@ Dashboard Admin
                                     </div>
                                 </template>
                                 <div class="grid grid-cols-1 gap-3" x-show="data.topProducts.length > 0">
-                                    <template x-for="(product, index) in data.topProducts" :key="index">
+                                    <template x-for="(product, index) in data.topProducts.slice(0, 3)" :key="index">
                                         <div class="flex bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 gap-3">
                                             <!-- Product Image -->
                                             <div class="w-20 h-20 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-100">
