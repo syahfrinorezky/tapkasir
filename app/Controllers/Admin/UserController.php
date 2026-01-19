@@ -94,7 +94,8 @@ class UserController extends BaseController
         return $this->response->setStatusCode(404)->setJSON(['message' => 'User tidak ditemukan']);
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $userModel = new UserModel();
 
         $user = $userModel->find($id);
@@ -104,7 +105,7 @@ class UserController extends BaseController
         }
 
         $userModel->delete($id);
-        
+
         return $this->response->setJSON(['message' => 'User berhasil dihapus']);
     }
 
@@ -137,6 +138,18 @@ class UserController extends BaseController
 
         if (empty($ids)) {
             return $this->response->setStatusCode(400)->setJSON(['message' => 'Tidak ada data yang dipilih']);
+        }
+
+        $transactionModel = new \App\Models\TransactionModel();
+        $cashierWorkModel = new \App\Models\CashierWorkModel();
+
+        $txCount = $transactionModel->whereIn('user_id', $ids)->withDeleted()->countAllResults();
+        $cwCount = $cashierWorkModel->whereIn('user_id', $ids)->withDeleted()->countAllResults();
+
+        if ($txCount > 0 || $cwCount > 0) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'Tidak dapat menghapus permanen ' . ($id ? 'data' : count($ids) . ' data') . ' ini karena memiliki riwayat transaksi atau shift.'
+            ]);
         }
 
         $userModel->delete($ids, true);
