@@ -48,7 +48,7 @@ class TransactionController extends BaseController
         $itemModel = new TransactionItemModel();
 
         $items = $itemModel
-            ->select('transaction_items.*, products.product_name, products.price as selling_price, product_batches.purchase_price as purchase_price, product_batches.expired_date as batch_expired')
+            ->select('transaction_items.*, products.product_name, product_batches.purchase_price as purchase_price, product_batches.expired_date as batch_expired')
             ->join('products', 'products.id = transaction_items.product_id', 'left')
             ->join('product_batches', 'product_batches.id = transaction_items.batch_id', 'left')
             ->where('transaction_items.transaction_id', $transactionId)
@@ -56,10 +56,13 @@ class TransactionController extends BaseController
             ->findAll();
 
         foreach ($items as &$it) {
-            $sp = (float) ($it['selling_price'] ?? 0);
-            $pp = (float) ($it['purchase_price'] ?? 0);
             $qty = (int) ($it['quantity'] ?? 0);
-            $it['profit'] = ($sp - $pp) * $qty;
+            $subtotal = (float) ($it['subtotal'] ?? 0);
+            $sp = $qty > 0 ? $subtotal / $qty : 0;
+            $pp = (float) ($it['purchase_price'] ?? 0);
+
+            $it['selling_price'] = $sp;
+            $it['profit'] = $subtotal - ($pp * $qty);
             $it['margin'] = $sp - $pp;
         }
 
