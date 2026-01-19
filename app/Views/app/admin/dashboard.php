@@ -97,22 +97,52 @@ Dashboard Admin
                         </div>
 
                         <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 lg:w-1/3 flex flex-col">
-                            <h2 class="font-bold text-gray-700 mb-4">Top 5 Produk Hari Ini</h2>
-                            <div class="flex-1 overflow-y-auto flex flex-col">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="font-bold text-gray-700">Top 5 Produk Hari Ini</h2>
+                                <a href="<?= base_url('admin/products') ?>" class="text-xs text-primary hover:underline">Lihat Semua</a>
+                            </div>
+                            <div class="flex-1 overflow-y-auto flex flex-col pr-1">
                                 <template x-if="data.topProducts.length === 0">
                                     <div class="flex flex-col items-center justify-center flex-1 h-full py-4 min-h-[200px]">
                                         <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-24 md:w-36 lg:w-48 h-auto opacity-80 object-contain" alt="No Data">
                                         <p class="text-gray-500 text-center text-sm mt-2">Belum ada penjualan hari ini.</p>
                                     </div>
                                 </template>
-                                <ul class="space-y-3" x-show="data.topProducts.length > 0">
+                                <div class="grid grid-cols-1 gap-3" x-show="data.topProducts.length > 0">
                                     <template x-for="(product, index) in data.topProducts" :key="index">
-                                        <li class="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0">
-                                            <span class="text-gray-600 font-medium text-sm" x-text="product.name"></span>
-                                            <span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold" x-text="product.total_sold + ' Terjual'"></span>
-                                        </li>
+                                        <div class="flex bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 gap-3">
+                                            <!-- Product Image -->
+                                            <div class="w-20 h-20 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-100">
+                                                <template x-if="product.photo">
+                                                    <img :src="product.photo" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="!product.photo">
+                                                    <div class="w-full h-full flex items-center justify-center text-gray-300">
+                                                        <i class="fas fa-image text-xl"></i>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            
+                                            <!-- Product Info -->
+                                            <div class="flex-1 flex flex-col justify-between min-w-0">
+                                                <div>
+                                                    <div class="text-xs text-gray-500 mb-0.5" x-text="product.category_name || 'Uncategorized'"></div>
+                                                    <h3 class="text-sm font-semibold text-gray-800 leading-tight truncate" :title="product.name" x-text="product.name"></h3>
+                                                </div>
+                                                
+                                                <div class="flex items-end justify-between mt-2">
+                                                    <span class="text-sm font-bold text-primary" x-text="formatRupiah(product.price)"></span>
+                                                    
+                                                    <div class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs font-semibold border border-green-100">
+                                                        <i class="fas fa-chart-line text-[10px]"></i>
+                                                        <span x-text="product.total_sold"></span>
+                                                        <span>Sold</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </template>
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     </div>

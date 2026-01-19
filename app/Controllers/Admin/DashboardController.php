@@ -94,14 +94,21 @@ class DashboardController extends BaseController
 
         $transactionItemModel = new \App\Models\TransactionItemModel();
         $topProducts = $transactionItemModel
-            ->select('products.product_name as name, SUM(transaction_items.quantity) as total_sold')
+            ->select('products.product_name as name, products.price, products.photo, categories.category_name, SUM(transaction_items.quantity) as total_sold')
             ->join('products', 'products.id = transaction_items.product_id')
+            ->join('categories', 'categories.id = products.category_id', 'left')
             ->join('transactions', 'transactions.id = transaction_items.transaction_id')
             ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
             ->groupBy('transaction_items.product_id')
             ->orderBy('total_sold', 'DESC')
             ->limit(5)
             ->findAll();
+
+        foreach ($topProducts as &$p) {
+            if ($p['photo']) {
+                $p['photo'] = base_url($p['photo']);
+            }
+        }
 
         $recentTransactions = $transactionModel
             ->select('transactions.*, users.nama_lengkap as cashier_name')
