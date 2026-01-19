@@ -108,11 +108,11 @@ Dashboard Admin
                                         <p class="text-gray-500 text-center text-sm mt-2">Belum ada penjualan hari ini.</p>
                                     </div>
                                 </template>
-                                <div class="grid grid-cols-2 gap-3" x-show="data.topProducts.length > 0">
-                                    <template x-for="(product, index) in data.topProducts.slice(0, 4)" :key="index">
-                                        <div class="bg-white border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
+                                <div class="grid grid-cols-3 gap-2" x-show="data.topProducts.length > 0">
+                                    <template x-for="(product, index) in data.topProducts.slice(0, 6)" :key="index">
+                                        <div class="bg-white border border-gray-100 rounded-lg p-2 hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
                                             <!-- Product Image -->
-                                            <div class="aspect-square w-24 mx-auto bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-1.5 relative group">
+                                            <div class="aspect-square w-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 mb-2 relative group">
                                                 <template x-if="product.photo">
                                                     <img :src="product.photo" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                                 </template>
