@@ -28,6 +28,8 @@ function cashierProducts() {
     openRestockModal: false,
     openDetailModal: false,
     selectedProduct: null,
+    openProofModal: false,
+    selectedRestock: null,
     restockQty: "1",
     restockNote: "",
     restockExpiredDate: "",
@@ -47,14 +49,14 @@ function cashierProducts() {
 
     get filteredProducts() {
       let list = Array.isArray(this.products) ? [...this.products] : [];
-      
+
       const getStock = (p) => {
-          const s = parseInt(p.stock);
-          return isNaN(s) ? 0 : s;
+        const s = parseInt(p.stock);
+        return isNaN(s) ? 0 : s;
       };
       const getPrice = (p) => {
-          const pr = parseFloat(p.price);
-          return isNaN(pr) ? 0 : pr;
+        const pr = parseFloat(p.price);
+        return isNaN(pr) ? 0 : pr;
       };
 
       if (this.activeCategoryFilter && this.activeCategoryFilter !== "all") {
@@ -64,13 +66,13 @@ function cashierProducts() {
       }
 
       if (this.activeStockFilter !== 'all') {
-          if (this.activeStockFilter === 'available') {
-              list = list.filter(p => getStock(p) > 0);
-          } else if (this.activeStockFilter === 'low') {
-              list = list.filter(p => getStock(p) > 0 && getStock(p) < 15);
-          } else if (this.activeStockFilter === 'empty') {
-              list = list.filter(p => getStock(p) <= 0);
-          }
+        if (this.activeStockFilter === 'available') {
+          list = list.filter(p => getStock(p) > 0);
+        } else if (this.activeStockFilter === 'low') {
+          list = list.filter(p => getStock(p) > 0 && getStock(p) < 15);
+        } else if (this.activeStockFilter === 'empty') {
+          list = list.filter(p => getStock(p) <= 0);
+        }
       }
 
       if (this.searchQuery && this.searchQuery.trim() !== "") {
@@ -83,46 +85,46 @@ function cashierProducts() {
       }
 
       list.sort((a, b) => {
-          switch (this.activeSort) {
-              case 'price_high':
-                  return getPrice(b) - getPrice(a);
-              case 'price_low':
-                  return getPrice(a) - getPrice(b);
-              case 'stock_low':
-                  return getStock(a) - getStock(b);
-              case 'newest':
-              default:
-                  return (b.id || 0) - (a.id || 0);
-          }
+        switch (this.activeSort) {
+          case 'price_high':
+            return getPrice(b) - getPrice(a);
+          case 'price_low':
+            return getPrice(a) - getPrice(b);
+          case 'stock_low':
+            return getStock(a) - getStock(b);
+          case 'newest':
+          default:
+            return (b.id || 0) - (a.id || 0);
+        }
       });
 
       return list;
     },
     get visibleCategories() {
-        if (this.showAllCategories) return this.categories;
-        return this.categories.slice(0, 8);
+      if (this.showAllCategories) return this.categories;
+      return this.categories.slice(0, 8);
     },
     openFilter() {
-        this.tempFilters = {
-            category: this.activeCategoryFilter,
-            stock: this.activeStockFilter,
-            sort: this.activeSort
-        };
-        this.openFilterModal = true;
+      this.tempFilters = {
+        category: this.activeCategoryFilter,
+        stock: this.activeStockFilter,
+        sort: this.activeSort
+      };
+      this.openFilterModal = true;
     },
     applyFilters() {
-        this.activeCategoryFilter = this.tempFilters.category;
-        this.activeStockFilter = this.tempFilters.stock;
-        this.activeSort = this.tempFilters.sort;
-        this.dataProductPage = 1;
-        this.openFilterModal = false;
+      this.activeCategoryFilter = this.tempFilters.category;
+      this.activeStockFilter = this.tempFilters.stock;
+      this.activeSort = this.tempFilters.sort;
+      this.dataProductPage = 1;
+      this.openFilterModal = false;
     },
     resetFilters() {
-        this.tempFilters = {
-            category: 'all',
-            stock: 'all',
-            sort: 'newest'
-        };
+      this.tempFilters = {
+        category: 'all',
+        stock: 'all',
+        sort: 'newest'
+      };
     },
     get paginatedProducts() {
       const start = (this.dataProductPage - 1) * this.dataProductPageSize;
@@ -244,6 +246,11 @@ function cashierProducts() {
       } catch (e) {
         console.error(e);
       }
+    },
+
+    openViewProof(restock) {
+      this.selectedRestock = restock;
+      this.openProofModal = true;
     },
 
     openRestock(p) {
@@ -385,7 +392,7 @@ function cashierProducts() {
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        
+
         this.isSubmittingRestock = false;
 
         if (res.ok) {

@@ -9,13 +9,15 @@ function productManagement() {
     selectedTrash: [],
     openRestoreModal: false,
     openDeletePermanentModal: false,
+    openProofModal: false,
     restoreMode: 'single',
     deletePermanentMode: 'single',
     selectedTrashItem: null,
+    selectedRestock: null,
     isRestoring: false,
     isDeletingPermanent: false,
     trashType: 'product',
-    
+
     showTrashCategories: false,
     trashCategories: [],
     selectedTrashCategories: [],
@@ -36,21 +38,21 @@ function productManagement() {
     isDeletingPermanentShift: false,
 
     getTrashLabel() {
-        if (this.trashType === 'category') return 'Kategori';
-        if (this.trashType === 'location') return 'Lokasi';
-        return 'Produk';
+      if (this.trashType === 'category') return 'Kategori';
+      if (this.trashType === 'location') return 'Lokasi';
+      return 'Produk';
     },
 
     getTrashItemName() {
-        if (this.trashType === 'category') return this.selectedTrashCategoryItem?.category_name;
-        if (this.trashType === 'location') return `${this.selectedTrashLocationItem?.rack} - ${this.selectedTrashLocationItem?.row}`;
-        return this.selectedTrashItem?.product_name;
+      if (this.trashType === 'category') return this.selectedTrashCategoryItem?.category_name;
+      if (this.trashType === 'location') return `${this.selectedTrashLocationItem?.rack} - ${this.selectedTrashLocationItem?.row}`;
+      return this.selectedTrashItem?.product_name;
     },
 
     getTrashSelectedCount() {
-        if (this.trashType === 'category') return this.selectedTrashCategories.length;
-        if (this.trashType === 'location') return this.selectedTrashLocations.length;
-        return this.selectedTrash.length;
+      if (this.trashType === 'category') return this.selectedTrashCategories.length;
+      if (this.trashType === 'location') return this.selectedTrashLocations.length;
+      return this.selectedTrash.length;
     },
 
     isLoading: false,
@@ -94,9 +96,9 @@ function productManagement() {
     activeSort: "newest",
     openFilterModal: false,
     tempFilters: {
-        category: 'all',
-        stock: 'all',
-        sort: 'newest'
+      category: 'all',
+      stock: 'all',
+      sort: 'newest'
     },
     showAllCategories: false,
     validationErrors: {
@@ -143,376 +145,406 @@ function productManagement() {
     },
 
     openFilter() {
-        this.tempFilters = {
-            category: this.activeCategoryFilter,
-            stock: this.activeStockFilter,
-            sort: this.activeSort
-        };
-        this.openFilterModal = true;
+      this.tempFilters = {
+        category: this.activeCategoryFilter,
+        stock: this.activeStockFilter,
+        sort: this.activeSort
+      };
+      this.openFilterModal = true;
     },
 
     applyFilters() {
-        this.activeCategoryFilter = this.tempFilters.category;
-        this.activeStockFilter = this.tempFilters.stock;
-        this.activeSort = this.tempFilters.sort;
-        this.openFilterModal = false;
-        this.dataProductPage = 1;
+      this.activeCategoryFilter = this.tempFilters.category;
+      this.activeStockFilter = this.tempFilters.stock;
+      this.activeSort = this.tempFilters.sort;
+      this.openFilterModal = false;
+      this.dataProductPage = 1;
     },
 
     resetFilters() {
-        this.tempFilters = {
-            category: 'all',
-            stock: 'all',
-            sort: 'newest'
-        };
+      this.tempFilters = {
+        category: 'all',
+        stock: 'all',
+        sort: 'newest'
+      };
     },
 
     toggleTrash() {
-        this.showTrash = !this.showTrash;
-        if (this.showTrash) {
-            this.fetchTrashData();
-        }
+      this.showTrash = !this.showTrash;
+      if (this.showTrash) {
+        this.fetchTrashData();
+      }
     },
     async fetchTrashData() {
-        try {
-            const response = await fetch('/admin/products/trash/data');
-            const data = await response.json();
-            this.trashProducts = data.products;
-        } catch (error) {
-            console.error('Error fetching trash data:', error);
-        }
+      try {
+        const response = await fetch('/admin/products/trash/data');
+        const data = await response.json();
+        this.trashProducts = data.products;
+      } catch (error) {
+        console.error('Error fetching trash data:', error);
+      }
     },
     toggleSelectAllTrash(e) {
-        if (e.target.checked) {
-            this.selectedTrash = this.trashProducts.map(p => p.id);
-        } else {
-            this.selectedTrash = [];
-        }
+      if (e.target.checked) {
+        this.selectedTrash = this.trashProducts.map(p => p.id);
+      } else {
+        this.selectedTrash = [];
+      }
     },
     restoreSelected() {
-        this.trashType = 'product';
-        this.restoreMode = 'multiple';
-        this.openRestoreModal = true;
+      this.trashType = 'product';
+      this.restoreMode = 'multiple';
+      this.openRestoreModal = true;
     },
     deletePermanentSelected() {
-        this.trashType = 'product';
-        this.deletePermanentMode = 'multiple';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'product';
+      this.deletePermanentMode = 'multiple';
+      this.openDeletePermanentModal = true;
     },
     confirmRestore(id) {
-        this.trashType = 'product';
-        this.selectedTrashItem = this.trashProducts.find(p => p.id === id);
-        this.restoreMode = 'single';
-        this.openRestoreModal = true;
+      this.trashType = 'product';
+      this.selectedTrashItem = this.trashProducts.find(p => p.id === id);
+      this.restoreMode = 'single';
+      this.openRestoreModal = true;
     },
     confirmDeletePermanent(id) {
-        this.trashType = 'product';
-        this.selectedTrashItem = this.trashProducts.find(p => p.id === id);
-        this.deletePermanentMode = 'single';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'product';
+      this.selectedTrashItem = this.trashProducts.find(p => p.id === id);
+      this.deletePermanentMode = 'single';
+      this.openDeletePermanentModal = true;
     },
     async processRestore() {
-        if (this.trashType === 'category') return this.processRestoreCategory();
-        if (this.trashType === 'location') return this.processRestoreLocation();
+      if (this.trashType === 'category') return this.processRestoreCategory();
+      if (this.trashType === 'location') return this.processRestoreLocation();
 
-        this.isRestoring = true;
-        try {
-            let url = '/admin/products/restore';
-            let body = {};
-            
-            if (this.restoreMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrash };
-            }
+      this.isRestoring = true;
+      try {
+        let url = '/admin/products/restore';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashData();
-                await this.fetchData();
-                this.selectedTrash = [];
-                this.openRestoreModal = false;
-                this.message = "Produk berhasil dipulihkan";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error restoring data:', error);
-        } finally {
-            this.isRestoring = false;
+        if (this.restoreMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrash };
         }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashData();
+          await this.fetchData();
+          this.selectedTrash = [];
+          this.openRestoreModal = false;
+          this.message = "Produk berhasil dipulihkan";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan produk.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error restoring data:', error);
+      } finally {
+        this.isRestoring = false;
+      }
     },
     async processDeletePermanent() {
-        if (this.trashType === 'category') return this.processDeletePermanentCategory();
-        if (this.trashType === 'location') return this.processDeletePermanentLocation();
+      if (this.trashType === 'category') return this.processDeletePermanentCategory();
+      if (this.trashType === 'location') return this.processDeletePermanentLocation();
 
-        this.isDeletingPermanent = true;
-        try {
-            let url = '/admin/products/deletePermanent';
-            let body = {};
-            
-            if (this.deletePermanentMode === 'single') {
-                url += `/${this.selectedTrashItem.id}`;
-            } else {
-                body = { ids: this.selectedTrash };
-            }
+      this.isDeletingPermanent = true;
+      try {
+        let url = '/admin/products/deletePermanent';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashData();
-                this.selectedTrash = [];
-                this.openDeletePermanentModal = false;
-                this.message = "Produk berhasil dihapus permanen";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error deleting data:', error);
-        } finally {
-            this.isDeletingPermanent = false;
+        if (this.deletePermanentMode === 'single') {
+          url += `/${this.selectedTrashItem.id}`;
+        } else {
+          body = { ids: this.selectedTrash };
         }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashData();
+          this.selectedTrash = [];
+          this.openDeletePermanentModal = false;
+          this.message = "Produk berhasil dihapus permanen";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus produk permanen.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting data:', error);
+      } finally {
+        this.isDeletingPermanent = false;
+      }
     },
 
     toggleTrashCategories() {
-        this.showTrashCategories = !this.showTrashCategories;
-        if (this.showTrashCategories) {
-            this.fetchTrashCategories();
-        }
+      this.showTrashCategories = !this.showTrashCategories;
+      if (this.showTrashCategories) {
+        this.fetchTrashCategories();
+      }
     },
     async fetchTrashCategories() {
-        try {
-            const response = await fetch('/admin/products/categories/trash/data');
-            const data = await response.json();
-            this.trashCategories = data.categories;
-        } catch (error) {
-            console.error('Error fetching category trash data:', error);
-        }
+      try {
+        const response = await fetch('/admin/products/categories/trash/data');
+        const data = await response.json();
+        this.trashCategories = data.categories;
+      } catch (error) {
+        console.error('Error fetching category trash data:', error);
+      }
     },
     toggleSelectAllTrashCategories(e) {
-        if (e.target.checked) {
-            this.selectedTrashCategories = this.trashCategories.map(c => c.id);
-        } else {
-            this.selectedTrashCategories = [];
-        }
+      if (e.target.checked) {
+        this.selectedTrashCategories = this.trashCategories.map(c => c.id);
+      } else {
+        this.selectedTrashCategories = [];
+      }
     },
     restoreSelectedCategories() {
-        this.trashType = 'category';
-        this.restoreMode = 'multiple';
-        this.openRestoreModal = true;
+      this.trashType = 'category';
+      this.restoreMode = 'multiple';
+      this.openRestoreModal = true;
     },
     deletePermanentSelectedCategories() {
-        this.trashType = 'category';
-        this.deletePermanentMode = 'multiple';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'category';
+      this.deletePermanentMode = 'multiple';
+      this.openDeletePermanentModal = true;
     },
     confirmRestoreCategory(id) {
-        this.trashType = 'category';
-        this.selectedTrashCategoryItem = this.trashCategories.find(c => c.id === id);
-        this.restoreMode = 'single';
-        this.openRestoreModal = true;
+      this.trashType = 'category';
+      this.selectedTrashCategoryItem = this.trashCategories.find(c => c.id === id);
+      this.restoreMode = 'single';
+      this.openRestoreModal = true;
     },
     confirmDeletePermanentCategory(id) {
-        this.trashType = 'category';
-        this.selectedTrashCategoryItem = this.trashCategories.find(c => c.id === id);
-        this.deletePermanentMode = 'single';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'category';
+      this.selectedTrashCategoryItem = this.trashCategories.find(c => c.id === id);
+      this.deletePermanentMode = 'single';
+      this.openDeletePermanentModal = true;
     },
     async processRestoreCategory() {
-        this.isRestoringCategory = true;
-        try {
-            let url = '/admin/products/categories/restore';
-            let body = {};
-            
-            if (this.restoreMode === 'single') {
-                url += `/${this.selectedTrashCategoryItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashCategories };
-            }
+      this.isRestoringCategory = true;
+      try {
+        let url = '/admin/products/categories/restore';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashCategories();
-                await this.fetchData();
-                this.selectedTrashCategories = [];
-                this.openRestoreModal = false;
-                this.message = "Kategori berhasil dipulihkan";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error restoring category:', error);
-        } finally {
-            this.isRestoringCategory = false;
+        if (this.restoreMode === 'single') {
+          url += `/${this.selectedTrashCategoryItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashCategories };
         }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashCategories();
+          await this.fetchData();
+          this.selectedTrashCategories = [];
+          this.openRestoreModal = false;
+          this.message = "Kategori berhasil dipulihkan";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan kategori.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error restoring category:', error);
+      } finally {
+        this.isRestoringCategory = false;
+      }
     },
     async processDeletePermanentCategory() {
-        this.isDeletingPermanentCategory = true;
-        try {
-            let url = '/admin/products/categories/deletePermanent';
-            let body = {};
-            
-            if (this.deletePermanentMode === 'single') {
-                url += `/${this.selectedTrashCategoryItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashCategories };
-            }
+      this.isDeletingPermanentCategory = true;
+      try {
+        let url = '/admin/products/categories/deletePermanent';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashCategories();
-                this.selectedTrashCategories = [];
-                this.openDeletePermanentModal = false;
-                this.message = "Kategori berhasil dihapus permanen";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error deleting category:', error);
-        } finally {
-            this.isDeletingPermanentCategory = false;
+        if (this.deletePermanentMode === 'single') {
+          url += `/${this.selectedTrashCategoryItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashCategories };
         }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashCategories();
+          this.selectedTrashCategories = [];
+          this.openDeletePermanentModal = false;
+          this.message = "Kategori berhasil dihapus permanen";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus kategori permanen.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting category:', error);
+      } finally {
+        this.isDeletingPermanentCategory = false;
+      }
     },
 
     toggleTrashLocations() {
-        this.showTrashLocations = !this.showTrashLocations;
-        if (this.showTrashLocations) {
-            this.fetchTrashLocations();
-        }
+      this.showTrashLocations = !this.showTrashLocations;
+      if (this.showTrashLocations) {
+        this.fetchTrashLocations();
+      }
     },
     async fetchTrashLocations() {
-        try {
-            const response = await fetch('/admin/products/locations/trash/data');
-            const data = await response.json();
-            this.trashLocations = data.locations;
-        } catch (error) {
-            console.error('Error fetching location trash data:', error);
-        }
+      try {
+        const response = await fetch('/admin/products/locations/trash/data');
+        const data = await response.json();
+        this.trashLocations = data.locations;
+      } catch (error) {
+        console.error('Error fetching location trash data:', error);
+      }
     },
     toggleSelectAllTrashLocations(e) {
-        if (e.target.checked) {
-            this.selectedTrashLocations = this.trashLocations.map(l => l.id);
-        } else {
-            this.selectedTrashLocations = [];
-        }
+      if (e.target.checked) {
+        this.selectedTrashLocations = this.trashLocations.map(l => l.id);
+      } else {
+        this.selectedTrashLocations = [];
+      }
     },
     restoreSelectedLocations() {
-        this.trashType = 'location';
-        this.restoreMode = 'multiple';
-        this.openRestoreModal = true;
+      this.trashType = 'location';
+      this.restoreMode = 'multiple';
+      this.openRestoreModal = true;
     },
     deletePermanentSelectedLocations() {
-        this.trashType = 'location';
-        this.deletePermanentMode = 'multiple';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'location';
+      this.deletePermanentMode = 'multiple';
+      this.openDeletePermanentModal = true;
     },
     confirmRestoreLocation(id) {
-        this.trashType = 'location';
-        this.selectedTrashLocationItem = this.trashLocations.find(l => l.id === id);
-        this.restoreMode = 'single';
-        this.openRestoreModal = true;
+      this.trashType = 'location';
+      this.selectedTrashLocationItem = this.trashLocations.find(l => l.id === id);
+      this.restoreMode = 'single';
+      this.openRestoreModal = true;
     },
     confirmDeletePermanentLocation(id) {
-        this.trashType = 'location';
-        this.selectedTrashLocationItem = this.trashLocations.find(l => l.id === id);
-        this.deletePermanentMode = 'single';
-        this.openDeletePermanentModal = true;
+      this.trashType = 'location';
+      this.selectedTrashLocationItem = this.trashLocations.find(l => l.id === id);
+      this.deletePermanentMode = 'single';
+      this.openDeletePermanentModal = true;
     },
     async processRestoreLocation() {
-        this.isRestoringLocation = true;
-        try {
-            let url = '/admin/products/locations/restore';
-            let body = {};
-            
-            if (this.restoreMode === 'single') {
-                url += `/${this.selectedTrashLocationItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashLocations };
-            }
+      this.isRestoringLocation = true;
+      try {
+        let url = '/admin/products/locations/restore';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashLocations();
-                await this.fetchData();
-                this.selectedTrashLocations = [];
-                this.openRestoreModal = false;
-                this.message = "Lokasi berhasil dipulihkan";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error restoring location:', error);
-        } finally {
-            this.isRestoringLocation = false;
+        if (this.restoreMode === 'single') {
+          url += `/${this.selectedTrashLocationItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashLocations };
         }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.restoreMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashLocations();
+          await this.fetchData();
+          this.selectedTrashLocations = [];
+          this.openRestoreModal = false;
+          this.message = "Lokasi berhasil dipulihkan";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openRestoreModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal memulihkan lokasi.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error restoring location:', error);
+      } finally {
+        this.isRestoringLocation = false;
+      }
     },
     async processDeletePermanentLocation() {
-        this.isDeletingPermanentLocation = true;
-        try {
-            let url = '/admin/products/locations/deletePermanent';
-            let body = {};
-            
-            if (this.deletePermanentMode === 'single') {
-                url += `/${this.selectedTrashLocationItem.id}`;
-            } else {
-                body = { ids: this.selectedTrashLocations };
-            }
+      this.isDeletingPermanentLocation = true;
+      try {
+        let url = '/admin/products/locations/deletePermanent';
+        let body = {};
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
-            });
-            
-            if (response.ok) {
-                await this.fetchTrashLocations();
-                this.selectedTrashLocations = [];
-                this.openDeletePermanentModal = false;
-                this.message = "Lokasi berhasil dihapus permanen";
-                setTimeout(() => (this.message = ""), 3000);
-            }
-        } catch (error) {
-            console.error('Error deleting location:', error);
-        } finally {
-            this.isDeletingPermanentLocation = false;
+        if (this.deletePermanentMode === 'single') {
+          url += `/${this.selectedTrashLocationItem.id}`;
+        } else {
+          body = { ids: this.selectedTrashLocations };
         }
+
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: this.deletePermanentMode === 'multiple' ? JSON.stringify(body) : null
+        });
+
+        if (response.ok) {
+          await this.fetchTrashLocations();
+          this.selectedTrashLocations = [];
+          this.openDeletePermanentModal = false;
+          this.message = "Lokasi berhasil dihapus permanen";
+          setTimeout(() => (this.message = ""), 3000);
+        } else {
+          this.openDeletePermanentModal = false;
+          const data = await response.json().catch(() => ({}));
+          this.error = data.message || "Gagal menghapus lokasi permanen.";
+          setTimeout(() => (this.error = ""), 3000);
+        }
+      } catch (error) {
+        console.error('Error deleting location:', error);
+      } finally {
+        this.isDeletingPermanentLocation = false;
+      }
     },
 
     parseDetails(note) {
@@ -531,6 +563,11 @@ function productManagement() {
       if (String(path).startsWith("http")) return path;
       return "/" + String(path).replace(/^\/+/, "");
     },
+    openViewProof(restock) {
+      this.selectedRestock = restock;
+      this.openProofModal = true;
+    },
+
     openApproveRestock(r) {
       this.selectedRestock = r;
       this.restockDetails = this.parseDetails(r.note);
@@ -559,7 +596,7 @@ function productManagement() {
           }
         );
         const data = await res.json();
-        
+
         this.approving = false;
 
         if (res.ok) {
@@ -587,7 +624,7 @@ function productManagement() {
 
     get filteredProducts() {
       let list = Array.isArray(this.products) ? this.products : [];
-      
+
       if (this.activeCategoryFilter && this.activeCategoryFilter !== "all") {
         list = list.filter(
           (p) => String(p.category_id) === String(this.activeCategoryFilter)
@@ -876,7 +913,7 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
-        
+
         this.isSavingProduct = false;
 
         if (data.status || res.ok) {
@@ -889,6 +926,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openAddProductModal = false;
           this.error = data.message || "Gagal menambahkan produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -922,7 +960,7 @@ function productManagement() {
           }
         );
         const data = await res.json();
-        
+
         this.isSavingProduct = false;
 
         if (data.status || res.ok) {
@@ -935,6 +973,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openEditProductModal = false;
           this.error = data.message || "Gagal memperbarui produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -954,7 +993,7 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-        
+
         this.isDeletingProduct = false;
 
         if (data.status || res.ok) {
@@ -963,6 +1002,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteProductModal = false;
           this.error = data.message || "Gagal menghapus produk.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -985,7 +1025,7 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
-        
+
         this.isSavingCategory = false;
 
         if (data.status || res.ok) {
@@ -997,6 +1037,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openAddCategoryModal = false;
           this.error = data.message || "Gagal menambahkan kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1022,7 +1063,7 @@ function productManagement() {
           }
         );
         const data = await res.json();
-        
+
         this.isSavingCategory = false;
 
         if (data.status || res.ok) {
@@ -1034,6 +1075,7 @@ function productManagement() {
         } else if (data.validation) {
           this.validationErrors = data.validation;
         } else {
+          this.openEditCategoryModal = false;
           this.error = data.message || "Gagal memperbarui kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1053,7 +1095,7 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-        
+
         this.isDeletingCategory = false;
 
         if (data.status || res.ok) {
@@ -1062,6 +1104,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteCategoryModal = false;
           this.error = data.message || "Gagal menghapus kategori.";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1105,7 +1148,7 @@ function productManagement() {
           body: fd,
         });
         const data = await res.json();
-        
+
         this.isSavingLocation = false;
 
         if (res.ok) {
@@ -1114,6 +1157,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openAddLocationModal = false;
           this.error = data.message || "Gagal menambah lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1141,7 +1185,7 @@ function productManagement() {
           }
         );
         const data = await res.json();
-        
+
         this.isSavingLocation = false;
 
         if (res.ok) {
@@ -1150,6 +1194,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openEditLocationModal = false;
           this.error = data.message || "Gagal memperbarui lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1169,7 +1214,7 @@ function productManagement() {
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const data = await res.json();
-        
+
         this.isDeletingLocation = false;
 
         if (res.ok) {
@@ -1178,6 +1223,7 @@ function productManagement() {
           await this.fetchData();
           setTimeout(() => (this.message = ""), 3000);
         } else {
+          this.openDeleteLocationModal = false;
           this.error = data.message || "Gagal menghapus lokasi";
           setTimeout(() => (this.error = ""), 3000);
         }
@@ -1203,10 +1249,10 @@ function productManagement() {
         `/admin/products/barcode/image/${encodeURIComponent(
           this.selectedProduct.barcode || ""
         )}`;
-      
+
       let ext = ".png";
       if (url.endsWith(".svg")) {
-          ext = ".svg";
+        ext = ".svg";
       }
 
       const a = document.createElement("a");
@@ -1232,12 +1278,12 @@ function productManagement() {
       if (typeof p === "string" && p.startsWith("blob:")) {
         try {
           URL.revokeObjectURL(p);
-        } catch {}
+        } catch { }
       } else if (p instanceof File) {
         for (const url of this._previewUrls) {
           try {
             URL.revokeObjectURL(url);
-          } catch {}
+          } catch { }
         }
         this._previewUrls.clear();
       }

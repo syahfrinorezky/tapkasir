@@ -66,6 +66,17 @@ class RoleController extends BaseController
                 ->setJSON(['message' => 'Role tidak ditemukan.']);
         }
 
+        $userModel = new \App\Models\UserModel();
+        $usageCount = $userModel
+            ->where('role_id', $id)
+            ->where('deleted_at', null)
+            ->countAllResults();
+
+        if ($usageCount > 0) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                ->setJSON(['message' => 'Tidak dapat menghapus role ini karena masih digunakan oleh ' . $usageCount . ' pengguna.']);
+        }
+
         $roleModel->delete($id);
 
         return $this->response->setStatusCode(ResponseInterface::HTTP_OK)

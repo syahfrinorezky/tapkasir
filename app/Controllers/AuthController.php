@@ -378,7 +378,7 @@ class AuthController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Password berhasil direset',
-            'redirect' => base_url('masuk'),
+            'redirect' => base_url('/'),
             'csrf_token' => csrf_token()
         ]);
     }

@@ -14,7 +14,8 @@ Manajemen User
         <?= $this->include('components/sidebar'); ?>
 
         <div class="flex flex-col flex-1 font-secondary overflow-y-auto min-h-screen"
-            x-data="userManagement()" x-init="fetchUsers('approved'); fetchUsers('pending'); fetchRoles()">
+            x-data="userManagement('<?= session()->get('user_id') ?>')"
+            x-init="fetchUsers('approved'); fetchUsers('pending'); fetchRoles()">
 
             <div class="flex justify-between items-center pt-22 px-4 pb-4 md:pt-24 md:px-6 md:pb-6 lg:p-8">
                 <div>
@@ -31,7 +32,8 @@ Manajemen User
             <div class="mt-4 md:mt-6 lg:mt-8 px-4 md:px-6 lg:px-8 pb-20 flex flex-col 2xl:flex-row gap-5">
                 <div class="flex flex-col space-y-2 w-full lg:flex-1">
                     <div class="flex justify-between items-center">
-                        <h1 class="font-bold text-lg text-gray-700" x-text="showTrashUsers ? 'Sampah Pengguna' : 'Daftar Pengguna'"></h1>
+                        <h1 class="font-bold text-lg text-gray-700"
+                            x-text="showTrashUsers ? 'Sampah Pengguna' : 'Daftar Pengguna'"></h1>
                         <div class="flex items-center gap-2">
                             <button @click="toggleTrashUsers()" type="button"
                                 :class="showTrashUsers ? 'bg-primary text-white hover:bg-primary/90' : 'bg-white text-primary hover:bg-gray-200'"
@@ -41,23 +43,24 @@ Manajemen User
                             </button>
                         </div>
                     </div>
-                    <div x-show="showTrashUsers" x-cloak
-                        x-transition:enter="transition ease-out duration-300"
+                    <div x-show="showTrashUsers" x-cloak x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0 transform translate-x-4"
                         x-transition:enter-end="opacity-100 transform translate-x-0"
                         class="bg-white rounded-lg shadow-md overflow-hidden">
                         <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
                             <div class="flex items-center gap-2">
-                                <input type="checkbox" 
-                                    @change="toggleSelectAllTrashUsers($event)"
+                                <input type="checkbox" @change="toggleSelectAllTrashUsers($event)"
                                     class="rounded border-gray-300 text-primary focus:ring-primary">
-                                <span class="text-sm text-gray-600" x-text="selectedTrashUsers.length + ' dipilih'"></span>
+                                <span class="text-sm text-gray-600"
+                                    x-text="selectedTrashUsers.length + ' dipilih'"></span>
                             </div>
                             <div class="flex gap-2" x-show="selectedTrashUsers.length > 0">
-                                <button @click="restoreSelectedUsers()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                <button @click="restoreSelectedUsers()"
+                                    class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
                                     <i class="fas fa-undo mr-1"></i> Pulihkan
                                 </button>
-                                <button @click="deletePermanentSelectedUsers()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                <button @click="deletePermanentSelectedUsers()"
+                                    class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
                                     <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
                                 </button>
                             </div>
@@ -84,19 +87,21 @@ Manajemen User
                                     <template x-for="user in paginatedTrashUsers" :key="user.id">
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-4 py-3 text-center">
-                                                <input type="checkbox" 
-                                                    :value="user.id" 
-                                                    x-model="selectedTrashUsers"
+                                                <input type="checkbox" :value="user.id" x-model="selectedTrashUsers"
                                                     class="rounded border-gray-300 text-primary focus:ring-primary">
                                             </td>
-                                            <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="user.nama_lengkap"></td>
-                                            <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(user.deleted_at)"></td>
+                                            <td class="px-4 py-3 text-sm font-medium text-gray-900"
+                                                x-text="user.nama_lengkap"></td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-500"
+                                                x-text="formatDateTime(user.deleted_at)"></td>
                                             <td class="px-4 py-3 text-sm text-center">
                                                 <div class="flex justify-center gap-2">
-                                                    <button @click="confirmRestoreUser(user.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                    <button @click="confirmRestoreUser(user.id)"
+                                                        class="text-green-600 hover:text-green-800" title="Pulihkan">
                                                         <i class="fas fa-undo"></i>
                                                     </button>
-                                                    <button @click="confirmDeletePermanentUser(user.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                    <button @click="confirmDeletePermanentUser(user.id)"
+                                                        class="text-red-600 hover:text-red-800" title="Hapus Permanen">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </div>
@@ -106,18 +111,20 @@ Manajemen User
                                 </tbody>
                             </table>
                         </div>
-                        <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                        <div
+                            class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
                             <div class="text-xs text-gray-600">
-                                <span class="font-semibold" x-text="trashUsers.length === 0 ? 0 : ((trashUsersPage - 1) * trashUsersPageSize) + 1"></span>
+                                <span class="font-semibold"
+                                    x-text="trashUsers.length === 0 ? 0 : ((trashUsersPage - 1) * trashUsersPageSize) + 1"></span>
                                 -
-                                <span class="font-semibold" x-text="Math.min(trashUsersPage * trashUsersPageSize, trashUsers.length)"></span>
+                                <span class="font-semibold"
+                                    x-text="Math.min(trashUsersPage * trashUsersPageSize, trashUsers.length)"></span>
                                 dari
                                 <span class="font-semibold" x-text="trashUsers.length"></span>
                             </div>
 
                             <div class="flex items-center gap-1" x-show="totalTrashUsersPages > 1">
-                                <button
-                                    @click="changeTrashUsersPage(trashUsersPage - 1)"
+                                <button @click="changeTrashUsersPage(trashUsersPage - 1)"
                                     :disabled="trashUsersPage === 1"
                                     :class="trashUsersPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                     class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -125,16 +132,14 @@ Manajemen User
                                 </button>
 
                                 <template x-for="page in getTrashUsersPageNumbers()" :key="page">
-                                    <button
-                                        @click="changeTrashUsersPage(page)"
+                                    <button @click="changeTrashUsersPage(page)"
                                         :class="page === trashUsersPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                         x-text="page">
                                     </button>
                                 </template>
 
-                                <button
-                                    @click="changeTrashUsersPage(trashUsersPage + 1)"
+                                <button @click="changeTrashUsersPage(trashUsersPage + 1)"
                                     :disabled="trashUsersPage === totalTrashUsersPages"
                                     :class="trashUsersPage === totalTrashUsersPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                     class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -143,8 +148,7 @@ Manajemen User
                             </div>
                         </div>
                     </div>
-                    <div x-show="!showTrashUsers" 
-                        x-transition:enter="transition ease-out duration-300"
+                    <div x-show="!showTrashUsers" x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0 transform -translate-x-4"
                         x-transition:enter-end="opacity-100 transform translate-x-0"
                         class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -163,8 +167,11 @@ Manajemen User
                                     <template x-if="approved.length === 0">
                                         <tr>
                                             <td colspan="5" class="text-center py-4 text-gray-500">
-                                                <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
+                                                <div
+                                                    class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                    <img src="<?= base_url('images/illustration/nodata.png') ?>"
+                                                        class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain"
+                                                        alt="No Data">
                                                     <span class="text-center">Tidak ada akun pengguna</span>
                                                 </div>
                                             </td>
@@ -173,18 +180,25 @@ Manajemen User
 
                                     <template x-for="(user, index) in paginatedUsers" :key="user.id">
                                         <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-3 text-sm text-center" x-text="getUserRowNumber(index)"></td>
+                                            <td class="px-4 py-3 text-sm text-center" x-text="getUserRowNumber(index)">
+                                            </td>
                                             <td class="px-4 py-3 text-sm " x-text="user.nama_lengkap"></td>
                                             <td class="px-4 py-3 text-sm text-center" x-text="user.email"></td>
-                                            <td class="px-4 py-3 text-sm text-center capitalize" x-text="user.role_name"></td>
+                                            <td class="px-4 py-3 text-sm text-center capitalize"
+                                                x-text="user.role_name"></td>
                                             <td class="px-4 py-3 text-sm space-x-2 flex items-center justify-center">
-                                                <button type="button" @click="openDetail(user)" class="flex items-center justify-center p-2 bg-primary hover:bg-primary/80 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                <button type="button" @click="openDetail(user)"
+                                                    class="flex items-center justify-center p-2 bg-primary hover:bg-primary/80 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
                                                     <i class="fas fa-info-circle"></i>
                                                 </button>
-                                                <button type="button" @click="openEdit(user)" class="flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                <button type="button" @click="openEdit(user)"
+                                                    class="flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
                                                     <i class="fas fa-pen"></i>
                                                 </button>
-                                                <button type="button" @click="openDelete(user)" class="flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-300 ease-in-out cursor-pointer">
+                                                <button type="button" @click="openDelete(user)"
+                                                    :disabled="user.id == <?= session()->get('user_id') ?>"
+                                                    :class="user.id == <?= session()->get('user_id') ?> ? 'bg-red-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600 cursor-pointer'"
+                                                    class="flex items-center justify-center p-2 text-white rounded-md transition-colors duration-300 ease-in-out">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -193,46 +207,47 @@ Manajemen User
                                 </tbody>
                             </table>
                         </div>
-                        <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+                        <div
+                            class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
                             <div class="text-xs sm:text-sm text-gray-600">
                                 <span class="hidden sm:inline">
                                     Menampilkan
-                                    <span class="font-semibold" x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPageSize) + 1"></span>
+                                    <span class="font-semibold"
+                                        x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPageSize) + 1"></span>
                                     hingga
-                                    <span class="font-semibold" x-text="Math.min(dataUserPage * dataUserPageSize, approved.length)"></span>
+                                    <span class="font-semibold"
+                                        x-text="Math.min(dataUserPage * dataUserPageSize, approved.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="approved.length"></span>
                                     pengguna
                                 </span>
                                 <span class="sm:hidden">
-                                    <span class="font-semibold" x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPageSize) + 1"></span>
+                                    <span class="font-semibold"
+                                        x-text="approved.length === 0 ? 0 : ((dataUserPage - 1) * dataUserPageSize) + 1"></span>
                                     -
-                                    <span class="font-semibold" x-text="Math.min(dataUserPage * dataUserPageSize, approved.length)"></span>
+                                    <span class="font-semibold"
+                                        x-text="Math.min(dataUserPage * dataUserPageSize, approved.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="approved.length"></span>
                                 </span>
                             </div>
 
                             <div class="flex items-center gap-2" x-show="totalUserPages > 1">
-                                <button
-                                    @click="changeDataUserPage(dataUserPage - 1)"
-                                    :disabled="dataUserPage === 1"
+                                <button @click="changeDataUserPage(dataUserPage - 1)" :disabled="dataUserPage === 1"
                                     :class="dataUserPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                     class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
 
                                 <template x-for="page in getDataUsersNumber()" :key="page">
-                                    <button
-                                        @click="changeDataUserPage(page)"
+                                    <button @click="changeDataUserPage(page)"
                                         :class="page === dataUserPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
                                         class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium transition"
                                         x-text="page">
                                     </button>
                                 </template>
 
-                                <button
-                                    @click="changeDataUserPage(dataUserPage + 1)"
+                                <button @click="changeDataUserPage(dataUserPage + 1)"
                                     :disabled="dataUserPage === totalUserPages"
                                     :class="dataUserPage === totalUserPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                     class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 transition">
@@ -265,8 +280,11 @@ Manajemen User
                                         <template x-if="pending.length === 0">
                                             <tr>
                                                 <td colspan="3" class="py-6">
-                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
+                                                    <div
+                                                        class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>"
+                                                            class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain"
+                                                            alt="No Data">
                                                         <span class="text-center">Tidak ada akun yang pending</span>
                                                     </div>
                                                 </td>
@@ -282,22 +300,29 @@ Manajemen User
                                                     </div>
                                                 </td>
                                                 <td class="px-4 py-3 text-sm text-center">
-                                                    <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300 uppercase" x-text="user.status"></span>
+                                                    <span
+                                                        class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 border border-yellow-300 uppercase"
+                                                        x-text="user.status"></span>
                                                 </td>
-                                                <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
+                                                <td
+                                                    class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
                                                     <button @click="updateStatus(user.id, 'approved')"
                                                         :disabled="approvingUserId === user.id || rejectingUserId === user.id"
                                                         :class="approvingUserId === user.id || rejectingUserId === user.id ? 'opacity-60 cursor-not-allowed' : ''"
                                                         class="bg-green-500 hover:bg-green-600 p-2 rounded-md inline-flex items-center justify-center w-9 h-9">
-                                                        <i x-show="approvingUserId !== user.id" class="fas fa-check text-white"></i>
-                                                        <i x-show="approvingUserId === user.id" class="fas fa-circle-notch fa-spin text-white"></i>
+                                                        <i x-show="approvingUserId !== user.id"
+                                                            class="fas fa-check text-white"></i>
+                                                        <i x-show="approvingUserId === user.id"
+                                                            class="fas fa-circle-notch fa-spin text-white"></i>
                                                     </button>
                                                     <button @click="updateStatus(user.id, 'rejected')"
                                                         :disabled="approvingUserId === user.id || rejectingUserId === user.id"
                                                         :class="approvingUserId === user.id || rejectingUserId === user.id ? 'opacity-60 cursor-not-allowed' : ''"
                                                         class="bg-red-500 hover:bg-red-600 p-2 rounded-md inline-flex items-center justify-center w-9 h-9">
-                                                        <i x-show="rejectingUserId !== user.id" class="fas fa-xmark text-white"></i>
-                                                        <i x-show="rejectingUserId === user.id" class="fas fa-circle-notch fa-spin text-white"></i>
+                                                        <i x-show="rejectingUserId !== user.id"
+                                                            class="fas fa-xmark text-white"></i>
+                                                        <i x-show="rejectingUserId === user.id"
+                                                            class="fas fa-circle-notch fa-spin text-white"></i>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -305,18 +330,20 @@ Manajemen User
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                            <div
+                                class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
                                 <div class="text-xs text-gray-600">
-                                    <span class="font-semibold" x-text="pending.length === 0 ? 0 : ((dataPendingPage - 1) * dataPendingPageSize) + 1"></span>
+                                    <span class="font-semibold"
+                                        x-text="pending.length === 0 ? 0 : ((dataPendingPage - 1) * dataPendingPageSize) + 1"></span>
                                     -
-                                    <span class="font-semibold" x-text="Math.min(dataPendingPage * dataPendingPageSize, pending.length)"></span>
+                                    <span class="font-semibold"
+                                        x-text="Math.min(dataPendingPage * dataPendingPageSize, pending.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="pending.length"></span>
                                 </div>
 
                                 <div class="flex items-center gap-1" x-show="totalPendingPages > 1">
-                                    <button
-                                        @click="changeDataPendingPage(dataPendingPage - 1)"
+                                    <button @click="changeDataPendingPage(dataPendingPage - 1)"
                                         :disabled="dataPendingPage === 1"
                                         :class="dataPendingPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -324,16 +351,14 @@ Manajemen User
                                     </button>
 
                                     <template x-for="page in getDataPendingNumber()" :key="page">
-                                        <button
-                                            @click="changeDataPendingPage(page)"
+                                        <button @click="changeDataPendingPage(page)"
                                             :class="page === dataPendingPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
                                             class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
 
-                                    <button
-                                        @click="changeDataPendingPage(dataPendingPage + 1)"
+                                    <button @click="changeDataPendingPage(dataPendingPage + 1)"
                                         :disabled="dataPendingPage === totalPendingPages"
                                         :class="dataPendingPage === totalPendingPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -346,7 +371,8 @@ Manajemen User
 
                     <div class="flex flex-col space-y-2 order-1">
                         <div class="flex justify-between items-center">
-                            <h1 class="font-bold text-lg text-gray-700" x-text="showTrashRoles ? 'Sampah Role' : 'Daftar Role'"></h1>
+                            <h1 class="font-bold text-lg text-gray-700"
+                                x-text="showTrashRoles ? 'Sampah Role' : 'Daftar Role'"></h1>
 
                             <div class="flex items-center gap-2">
                                 <button @click="toggleTrashRoles()" type="button"
@@ -355,29 +381,31 @@ Manajemen User
                                     title="Sampah / Restore">
                                     <i class="fas fa-trash-restore"></i>
                                 </button>
-                                <button x-show="!showTrashRoles" @click="openRole()" type="button" class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
+                                <button x-show="!showTrashRoles" @click="openRole()" type="button"
+                                    class="bg-white hover:bg-gray-200 transition-colors duration-300 ease-in-out p-2 rounded-md flex items-center justify-center cursor-pointer">
                                     <i class="fas fa-plus text-primary"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div x-show="showTrashRoles" x-cloak
-                            x-transition:enter="transition ease-out duration-300"
+                        <div x-show="showTrashRoles" x-cloak x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 transform translate-x-4"
                             x-transition:enter-end="opacity-100 transform translate-x-0"
                             class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-red-50">
                                 <div class="flex items-center gap-2">
-                                    <input type="checkbox" 
-                                        @change="toggleSelectAllTrashRoles($event)"
+                                    <input type="checkbox" @change="toggleSelectAllTrashRoles($event)"
                                         class="rounded border-gray-300 text-primary focus:ring-primary">
-                                    <span class="text-sm text-gray-600" x-text="selectedTrashRoles.length + ' dipilih'"></span>
+                                    <span class="text-sm text-gray-600"
+                                        x-text="selectedTrashRoles.length + ' dipilih'"></span>
                                 </div>
                                 <div class="flex gap-2" x-show="selectedTrashRoles.length > 0">
-                                    <button @click="restoreSelectedRoles()" class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
+                                    <button @click="restoreSelectedRoles()"
+                                        class="px-3 py-1.5 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors">
                                         <i class="fas fa-undo mr-1"></i> Pulihkan
                                     </button>
-                                    <button @click="deletePermanentSelectedRoles()" class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
+                                    <button @click="deletePermanentSelectedRoles()"
+                                        class="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
                                         <i class="fas fa-trash-alt mr-1"></i> Hapus Permanen
                                     </button>
                                 </div>
@@ -404,19 +432,23 @@ Manajemen User
                                         <template x-for="role in paginatedTrashRoles" :key="role.id">
                                             <tr class="hover:bg-gray-50">
                                                 <td class="px-4 py-3 text-center">
-                                                    <input type="checkbox" 
-                                                        :value="role.id" 
-                                                        x-model="selectedTrashRoles"
+                                                    <input type="checkbox" :value="role.id" x-model="selectedTrashRoles"
                                                         class="rounded border-gray-300 text-primary focus:ring-primary">
                                                 </td>
-                                                <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="role.role_name"></td>
-                                                <td class="px-4 py-3 text-sm text-center text-gray-500" x-text="formatDateTime(role.deleted_at)"></td>
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900"
+                                                    x-text="role.role_name"></td>
+                                                <td class="px-4 py-3 text-sm text-center text-gray-500"
+                                                    x-text="formatDateTime(role.deleted_at)"></td>
                                                 <td class="px-4 py-3 text-sm text-center">
                                                     <div class="flex justify-center gap-2">
-                                                        <button @click="confirmRestoreRole(role.id)" class="text-green-600 hover:text-green-800" title="Pulihkan">
+                                                        <button @click="confirmRestoreRole(role.id)"
+                                                            class="text-green-600 hover:text-green-800"
+                                                            title="Pulihkan">
                                                             <i class="fas fa-undo"></i>
                                                         </button>
-                                                        <button @click="confirmDeletePermanentRole(role.id)" class="text-red-600 hover:text-red-800" title="Hapus Permanen">
+                                                        <button @click="confirmDeletePermanentRole(role.id)"
+                                                            class="text-red-600 hover:text-red-800"
+                                                            title="Hapus Permanen">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
                                                     </div>
@@ -426,18 +458,20 @@ Manajemen User
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                            <div
+                                class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
                                 <div class="text-xs text-gray-600">
-                                    <span class="font-semibold" x-text="trashRoles.length === 0 ? 0 : ((trashRolesPage - 1) * trashRolesPageSize) + 1"></span>
+                                    <span class="font-semibold"
+                                        x-text="trashRoles.length === 0 ? 0 : ((trashRolesPage - 1) * trashRolesPageSize) + 1"></span>
                                     -
-                                    <span class="font-semibold" x-text="Math.min(trashRolesPage * trashRolesPageSize, trashRoles.length)"></span>
+                                    <span class="font-semibold"
+                                        x-text="Math.min(trashRolesPage * trashRolesPageSize, trashRoles.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="trashRoles.length"></span>
                                 </div>
 
                                 <div class="flex items-center gap-1" x-show="totalTrashRolesPages > 1">
-                                    <button
-                                        @click="changeTrashRolesPage(trashRolesPage - 1)"
+                                    <button @click="changeTrashRolesPage(trashRolesPage - 1)"
                                         :disabled="trashRolesPage === 1"
                                         :class="trashRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -445,16 +479,14 @@ Manajemen User
                                     </button>
 
                                     <template x-for="page in getTrashRolesPageNumbers()" :key="page">
-                                        <button
-                                            @click="changeTrashRolesPage(page)"
+                                        <button @click="changeTrashRolesPage(page)"
                                             :class="page === trashRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
                                             class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
 
-                                    <button
-                                        @click="changeTrashRolesPage(trashRolesPage + 1)"
+                                    <button @click="changeTrashRolesPage(trashRolesPage + 1)"
                                         :disabled="trashRolesPage === totalTrashRolesPages"
                                         :class="trashRolesPage === totalTrashRolesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -464,8 +496,7 @@ Manajemen User
                             </div>
                         </div>
 
-                        <div x-show="!showTrashRoles" 
-                            x-transition:enter="transition ease-out duration-300"
+                        <div x-show="!showTrashRoles" x-transition:enter="transition ease-out duration-300"
                             x-transition:enter-start="opacity-0 transform -translate-x-4"
                             x-transition:enter-end="opacity-100 transform translate-x-0"
                             class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -482,8 +513,11 @@ Manajemen User
                                         <template x-if="roles.length === 0">
                                             <tr>
                                                 <td colspan="3" class="py-6">
-                                                    <div class="w-full flex flex-col items-center justify-center text-gray-500">
-                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>" class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain" alt="No Data">
+                                                    <div
+                                                        class="w-full flex flex-col items-center justify-center text-gray-500">
+                                                        <img src="<?= base_url('images/illustration/nodata.png') ?>"
+                                                            class="w-32 md:w-48 lg:w-64 h-auto mb-2 object-contain"
+                                                            alt="No Data">
                                                         <span class="text-center">Tidak ada role yang tersedia</span>
                                                     </div>
                                                 </td>
@@ -495,25 +529,21 @@ Manajemen User
                                                 <td class="px-4 py-3 text-sm capitalize">
                                                     <span x-text="role.role_name"></span>
                                                 </td>
-                                                <td class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
-                                                    <span class="text-gray-500 text-xs" x-text="new Date(role.created_at).toLocaleDateString()"></span>
+                                                <td
+                                                    class="px-4 py-3 text-sm flex items-center justify-center space-x-2">
+                                                    <span class="text-gray-500 text-xs"
+                                                        x-text="new Date(role.created_at).toLocaleDateString()"></span>
                                                 </td>
                                                 <td class="px-4 py-3 text-sm">
                                                     <div class="w-full flex flex-row items-center justify-center gap-2">
-                                                        <button
-                                                            type="button"
-                                                            @click="openRoleEdit(role)"
-                                                            title="Edit Role"
-                                                            aria-label="Edit Role"
+                                                        <button type="button" @click="openRoleEdit(role)"
+                                                            title="Edit Role" aria-label="Edit Role"
                                                             class="w-full md:w-auto flex items-center justify-center p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition">
                                                             <i class="fas fa-pen"></i>
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            @click="openRoleDelete(role)"
-                                                            title="Hapus Role"
-                                                            aria-label="Hapus Role"
+                                                        <button type="button" @click="openRoleDelete(role)"
+                                                            title="Hapus Role" aria-label="Hapus Role"
                                                             class="w-full md:w-auto flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
@@ -524,18 +554,20 @@ Manajemen User
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
+                            <div
+                                class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between gap-2">
                                 <div class="text-xs text-gray-600">
-                                    <span class="font-semibold" x-text="roles.length === 0 ? 0 : ((dataRolesPage - 1) * dataRolesPageSize) + 1"></span>
+                                    <span class="font-semibold"
+                                        x-text="roles.length === 0 ? 0 : ((dataRolesPage - 1) * dataRolesPageSize) + 1"></span>
                                     -
-                                    <span class="font-semibold" x-text="Math.min(dataRolesPage * dataRolesPageSize, roles.length)"></span>
+                                    <span class="font-semibold"
+                                        x-text="Math.min(dataRolesPage * dataRolesPageSize, roles.length)"></span>
                                     dari
                                     <span class="font-semibold" x-text="roles.length"></span>
                                 </div>
 
                                 <div class="flex items-center gap-1" x-show="totalRolesPages > 1">
-                                    <button
-                                        @click="changeDataRolesPage(dataRolesPage - 1)"
+                                    <button @click="changeDataRolesPage(dataRolesPage - 1)"
                                         :disabled="dataRolesPage === 1"
                                         :class="dataRolesPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">
@@ -543,16 +575,14 @@ Manajemen User
                                     </button>
 
                                     <template x-for="page in getDataRolesNumber()" :key="page">
-                                        <button
-                                            @click="changeDataRolesPage(page)"
+                                        <button @click="changeDataRolesPage(page)"
                                             :class="page === dataRolesPage ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
                                             class="px-2.5 py-1.5 rounded border border-gray-300 text-xs font-medium transition"
                                             x-text="page">
                                         </button>
                                     </template>
 
-                                    <button
-                                        @click="changeDataRolesPage(dataRolesPage + 1)"
+                                    <button @click="changeDataRolesPage(dataRolesPage + 1)"
                                         :disabled="dataRolesPage === totalRolesPages"
                                         :class="dataRolesPage === totalRolesPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'"
                                         class="px-2.5 py-1.5 rounded border border-gray-300 bg-white text-xs font-medium text-gray-700 transition">

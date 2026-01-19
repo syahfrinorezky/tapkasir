@@ -80,6 +80,15 @@ class RestockRequestController extends BaseController
             ->orderBy('restock_requests.created_at', 'DESC')
             ->findAll();
 
+        foreach ($list as &$item) {
+            $details = json_decode($item['note'] ?? '', true);
+            $item['receipt_image'] = $details['receipt_temp'] ?? null;
+            if ($item['receipt_image']) {
+                $item['receipt_image'] = base_url($item['receipt_image']);
+            }
+            $item['user_note'] = $details['note'] ?? null;
+        }
+
         return $this->response->setJSON(['restocks' => $list]);
     }
 
@@ -93,6 +102,15 @@ class RestockRequestController extends BaseController
             ->where('restock_requests.deleted_at', null)
             ->orderBy('restock_requests.created_at', 'DESC')
             ->findAll();
+
+        foreach ($list as &$item) {
+            $details = json_decode($item['note'] ?? '', true);
+            $item['receipt_image'] = $details['receipt_temp'] ?? null;
+            if ($item['receipt_image']) {
+                $item['receipt_image'] = base_url($item['receipt_image']);
+            }
+            $item['user_note'] = $details['note'] ?? null;
+        }
 
         return $this->response->setJSON(['restocks' => $list]);
     }
