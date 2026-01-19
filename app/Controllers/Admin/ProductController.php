@@ -69,7 +69,7 @@ class ProductController extends BaseController
         $lastProduct = $productModel
             ->where('category_id', $categoryId)
             ->withDeleted()
-            ->orderBy('id', 'DESC')
+            ->orderBy('barcode', 'DESC')
             ->first();
 
         $sequence = 1;
