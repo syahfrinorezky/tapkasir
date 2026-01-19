@@ -291,6 +291,8 @@ class TransactionController extends BaseController
             return $this->response->setJSON([
                 'message' => 'Transaksi berhasil',
                 'transaction_id' => $transactionId,
+                'no_transaction' => $noTransaction,
+                'total' => $total,
                 'snap_token' => $snapToken,
                 'payment_method' => $paymentMethod
             ]);

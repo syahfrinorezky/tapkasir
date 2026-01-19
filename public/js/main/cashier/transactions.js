@@ -358,6 +358,17 @@ function cashierTransactions(baseUrl = "") {
 
         if (this.paymentMethod === "qris" && json.snap_token) {
           this.isLoading = false;
+          const pendingData = {
+            has_pending: true,
+            transaction_id: json.transaction_id,
+            no_transaction: json.no_transaction,
+            total: json.total,
+            snap_token: json.snap_token
+          };
+
+          this.cart = [];
+          this.payment = 0;
+
           if (typeof window.snap === "undefined") {
             throw new Error("Midtrans Snap JS not loaded");
           }
@@ -367,15 +378,17 @@ function cashierTransactions(baseUrl = "") {
             },
             onPending: (result) => {
               this.message = "Menunggu pembayaran...";
+              this.pendingTransaction = pendingData;
             },
             onError: (result) => {
               this.error = "Pembayaran Gagal!";
               setTimeout(() => (this.error = ""), 3000);
+              this.pendingTransaction = pendingData;
             },
             onClose: () => {
               this.message = "Pembayaran dapat dilanjutkan nanti.";
               setTimeout(() => (this.message = ""), 3000);
-              this.checkPendingTransaction();
+              this.pendingTransaction = pendingData;
             },
           });
         } else {
@@ -505,6 +518,7 @@ function cashierTransactions(baseUrl = "") {
       this.message = 'Pembayaran Berhasil!';
       this.cart = [];
       this.payment = 0;
+      this.pendingTransaction = null;
       setTimeout(() => (this.message = ''), 3000);
 
       if (transactionId) {
