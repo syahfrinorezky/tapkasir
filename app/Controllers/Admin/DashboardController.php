@@ -101,7 +101,7 @@ class DashboardController extends BaseController
             ->where('DATE(transactions.transaction_date)', date('Y-m-d'))
             ->groupBy('transaction_items.product_id')
             ->orderBy('total_sold', 'DESC')
-            ->limit(5)
+            ->limit(6)
             ->findAll();
 
         foreach ($topProducts as &$p) {
